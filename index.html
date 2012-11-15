@@ -31,18 +31,14 @@
 
 </head>
 <body>
-
   <div class="row">
       <div class="twelve columns">
       <table style="border: 0"><tr><td valign="middle">
       <img class="logo" src="http://wiki.powerdns.com/trac/chrome/common/Logo.gif"></td>
-      <td valign="middle"><h2>PowerDNS Control Server</h2></td></tr></table>
-      <hr>
-      
+      <td valign="middle"><h3>Control Server</h3></td></tr></table>
   </div>
   <div class="row">
     <div class="ten columns">
-      <h3>Servers</h3>
       <div class="panel">
       <table id="servers" class="twelve">
         <thead>
@@ -75,14 +71,14 @@
       <form>
       <fieldset>
       <legend>Log Search</legend>
-      <label>Fulltext:</label>
       <input type="text" placeholder="Standard Input" />
       </fieldset>
       </form>
 
 
       <h3>Aggregate statistics</h3>
-	<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first&target=sumSeries(nonNegativeDerivative(pdns.powerdnssec1-ds9a-nl.auth.udp-answers)%2cnonNegativeDerivative(pdns.powerdnssec2-ds9a-nl.auth.udp-answers))&target=sumSeries(nonNegativeDerivative(pdns.powerdnssec1-ds9a-nl.auth.udp-queries)%2cnonNegativeDerivative(pdns.powerdnssec2-ds9a-nl.auth.udp-queries))&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">
+        <h4>Authoritative</h4>
+	<div id="graphDiv"></div>
     </div>  
   </div>
   <!-- Included JS Files (Compressed) -->
@@ -128,7 +124,39 @@
 			}
 		  });
 		  $('.inlinesparkline').sparkline(); 
+		  
+		  var graphurl='http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first';
+		  graphurl +='&target=alias(sumSeries(';
+		  
+		  var count = 0;
+		  $.each(servers, function(key, v) {
+		  	var metricPrefix = 'pdns.' + v.name.replace(new RegExp("\\.", "gm"), '-') + '.';
+		  	if(v.type == 'Authoritative') {
+		  		if(count++)
+		  			graphurl += ', ';
+		  		graphurl+= 'nonNegativeDerivative('+metricPrefix+'auth.udp-answers)';
+		  	}
+		  });
+		  graphurl += '), \'Answers\')';
+		  console.log(graphurl);
+		  
+		  graphurl +='&target=alias(sumSeries(';
+		  count=0;
+		  $.each(servers, function(key, v) {
+		  	var metricPrefix = 'pdns.' + v.name.replace(new RegExp("\\.", "gm"), '-') + '.';
+		  	if(v.type == 'Authoritative') {
+		  		if(count++)
+		  			graphurl += ', ';
+		  		graphurl+= 'nonNegativeDerivative('+metricPrefix+'auth.udp-queries)';
+		  	}
+		  });
+		  graphurl += '), \'Queries\')';
+		  
+		  graphurl +='&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
+		  
+		  $("#graphDiv").html('<img src="'+graphurl+'">');
 		}
+		
 		$.getJSON("servers.json", buildIt);
 	});
     </script> 

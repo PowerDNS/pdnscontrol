@@ -71,7 +71,7 @@
 	<ul class="tabs-content">
 	  <li class="active" id="graphTab"></li>
 	  <li id="simple2Tab"><table id="statistics"></table></li>
-	  <li id="simple3Tab">Domains..</li>	  
+	  <li id="simple3Tab"><table id="domains"></table></li>	  
 	  <li id="simple4Tab"><table id="config"></table></li>
 	</ul>
     </div>  
@@ -124,12 +124,23 @@
 		  flat.push([e, data[e]]);
 		  });
 		  
-
-		
 		
 		$("#config").dataTable( { aaData: flat, iDisplayLength:
 		  50, aoColumns:
 					   [{sTitle: "variable"}, {sTitle: "value"}]}); });
+
+	$.getJSON(url+'/?domains&callback=?', function(data) {
+		var flat=[];
+		$.each(data, function(key, val) {
+			flat.push([val.name, val.type]);
+		});
+		
+		$("#domains").dataTable( { aaData: flat, iDisplayLength:
+		  50, aoColumns:
+					   [{sTitle: "Zone"}, {sTitle: "Type"}]}); 
+		});
+		
+
 
 
     });

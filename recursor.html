@@ -69,7 +69,7 @@
   	  <dd><a href="#simple4">Configuration</a></dd>
 	</dl>
 	<ul class="tabs-content">
-	  <li class="active" id="simple1Tab"><img src="https://xs.powerdns.com/munin/localdomain/localhost.localdomain/pdns_rec_cache-day.png"></li>
+	  <li class="active" id="graphTab"></li>
 	  <li id="simple2Tab"><table id="statistics"></table></li>
 	  <li id="simple3Tab">Domains..</li>	  
 	  <li id="simple4Tab"><table id="config"></table></li>
@@ -77,28 +77,6 @@
     </div>  
   </div>
       
-  
-  <!-- Included JS Files (Uncompressed) -->
-  <!--
-  
-  <script src="javascripts/jquery.js"></script>
-  <script src="javascripts/jquery.foundation.mediaQueryToggle.js"></script>
-  <script src="javascripts/jquery.foundation.forms.js"></script>
-  <script src="javascripts/jquery.foundation.reveal.js"></script>
-  <script src="javascripts/jquery.foundation.orbit.js"></script>
-  <script src="javascripts/jquery.foundation.navigation.js"></script>
-  <script src="javascripts/jquery.foundation.buttons.js"></script>
-  <script src="javascripts/jquery.foundation.tabs.js"></script>
-  <script src="javascripts/jquery.foundation.tooltips.js"></script>
-  <script src="javascripts/jquery.foundation.accordion.js"></script>
-  <script src="javascripts/jquery.placeholder.js"></script>
-  <script src="javascripts/jquery.foundation.alerts.js"></script>
-  <script src="javascripts/jquery.foundation.topbar.js"></script>
-  <script src="javascripts/jquery.foundation.joyride.js"></script>
-  <script src="javascripts/jquery.foundation.clearing.js"></script>
-  <script src="javascripts/jquery.foundation.magellan.js"></script>
-  -->
-  
   <!-- Included JS Files (Compressed) -->
   <script src="javascripts/jquery.js"></script>
   <script src="javascripts/foundation.min.js"></script>
@@ -111,6 +89,8 @@
     $(function() {
         var url = $.url().param("url");
         $("#server-name").html($.url().param("server-name"));        
+        var graphname = $.url().param("server-name").replace(new RegExp("\\.","gm"), '-');
+        $("#graphTab").html('<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first&target=nonNegativeDerivative(pdns.'+graphname+'.recursor.questions)&target=nonNegativeDerivative(pdns.'+graphname+'.recursor.questionss)&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">');
         console.log(url);
 	$.getJSON(url+'/?stats&callback=?', function(data) {
 		var flat=[];

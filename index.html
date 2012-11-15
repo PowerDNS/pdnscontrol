@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width" />
+
+  <title>PowerDNS Control Server</title>
+  
+  <!-- Included CSS Files (Uncompressed) -->
+  <!--
+  <link rel="stylesheet" href="stylesheets/foundation.css">
+  -->
+  
+  <!-- Included CSS Files (Compressed) -->
+  <link rel="stylesheet" href="stylesheets/foundation.min.css">
+  <link rel="stylesheet" href="stylesheets/app.css">
+
+  <script src="javascripts/modernizr.foundation.js"></script>
+
+  <!-- IE Fix for HTML5 Tags -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+</head>
+<body>
+
+  <div class="row">
+      <div class="twelve columns">
+      <table style="border: 0"><tr><td valign="middle">
+      <img class="logo" src="http://wiki.powerdns.com/trac/chrome/common/Logo.gif"></td>
+      <td valign="middle"><h2>PowerDNS Control Server</h2></td></tr></table>
+      <hr>
+      
+  </div>
+  <div class="row">
+    <div class="ten columns">
+      <h3>Servers</h3>
+      <div class="panel">
+      <table id="servers" class="twelve">
+        <thead>
+          <tr>
+            <th><label for="checkbox3"><input type="checkbox" 
+              id="checkbox3"></label></th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Main IP</th>
+            <th>Version</th>
+            <th>Status</th>            
+            <th>Load</th>
+          </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>  
+        <div class="button-bar">
+        <ul class="button-group">
+                <li><a href="#" class="button" onClick="$('#flushModal').reveal({close: function(){ $('#flushSpinner').html(''); }});">Flush cache</a></li>
+        </ul>
+        <ul class="button-group">
+        <li><a href="#" class="button">Deploy</a></li>
+
+        <li><a href="#" class="button">Restart</a></li>
+        <li><a href="#" class="alert button" onClick="alert('Not funny');">Shutdown</a></li>
+
+      </ul></div>
+	</div>
+      <form>
+      <fieldset>
+      <legend>Log Search</legend>
+      <label>Fulltext:</label>
+      <input type="text" placeholder="Standard Input" />
+      </fieldset>
+      </form>
+
+
+      <h3>Aggregate statistics</h3>
+	<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first&target=sumSeries(nonNegativeDerivative(pdns.powerdnssec1-ds9a-nl.auth.udp-answers)%2cnonNegativeDerivative(pdns.powerdnssec2-ds9a-nl.auth.udp-answers))&target=sumSeries(nonNegativeDerivative(pdns.powerdnssec1-ds9a-nl.auth.udp-queries)%2cnonNegativeDerivative(pdns.powerdnssec2-ds9a-nl.auth.udp-queries))&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">
+    </div>  
+  </div>
+  <!-- Included JS Files (Compressed) -->
+  <script src="javascripts/jquery.js"></script>
+  <script src="javascripts/foundation.min.js"></script>
+  <script src="javascripts/jquery.sparkline.min.js"></script>  
+  <script src="javascripts/purl.js"></script>
+  
+  <!-- Initialize JS Plugins -->
+  <script src="javascripts/app.js"></script>
+    <script>
+        $(function() {
+		function buildIt(servers) {
+		  $.each(servers, function(key, v) {
+		        var url = (v.type === 'Authoritative') ? 'auth.html' : 'recursor.html';
+		        
+			$('<tr><td><label for="checkbox3"><input type="checkbox" id="checkbox3"></label></td>'+
+				'<td>'+v.type+'</td><td><a href="'+url+'?url='+v.url+'&server-name='+v.name+'">'+v.name+'</a></td><td id="mainip'+key+'"></td><td id="version' +
+				key+'">...</td><td id="up'+key+'">...</td><td><span class="inlinesparkline">1,4,4,7,5,9,10,9,9,9,2,2,2,9,9,2</span></td></tr>').appendTo('#servers > tbody:last');
+			if(v.type==='Authoritative') {
+				$.getJSON(v.url+"/jsonstat?command=get&version&callback=?",
+				function(data) {
+					$("#version"+key).html(data["version"]);
+					$("#up"+key).html("UP");
+				});
+				
+				$.getJSON(v.url+"/jsonstat?command=config&version&callback=?",
+				function(data) {
+					$.each(data, function(one, two) { if(two[0]=="local-address" || two[0]=="local-ipv6") 
+					$("#mainip"+key).append(two[1]+" ") });
+				});
+			}
+			if(v.type==='Recursor') {
+				$.getJSON(v.url+"/?callback=?", 
+					function(data) { 
+						$("#version"+key).html(data["version-string"].split(" ")[2]); 
+						$("#up"+key).html("UP");
+					} );
+				$.getJSON(v.url+"/?config&callback=?", 
+					function(data) { 
+						$("#mainip"+key).html(data["local-address"]);
+					} );
+			}
+		  });
+		  $('.inlinesparkline').sparkline(); 
+		}
+		$.getJSON("servers.json", buildIt);
+	});
+    </script> 
+  
+</body>
+</html>
+ 

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width" />
+
+  <title>PowerDNS Control Center</title>
+  
+  <!-- Included CSS Files (Uncompressed) -->
+  <!--
+  <link rel="stylesheet" href="stylesheets/foundation.css">
+  -->
+
+  <link rel="stylesheet" href="DataTables-1.9.4/media/css/demo_page.css">
+  <link rel="stylesheet" href="DataTables-1.9.4/media/css/demo_table.css">  
+  <link rel="stylesheet" href="DataTables-1.9.4/media/css/demo_table_jui.css">  
+  <link rel="stylesheet" href="DataTables-1.9.4/media/css/jquery.dataTables.css">  
+  <link rel="stylesheet"  href="DataTables-1.9.4/media/css/jquery.dataTables_themeroller.css">
+  
+  <!-- Included CSS Files (Compressed) -->
+  <link rel="stylesheet" href="stylesheets/foundation.min.css">
+  <link rel="stylesheet" href="stylesheets/app.css">
+
+  <script src="javascripts/modernizr.foundation.js"></script>
+ <script type="text/javascript" src="javascripts/moment.min.js"></script>
+
+  <!-- IE Fix for HTML5 Tags -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+</head>
+<body>
+  <div class="row">
+      <div class="twelve columns">
+      <table style="border: 0"><tr><td valign="middle">
+      <a href="/camel"><img class="logo"
+      src="http://wiki.powerdns.com/trac/chrome/common/Logo.gif"></a></td>
+      <td valign="middle"><h2>PowerDNS Control Server</h2></td></tr></table>
+      <hr>
+  </div>
+
+  <div class="row">
+
+    <div class="twelve columns">
+      <H2 id="server-name"></h2>
+      <p>Running version <strong><span id="version">...</span></strong>, up since <span
+      id="uptime">...</span></p>
+      <p>
+      <ul class="button-group four-up even">
+        <li><a href="#" class="alert button">Shutdown</a></li>
+        <li><a href="#" class="button">Restart</a></li>
+        <li><a href="#" class="button" onClick="$('#flushModal').reveal({close: function(){ $('#flushSpinner').html(''); }});">Flush cache</a></li>
+        <li><a href="#" class="button">Deploy</a></li>
+      </ul>
+      <hr>
+      </p>
+      	<dl class="tabs">
+	  <dd class="active"><a href="#simple1">Graph</a></dd>
+  	  <dd><a href="#simple2">Statistics</a></dd>
+  	  <dd><a href="#simple3">Domains</a></dd>
+  	  <dd><a href="#simple4">Configuration</a></dd>
+	</dl>
+	<ul class="tabs-content">
+	  <li class="active" id="simple1Tab"></li>
+	  <li id="simple2Tab"><table id="statistics"></table></li>
+	  <li id="simple3Tab"><table id="domains"></table></li>	  
+	  <li id="simple4Tab"><table id="config"></table></li>
+	</ul>
+    </div>  
+  </div>
+      
+  <!-- Included JS Files (Compressed) -->
+  <script src="javascripts/jquery.js"></script>
+  <script src="javascripts/foundation.min.js"></script>
+  <script src="javascripts/jquery.dataTables.min.js"></script>  
+  <!-- Initialize JS Plugins -->
+  <script src="javascripts/app.js"></script>
+  <script src="javascripts/purl.js"></script>
+  <script src="javascripts/jquery.foundation.reveal.js"></script>
+  <script src="javascripts/spin.min.js"></script>
+  <script src="javascripts/jquery.spin.js"></script>
+    <script>
+    var url;
+    
+    $(function() {
+        url = $.url().param("url");
+        $("#server-name").html($.url().param("server-name"));
+        var graphname = $.url().param("server-name").replace(new RegExp("\\.","gm"), '-');
+	$("#simple1Tab").html('<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first&target=nonNegativeDerivative(pdns.'+graphname+'.auth.udp-answers)&target=nonNegativeDerivative(pdns.'+graphname+'.auth.udp-queries)&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">');
+        
+	$.getJSON(url+'/jsonstat?command=get&callback=?', function(data) {
+		var flat=[];
+		$.each(data, function(e){
+		  flat.push([e, data[e]]);
+		});
+		
+		$("#version").html(data["version"]);
+		moment.lang('en');
+		var startup = moment().subtract('seconds', data["uptime"]);
+		$("#uptime").html(startup.format('LLLL') + " ("+startup.fromNow()+")");
+		$("#statistics").dataTable( { aaData: flat, iDisplayLength:
+		  50, aoColumns:
+					   [{sTitle: "variable"}, {sTitle: "value"}]}); });
+					   
+	$.getJSON(url+'/jsonstat?command=domains&callback=?', function(data) {
+		var flat=[];
+		$.each(data["domains"], function(e){
+		  var d = data["domains"][e];
+		  flat.push([ '<a href="#" onClick="showDomain(\''+d.name+'\');">'+d.name+'</a>',  d.kind,  d.masters, d.serial]);
+		});
+		  
+		$("#domains").dataTable( { aaData: flat, iDisplayLength:  50, aoColumns:
+					   [{sTitle: "Domain"}, {sTitle:  "Kind"}, {sTitle:
+					   "Masters"}, {sTitle: "Serial"} ]}); });					   
+
+	$.getJSON(url+'/jsonstat?command=config&callback=?', function(data) {
+		$("#config").dataTable( { aaData: data, iDisplayLength:  50, aoColumns:
+					   [{sTitle: "Variable"}, {sTitle:  "Value"}
+					   ]}); });					   
+
+					   
+    });
+    
+    function showDomain(domain) {
+	$("#domainModal").reveal();
+	$.getJSON(url+'/jsonstat?command=get-zone&callback=?&zone='+domain, function(data) {
+		var flat=[];
+		$.each(data, function(key, value) {
+			flat.push([value["name"], value["type"], value["ttl"], value["priority"], value["content"]]);
+		});
+		console.log(flat);
+		$("#domain").html("");
+		$("#domain").dataTable( { bDestroy: true, aaData: flat, aoColumns: [
+			{sTitle: "Domain"}, {sTitle: "Type"}, {sTitle:
+			"TTL"}, {sTitle: "Priority"}, {sTitle: "content"}]});
+	});
+    }
+    </script> 
+
+<div id="domainModal" class="reveal-modal expand">
+<table id="domain"></table>
+<a class="close-reveal-modal">&#215;</a>
+</div>  
+
+<div id="flushModal" class="reveal-modal medium">
+<h3>Flush entire cache or parts of it</h3>
+<form onSubmit="return doFlush(url, $('#domainToFlush').val());">
+  <fieldset>
+
+    <legend>Flush</legend>
+
+    <label>Domain:</label>
+    <input id="domainToFlush" type="text" />
+    <br>
+    <div class="row">
+    <div class="six columns"></div>    
+    <div class="two columns"><input type="button" class="small alert button" onClick="$('#flushModal').trigger('reveal:close');" value="Cancel"/></div>
+    <div class="two columns right"><input type="button" onClick="doFlush(url, $('#domainToFlush').val());" class="small success button" value="Flush"/></div>
+    <div class="two columns" id="flushSpinner"></div>
+    
+    </div>
+    <br>
+  </fieldset>
+</form>
+<a class="close-reveal-modal">&#215;</a>
+</div>  
+
+<script>
+function doFlush(url, domain)
+{
+	console.log("Should start the spinner now!");
+	$("#flushSpinner").spin("small");
+	$.getJSON(url+'/jsonstat?command=flush-cache&domain='+domain+'&callback=?',
+	function(data) {
+		$("#flushSpinner").html(data["number"]+" flushed");
+	} );
+	$("#flushModal").close= function() { $("#flushSpinner").html(""); $("#domainToFlush").val("");};
+	return false;
+}
+</script>
+
+</body>
+</html>

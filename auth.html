@@ -69,7 +69,7 @@
   	  <dd><a href="#simple4">Configuration</a></dd>
 	</dl>
 	<ul class="tabs-content">
-	  <li class="active" id="simple1Tab"></li>
+	  <li class="active" id="graphTab"></li>
 	  <li id="simple2Tab"><table id="statistics"></table></li>
 	  <li id="simple3Tab"><table id="domains"></table></li>	  
 	  <li id="simple4Tab"><table id="config"></table></li>
@@ -94,7 +94,7 @@
         url = $.url().param("url");
         $("#server-name").html($.url().param("server-name"));
         var graphname = $.url().param("server-name").replace(new RegExp("\\.","gm"), '-');
-	$("#simple1Tab").html('<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first&target=nonNegativeDerivative(pdns.'+graphname+'.auth.udp-answers)&target=nonNegativeDerivative(pdns.'+graphname+'.auth.udp-queries)&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">');
+	$("#graphTab").html('<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first&target=nonNegativeDerivative(pdns.'+graphname+'.auth.udp-answers)&target=nonNegativeDerivative(pdns.'+graphname+'.auth.udp-queries)&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">');
         
 	$.getJSON(url+'/jsonstat?command=get&callback=?', function(data) {
 		var flat=[];

@@ -125,36 +125,45 @@
 		  });
 		  $('.inlinesparkline').sparkline(); 
 		  
-		  var graphurl='http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first';
-		  graphurl +='&target=alias(sumSeries(';
+		  var authurl='http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first';
+		  authurl +='&target=alias(sumSeries(';
 		  
-		  var count = 0;
+		  var recursorurl = authurl;
+		  
+		  var authQueries='', authAnswers='', recursorQueries='',  recursorAnswers='';
+		  
 		  $.each(servers, function(key, v) {
 		  	var metricPrefix = 'pdns.' + v.name.replace(new RegExp("\\.", "gm"), '-') + '.';
 		  	if(v.type == 'Authoritative') {
-		  		if(count++)
-		  			graphurl += ', ';
-		  		graphurl+= 'nonNegativeDerivative('+metricPrefix+'auth.udp-answers)';
+		  		if(authAnswers != '') authAnswers += ',';
+		  		if(authQueries != '') authQueries += ',';
+		  		authAnswers += 'nonNegativeDerivative('+metricPrefix+'auth.udp-answers)';
+		  		authQueries += 'nonNegativeDerivative('+metricPrefix+'auth.udp-queries)';
+		  	}
+		  	else {
+		  		if(recursorAnswers != '') recursorAnswers += ',';
+		  		if(recursorQueries != '') recursorQueries += ',';
+
+		  		recursorAnswers += 'nonNegativeDerivative(sumSeries(';
+		  		recursorAnswers += metricPrefix+'recursor.answers0-1,';
+			        recursorAnswers += metricPrefix+'recursor.answers1-10,';        
+			        recursorAnswers += metricPrefix+'recursor.answers10-100,';        
+			        recursorAnswers += metricPrefix+'recursor.answers100-1000,';        
+			        recursorAnswers += metricPrefix+'recursor.answers-slow,';        
+			        recursorAnswers += metricPrefix+'recursor.packetcache-hits))';
+		  		
+		  		recursorQueries += 'nonNegativeDerivative('+metricPrefix+'recursor.questions)';
 		  	}
 		  });
-		  graphurl += '), \'Answers\')';
-		  console.log(graphurl);
 		  
-		  graphurl +='&target=alias(sumSeries(';
-		  count=0;
-		  $.each(servers, function(key, v) {
-		  	var metricPrefix = 'pdns.' + v.name.replace(new RegExp("\\.", "gm"), '-') + '.';
-		  	if(v.type == 'Authoritative') {
-		  		if(count++)
-		  			graphurl += ', ';
-		  		graphurl+= 'nonNegativeDerivative('+metricPrefix+'auth.udp-queries)';
-		  	}
-		  });
-		  graphurl += '), \'Queries\')';
+		  authurl += authQueries + '), \'Queries\')&target=alias(sumSeries(' + authAnswers + '), \'Answers\')';
+		  recursorurl += recursorQueries + '), \'Queries\')&target=alias(sumSeries(' + recursorAnswers + '), \'Answers\')';
 		  
-		  graphurl +='&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
+		  authurl +='&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
+		  recursorurl += '&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
 		  
-		  $("#graphDiv").html('<img src="'+graphurl+'">');
+		  $("#graphDiv").html('<img src="'+authurl+'"><h4>Recursor</h4>');
+		  $("#graphDiv").append('<img src="'+recursorurl+'">');		  
 		}
 		
 		$.getJSON("servers.json", buildIt);

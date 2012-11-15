@@ -90,7 +90,18 @@
         var url = $.url().param("url");
         $("#server-name").html($.url().param("server-name"));        
         var graphname = $.url().param("server-name").replace(new RegExp("\\.","gm"), '-');
-        $("#graphTab").html('<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first&target=nonNegativeDerivative(pdns.'+graphname+'.recursor.questions)&target=nonNegativeDerivative(pdns.'+graphname+'.recursor.questionss)&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">');
+        var graphurl='<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first';
+        graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.recursor.questions),\'Questions\')';
+        graphurl += '&target=alias(sumSeries(';
+        graphurl += 'nonNegativeDerivative(pdns.'+graphname+'.recursor.answers0-1),';
+        graphurl += 'nonNegativeDerivative(pdns.'+graphname+'.recursor.answers1-10),';        
+        graphurl += 'nonNegativeDerivative(pdns.'+graphname+'.recursor.answers10-100),';        
+        graphurl += 'nonNegativeDerivative(pdns.'+graphname+'.recursor.answers100-1000),';        
+        graphurl += 'nonNegativeDerivative(pdns.'+graphname+'.recursor.answers-slow),';        
+        graphurl += 'nonNegativeDerivative(pdns.'+graphname+'.recursor.packetcache-hits)), \'Answers\')';        
+        
+        graphurl += '&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">';
+        $("#graphTab").html(graphurl);
         console.log(url);
 	$.getJSON(url+'/?stats&callback=?', function(data) {
 		var flat=[];

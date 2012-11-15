@@ -94,7 +94,11 @@
         url = $.url().param("url");
         $("#server-name").html($.url().param("server-name"));
         var graphname = $.url().param("server-name").replace(new RegExp("\\.","gm"), '-');
-	$("#graphTab").html('<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first&target=nonNegativeDerivative(pdns.'+graphname+'.auth.udp-answers)&target=nonNegativeDerivative(pdns.'+graphname+'.auth.udp-queries)&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">');
+        var graphurl= 'http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first';
+        graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.auth.udp-answers),\'Answers\')';
+        graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.auth.udp-queries), \'Queries\')';
+        graphurl += '&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
+	$("#graphTab").html('<img src="'+graphurl+'">');
         
 	$.getJSON(url+'/jsonstat?command=get&callback=?', function(data) {
 		var flat=[];

@@ -40,7 +40,7 @@
 <body>
   <div class="row">
       <div class="seven columns">
-      <h3>PowerDNS Control Server</h3>
+      <h3><a href="/camel">PowerDNS Control Server</a></h3>
       </div>
       <div class="five columns">
       <br>
@@ -128,17 +128,19 @@
 		
 		$("#config").dataTable( { aaData: flat, iDisplayLength:
 		  50, aoColumns:
-					   [{sTitle: "variable"}, {sTitle: "value"}]}); });
+					   [{sTitle: "variable"}, {sTitle: "value"}]}); 
+		$("#version").html(data["version-string"].split(" ")[2]); 
+	});
 
 	$.getJSON(url+'/?domains&callback=?', function(data) {
 		var flat=[];
 		$.each(data, function(key, val) {
-			flat.push([val.name, val.type]);
+			flat.push([val.name, val.type, val.servers, val.rdbit]);
 		});
 		
 		$("#domains").dataTable( { aaData: flat, iDisplayLength:
 		  50, aoColumns:
-					   [{sTitle: "Zone"}, {sTitle: "Type"}]}); 
+					   [{sTitle: "Zone"}, {sTitle: "Type"}, {sTitle: "Forward Servers"}, {sTitle: "Recursion Desired"}]}); 
 		});
 		
 

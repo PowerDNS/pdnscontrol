@@ -38,15 +38,16 @@
 
 </head>
 <body>
-
   <div class="row">
-      <div class="twelve columns">
-      <table style="border: 0"><tr><td valign="middle">
-      <a href="/camel"><img class="logo"
-      src="http://wiki.powerdns.com/trac/chrome/common/Logo.gif"></a></td>
-      <td valign="middle"><h2>PowerDNS Control Server</h2></td></tr></table>
-      <hr>
+      <div class="seven columns">
+      <h3>PowerDNS Control Server</h3>
+      </div>
+      <div class="five columns">
+      <br>
+      <a href="/camel"><img align="right" class="logo" src="http://xs.powerdns.com/logos/powerdns-logo-154px.png"></a>
+      </div>
   </div>
+
   <div class="row">
 
     <div class="twelve columns">
@@ -90,7 +91,7 @@
         var url = $.url().param("url");
         $("#server-name").html($.url().param("server-name"));        
         var graphname = $.url().param("server-name").replace(new RegExp("\\.","gm"), '-');
-        var graphurl='<img src="http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first';
+        var graphurl='<img src="http://89.188.0.40:8085/render/?width=686&height=308&_salt=1352972312.281&areaMode=first';
         graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.recursor.questions),\'Questions\')';
         graphurl += '&target=alias(sumSeries(';
         graphurl += 'nonNegativeDerivative(pdns.'+graphname+'.recursor.answers0-1),';

@@ -32,13 +32,17 @@
 </head>
 <body>
   <div class="row">
-      <div class="twelve columns">
-      <table style="border: 0"><tr><td valign="middle">
-      <img class="logo" src="http://wiki.powerdns.com/trac/chrome/common/Logo.gif"></td>
-      <td valign="middle"><h3>Control Server</h3></td></tr></table>
+      <div class="seven columns">
+      <h3>PowerDNS Control Server</h3>
+      </div>
+      <div class="four columns">
+      <br>
+      <img align="right" class="logo" src="http://xs.powerdns.com/logos/powerdns-logo-154px.png">
+      </div>
+      <div class="one column"></div>
   </div>
   <div class="row">
-    <div class="ten columns">
+    <div class="eleven columns">
       <div class="panel">
       <table id="servers" class="twelve">
         <thead>
@@ -77,7 +81,7 @@
 
 
       <h3>Aggregate statistics</h3>
-        <h4>Authoritative</h4>
+        <h4>Authoritative Servers</h4>
 	<div id="graphDiv"></div>
     </div>  
   </div>
@@ -125,7 +129,7 @@
 		  });
 		  $('.inlinesparkline').sparkline(); 
 		  
-		  var authurl='http://89.188.0.40:8085/render/?width=586&height=308&_salt=1352972312.281&areaMode=first';
+		  var authurl='http://89.188.0.40:8085/render/?width=680&height=308&_salt=1352972312.281&areaMode=first';
 		  authurl +='&target=alias(sumSeries(';
 		  
 		  var recursorurl = authurl;
@@ -144,13 +148,13 @@
 		  		if(recursorAnswers != '') recursorAnswers += ',';
 		  		if(recursorQueries != '') recursorQueries += ',';
 
-		  		recursorAnswers += 'nonNegativeDerivative(sumSeries(';
-		  		recursorAnswers += metricPrefix+'recursor.answers0-1,';
-			        recursorAnswers += metricPrefix+'recursor.answers1-10,';        
-			        recursorAnswers += metricPrefix+'recursor.answers10-100,';        
-			        recursorAnswers += metricPrefix+'recursor.answers100-1000,';        
-			        recursorAnswers += metricPrefix+'recursor.answers-slow,';        
-			        recursorAnswers += metricPrefix+'recursor.packetcache-hits))';
+		  		recursorAnswers += 'sumSeries(';
+		  		recursorAnswers += 'nonNegativeDerivative('+metricPrefix+'recursor.answers0-1),';
+			        recursorAnswers += 'nonNegativeDerivative('+metricPrefix+'recursor.answers1-10),';        
+			        recursorAnswers += 'nonNegativeDerivative('+metricPrefix+'recursor.answers10-100),';        
+			        recursorAnswers += 'nonNegativeDerivative('+metricPrefix+'recursor.answers100-1000),';        
+			        recursorAnswers += 'nonNegativeDerivative('+metricPrefix+'recursor.answers-slow),';        
+			        recursorAnswers += 'nonNegativeDerivative('+metricPrefix+'recursor.packetcache-hits))';
 		  		
 		  		recursorQueries += 'nonNegativeDerivative('+metricPrefix+'recursor.questions)';
 		  	}
@@ -162,7 +166,7 @@
 		  authurl +='&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
 		  recursorurl += '&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
 		  
-		  $("#graphDiv").html('<img src="'+authurl+'"><h4>Recursor</h4>');
+		  $("#graphDiv").html('<img src="'+authurl+'"><h4>Recursor Servers</h4>');
 		  $("#graphDiv").append('<img src="'+recursorurl+'">');		  
 		}
 		

@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="stylesheets/app.css">
 
   <script src="javascripts/modernizr.foundation.js"></script>
+  <script type="text/javascript" src="javascripts/moment.min.js"></script>  
 
   <!-- IE Fix for HTML5 Tags -->
   <!--[if lt IE 9]>
@@ -53,7 +54,7 @@
             <th>Name</th>
             <th>Main IP</th>
             <th>Version</th>
-            <th>Status</th>            
+            <th>Uptime</th>            
             <th>Load</th>
           </tr>
           </thead>
@@ -103,10 +104,10 @@
 				'<td>'+v.type+'</td><td><a href="'+url+'?url='+v.url+'&server-name='+v.name+'">'+v.name+'</a></td><td id="mainip'+key+'"></td><td id="version' +
 				key+'">...</td><td id="up'+key+'">...</td><td><span class="inlinesparkline">1,4,4,7,5,9,10,9,9,9,2,2,2,9,9,2</span></td></tr>').appendTo('#servers > tbody:last');
 			if(v.type==='Authoritative') {
-				$.getJSON(v.url+"/jsonstat?command=get&version&callback=?",
+				$.getJSON(v.url+"/jsonstat?command=get&version&uptime&callback=?",
 				function(data) {
 					$("#version"+key).html(data["version"]);
-					$("#up"+key).html("UP");
+					$("#up"+key).html(moment.duration(data["uptime"], "seconds").humanize());
 				});
 				
 				$.getJSON(v.url+"/jsonstat?command=config&version&callback=?",
@@ -116,14 +117,14 @@
 				});
 			}
 			if(v.type==='Recursor') {
-				$.getJSON(v.url+"/?callback=?", 
+				$.getJSON(v.url+"/?stats&callback=?", 
 					function(data) { 
-						$("#version"+key).html(data["version-string"].split(" ")[2]); 
-						$("#up"+key).html("UP");
+						$("#up"+key).html(moment.duration(1.0*data["uptime"], "seconds").humanize());
 					} );
 				$.getJSON(v.url+"/?config&callback=?", 
 					function(data) { 
 						$("#mainip"+key).html(data["local-address"]);
+						$("#version"+key).html(data["version-string"].split(" ")[2]); 
 					} );
 			}
 		  });

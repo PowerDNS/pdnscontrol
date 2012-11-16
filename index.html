@@ -102,7 +102,7 @@
 		        
 			$('<tr><td><label for="checkbox3"><input type="checkbox" id="checkbox3"></label></td>'+
 				'<td>'+v.type+'</td><td><a href="'+url+'?url='+v.url+'&server-name='+v.name+'">'+v.name+'</a></td><td id="mainip'+key+'"></td><td id="version' +
-				key+'">...</td><td id="up'+key+'">...</td><td><span class="inlinesparkline">1,4,4,7,5,9,10,9,9,9,2,2,2,9,9,2</span></td></tr>').appendTo('#servers > tbody:last');
+				key+'">...</td><td id="up'+key+'">...</td><td><span id="sparkline'+key+'"></span></td></tr>').appendTo('#servers > tbody:last');
 			if(v.type==='Authoritative') {
 				$.getJSON(v.url+"/jsonstat?command=get&version&uptime&callback=?",
 				function(data) {
@@ -129,6 +129,7 @@
 			}
 		  });
 		  $('.inlinesparkline').sparkline(); 
+
 		  
 		  var authurl='http://89.188.0.40:8085/render/?width=680&height=308&_salt=1352972312.281&areaMode=first';
 		  authurl +='&target=alias(sumSeries(';
@@ -139,6 +140,23 @@
 		  
 		  $.each(servers, function(key, v) {
 		  	var metricPrefix = 'pdns.' + v.name.replace(new RegExp("\\.", "gm"), '-') + '.';
+		  	
+		  	$.ajax({
+		  		dataType: 'jsonp', 
+		  		'jsonp': 'jsonp', 
+		  		url:"http://89.188.0.40:8085/render/?format=json&areaMode=first&jsonp=?&from=-300s&target=nonNegativeDerivative("+metricPrefix +
+		  			(v.type == 'Authoritative' ? "auth.udp-queries)" : "recursor.questions)"),
+		  		success: function(data) { 
+		  					var points = data[0].datapoints; 
+		  					var flat=[];
+		  					$.each(points, function(key, value) {
+		  						flat.push(1.0*value[0]);
+		  					});
+		  					$("#sparkline"+key).sparkline(flat);
+		  				}
+		  	 });
+
+		  	
 		  	if(v.type == 'Authoritative') {
 		  		if(authAnswers != '') authAnswers += ',';
 		  		if(authQueries != '') authQueries += ',';

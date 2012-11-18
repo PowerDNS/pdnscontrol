@@ -1,6 +1,6 @@
-function showDomain(url, domain) {
+function showDomain(server, domain) {
   $("#domainModal").reveal();
-  $.getJSON(url+'/jsonstat?command=get-zone&callback=?&zone='+domain, function(data) {
+  $.getJSON(server.url+'/jsonstat?command=get-zone&callback=?&zone='+domain, function(data) {
     var flat=[];
     $.each(data, function(key, value) {
       flat.push([value["name"], value["type"], value["ttl"], value["priority"], value["content"]]);
@@ -21,11 +21,12 @@ function showDomain(url, domain) {
   });
 }
 
-function doFlush(url, domain) {
+function doFlush(server, domain) {
   console.log("Should start the spinner now!");
   $("#flushSpinner").spin("small");
+  var url = server.url+'/jsonstat?command=flush-cache&domain='+domain+'&callback=?';
   $.getJSON(
-    url+'/jsonstat?command=flush-cache&domain='+domain+'&callback=?',
+    url,
     function(data) {
       $("#flushSpinner").html(data["number"]+" flushed");
     }
@@ -70,7 +71,7 @@ function build_auth(server) {
     $.each(data["domains"], function(e) {
       var d = data["domains"][e];
       flat.push([
-        '<a href="#" onClick="showDomain(\''+url+'\', \''+d.name+'\');">'+d.name+'</a>',
+        d.name,
         d.kind,
         d.masters,
         d.serial
@@ -85,7 +86,13 @@ function build_auth(server) {
         {sTitle: "Kind"},
         {sTitle: "Masters"},
         {sTitle: "Serial"}
-      ]
+      ],
+      fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+        $('td:eq(0)', nRow).html('<a href="#">'+aData[0]+'</a>');
+        $('td:eq(0) a', nRow).click(function() {
+            showDomain(server, aData[0]);
+        });
+      }
     });
   });
 
@@ -102,10 +109,10 @@ function build_auth(server) {
 
   $('#btnActionFlushCache').click(function() {
     $('#flushModal form').bind('submit', function() {
-      return doFlush(url, $('#domainToFlush').val());
+      return doFlush(server, $('#domainToFlush').val());
     });
     $('#flushModal input.success').click(function() {
-      return doFlush(url, $('#domainToFlush').val());
+      return doFlush(server, $('#domainToFlush').val());
     });
     $('#flushModal').reveal({
       close: function() {

@@ -19,10 +19,8 @@ import collections
 
 become_root = ['sudo', '-n']
 
-service = {'manager': 'pdnsmgrd', 'recursor': 'pdns-recursor', 'auth': 'pdns'}
-package = {'manager': 'pdnsmgrd', 'recursor': 'pdns-recursor', 'auth': 'pdns-server'}
+targets = ['Authoritative', 'Recursor']
 startstop_command = {'start': 'start', 'stop': 'stop', 'restart': 'restart'}
-config_file = {'manager': 'pdnsmgrd.conf', 'recursor': '/etc/powerdns/recursor.conf', 'auth': '/etc/powerdns/pdns.conf'}
 
 Config = ConfigParser.ConfigParser()
 
@@ -90,13 +88,13 @@ def run_proc(cmdline):
     return status
 
 def do_start_stop_restart(action, target):
-    cmdline = become_root + ['service', service[target], startstop_command[action]]
+    cmdline = become_root + ['service', Config.get(target, 'service'), startstop_command[action]]
     return run_proc(cmdline)
 
 def do_install_upgrade(target, version):
     cmdline = become_root + ['apt-get', 'update']
     subprocess.check_output(cmdline)
-    pkg = package[target]
+    pkg = Config.get(target, 'package')
     if len(version) > 0:
         pkg = pkg + '==' + version
     cmdline = become_root + ['apt-get', 'install', '-y', pkg]
@@ -107,13 +105,13 @@ def do_configure(target, config):
     tf = os.fdopen(tfhandle, 'w')
     tf.write(config)
     tf.close()
-    cmdline = become_root + ['cp', tfname, config_file[target]]
+    cmdline = become_root + ['cp', tfname, Config.get(target, 'config')]
     status = run_proc(cmdline)
     os.unlink(tfname)
     return status
 
 def handle_route_do(action, target, args):
-    if target not in ['manager', 'recursor', 'auth']:
+    if target not in targets:
         raise ExposedException('unknown target')
 
     if action in ['start','stop','restart']:

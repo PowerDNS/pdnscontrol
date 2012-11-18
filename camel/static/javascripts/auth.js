@@ -62,7 +62,7 @@ function build_auth(server) {
   $("#server-name").html(server.name);
 
   var graphname = server.name.replace(new RegExp("\\.","gm"), '-');
-  var graphurl= 'http://89.188.0.40:8085/render/?width=686&height=308&_salt=1352972312.281&areaMode=first';
+  var graphurl= Config.graphite_server+'?width=686&height=308&_salt=1352972312.281&areaMode=first';
   graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.auth.udp-answers),\'Answers\')';
   graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.auth.udp-queries), \'Queries\')';
   graphurl += '&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';

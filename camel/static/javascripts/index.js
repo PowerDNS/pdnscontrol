@@ -39,7 +39,7 @@ function build_index(servers) {
   });
   $('.inlinesparkline').sparkline();
 
-  var authurl='http://89.188.0.40:8085/render/?width=680&height=308&_salt=1352972312.281&areaMode=first';
+  var authurl=Config.graphite_server+'?width=680&height=308&_salt=1352972312.281&areaMode=first';
   authurl +='&target=alias(sumSeries(';
 
   var recursorurl = authurl;
@@ -52,7 +52,7 @@ function build_index(servers) {
     $.ajax({
       dataType: 'jsonp',
       'jsonp': 'jsonp',
-      url: "http://89.188.0.40:8085/render/?format=json&areaMode=first&jsonp=?&from=-300s&target=nonNegativeDerivative("+metricPrefix +
+      url: Config.graphite_server+"?format=json&areaMode=first&jsonp=?&from=-300s&target=nonNegativeDerivative("+metricPrefix +
 	(v.type == 'Authoritative' ? "auth.udp-queries)" : "recursor.questions)"),
       success: function(data) {
 	var points = data[0].datapoints;

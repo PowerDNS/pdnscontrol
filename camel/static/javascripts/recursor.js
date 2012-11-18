@@ -37,7 +37,7 @@ function build_recursor(server) {
   $("#server-name").html(server.name);
 
   var graphname = server.name.replace(new RegExp("\\.","gm"), '-');
-  var graphurl = '<img src="http://89.188.0.40:8085/render/?width=686&height=308&_salt=1352972312.281&areaMode=first';
+  var graphurl = '<img src="'+Config.graphite_server+'?width=686&height=308&_salt=1352972312.281&areaMode=first';
   graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.recursor.questions),\'Questions\')';
   graphurl += '&target=alias(sumSeries(';
   graphurl += 'nonNegativeDerivative(pdns.'+graphname+'.recursor.answers0-1),';

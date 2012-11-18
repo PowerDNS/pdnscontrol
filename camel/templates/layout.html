@@ -61,6 +61,12 @@
   <script src="{{ url_for('static', filename='javascripts/app.js') }}"></script>
   <script src="{{ url_for('static', filename='javascripts/shared.js') }}"></script>
 
+<script>
+var Config = {
+  graphite_server: "http://89.188.0.40:8085/render/"
+};
+</script>
+
 {%- block body %}{% endblock -%}
 
 </body>

@@ -16,8 +16,7 @@ function server_start_stop_restart(server, action) {
 
   modal.find('input.success').click(function() {
     var spinner = modal.find('.spinner').spin('small');
-    var target = (server.type == 'Authoritative' ? 'auth' : 'recursor');
-    $.getJSON(server.manager_url+'?action='+action+'&target='+target+'&callback=?', function(result) {
+    $.getJSON(server.url+action, function(result) {
       if (result.success) {
         modal.find('.output').
           empty().
@@ -59,4 +58,71 @@ function get_modal() {
   }
   modal.html('<a class="close-reveal-modal">&#215;</a>');
   return modal;
+}
+
+function doLogShow(server, query) {
+  $('#holder').html('<table id="logTable"></table>');
+  $('#logModal').reveal();
+  $.getJSON(
+    server.url+"log-grep?needle="+query,
+    function(data) {
+      console.log(data);
+      $('#logTable').dataTable({
+        aaData: data.content,
+        bSort: false,
+        aoColumns: [{sTitle: "Line"}]
+      });
+      $('#logTable').dataTable().fnAdjustColumnSizing();
+    }
+  );
+  return false;
+}
+
+function doFlush(server, domain) {
+  console.log("Should start the spinner now!");
+  $("#flushSpinner").spin("small");
+  $.getJSON(
+    server.url+'flush-cache?domain='+domain,
+    function(data) {
+      $("#flushSpinner").html(data.content.number+" flushed");
+    }
+  );
+  $("#flushModal").close = function() {
+    $("#flushSpinner").html("");
+    $("#domainToFlush").val("");
+  };
+  return false;
+}
+
+function build_server_common(server) {
+  $('#logSearchForm').bind('submit', function() {
+    return doLogShow(server, $('#logQuery').val());
+  });
+  $('#logModal form').bind('submit', function() {
+    return doLogShow(server, $('#logQuery2').val());
+  });
+  
+  $('#btnActionRestart').click(function() {
+    server_start_stop_restart(server, 'restart');
+  });
+  $('#btnActionShutdown').click(function() {
+    server_start_stop_restart(server, 'stop');
+  });
+
+  $('#btnActionFlushCache').click(function() {
+    $('#flushModal form').bind('submit', function() {
+      return doFlush(server, $('#domainToFlush').val());
+    });
+    $('#flushModal input.success').click(function() {
+      return doFlush(server, $('#domainToFlush').val());
+    });
+    $('#flushModal').reveal({
+      close: function() {
+        $('#flushSpinner').html('');
+        },
+      open: function() {
+        $('#domainToFlush').focus();
+        }
+    });
+  });
 }

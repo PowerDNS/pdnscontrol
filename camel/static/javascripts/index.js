@@ -7,29 +7,32 @@ function build_index(servers) {
       key+'">...</td><td id="up'+key+'">...</td><td><span id="sparkline'+key+'"></span></td></tr>').appendTo('#servers > tbody:last');
     if(v.type==='Authoritative') {
       $.getJSON(
-        v.url+"/jsonstat?command=get&version&uptime&callback=?",
+        v.url + 'stats',
 	function(data) {
 	  $("#version"+key).html(data["version"]);
 	  $("#up"+key).html(moment.duration(data["uptime"], "seconds").humanize());
 	}
       );
       $.getJSON(
-        v.url+"/jsonstat?command=config&version&callback=?",
+        v.url + 'config',
 	function(data) {
-	  $.each(data, function(one, two) { if(two[0]=="local-address" || two[0]=="local-ipv6")
-	    $("#mainip"+key).append(two[1]+" ") });
+	  $.each(data.config, function(one, two) {
+            if (two[0]=="local-address" || two[0]=="local-ipv6") {
+              $("#mainip"+key).append(two[1]+" ")
+            }
+          });
         }
       );
     }
     if(v.type==='Recursor') {
       $.getJSON(
-        v.url+"/?command=stats&callback=?",
+        v.url + 'stats',
 	function(data) {
 	  $("#up"+key).html(moment.duration(1.0*data["uptime"], "seconds").humanize());
 	}
       );
       $.getJSON(
-        v.url+"/?command=config&callback=?",
+        v.url + 'config',
 	function(data) {
 	  $("#mainip"+key).html(data["local-address"]);
 	  $("#version"+key).html(data["version-string"].split(" ")[2]);

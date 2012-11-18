@@ -1,8 +1,8 @@
 function showDomain(server, domain) {
   $("#domainModal").reveal();
-  $.getJSON(server.url+'/jsonstat?command=get-zone&callback=?&zone='+domain, function(data) {
+  $.getJSON(server.url+'zone/'+domain, function(data) {
     var flat=[];
-    $.each(data, function(key, value) {
+    $.each(data.content, function(key, value) {
       flat.push([value["name"], value["type"], value["ttl"], value["priority"], value["content"]]);
     });
     console.log(flat);
@@ -22,41 +22,6 @@ function showDomain(server, domain) {
   });
 }
 
-function doLogShow(server, query) {
-  $('#holder').html('<table id="logTable"></table>');
-  $('#logModal').reveal();
-  $.getJSON(
-    server.url+"/jsonstat?command=log-grep&needle="+query+"&callback=?",
-    function(data) {
-      console.log(data);
-      $('#logTable').dataTable({
-        aaData: data,
-        bSort: false,
-        aoColumns: [{sTitle: "Line"}]
-      });
-      $('#logTable').dataTable().fnAdjustColumnSizing();
-    }
-  );
-  return false;
-}
-
-function doFlush(server, domain) {
-  console.log("Should start the spinner now!");
-  $("#flushSpinner").spin("small");
-  var url = server.url+'/jsonstat?command=flush-cache&domain='+domain+'&callback=?';
-  $.getJSON(
-    url,
-    function(data) {
-      $("#flushSpinner").html(data["number"]+" flushed");
-    }
-  );
-  $("#flushModal").close = function() {
-    $("#flushSpinner").html("");
-    $("#domainToFlush").val("");
-  };
-  return false;
-}
-
 function build_auth(server) {
   var url = server.url;
   $("#server-name").html(server.name);
@@ -68,7 +33,7 @@ function build_auth(server) {
   graphurl += '&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
   $("#graphTab").html('<img src="'+graphurl+'">');
 
-  $.getJSON(url+'/jsonstat?command=get&callback=?', function(data) {
+  $.getJSON(url+'stats', function(data) {
     var flat = [];
     $.each(data, function(e) {
       flat.push([e, data[e]]);
@@ -85,7 +50,7 @@ function build_auth(server) {
     });
   });
 
-  $.getJSON(url+'/jsonstat?command=domains&callback=?', function(data) {
+  $.getJSON(url+'domains', function(data) {
     var flat = [];
     $.each(data["domains"], function(e) {
       var d = data["domains"][e];
@@ -115,9 +80,9 @@ function build_auth(server) {
     });
   });
 
-  $.getJSON(url+'/jsonstat?command=config&callback=?', function(data) {
+  $.getJSON(url+'config', function(data) {
     $("#config").dataTable({
-      aaData: data,
+      aaData: data.config,
       iDisplayLength: 50,
       aoColumns: [
         {sTitle: "Variable"},
@@ -126,34 +91,5 @@ function build_auth(server) {
     });
   });
 
-  $('#logSearchForm').bind('submit', function() {
-    return doLogShow(server, $('#logQuery').val());
-  });
-  $('#logModal form').bind('submit', function() {
-    return doLogShow(server, $('#logQuery2').val());
-  });
-  
-  $('#btnActionRestart').click(function() {
-    server_start_stop_restart(server, 'restart');
-  });
-  $('#btnActionShutdown').click(function() {
-    server_start_stop_restart(server, 'stop');
-  });
-
-  $('#btnActionFlushCache').click(function() {
-    $('#flushModal form').bind('submit', function() {
-      return doFlush(server, $('#domainToFlush').val());
-    });
-    $('#flushModal input.success').click(function() {
-      return doFlush(server, $('#domainToFlush').val());
-    });
-    $('#flushModal').reveal({
-      close: function() {
-        $('#flushSpinner').html('');
-        },
-      open: function() {
-        $('#domainToFlush').focus();
-        }
-    });
-  });
+  build_server_common(server);
 }

@@ -10,6 +10,7 @@ function showDomain(server, domain) {
     $("#domain").dataTable({
       bDestroy: true,
       aaData: flat,
+      bSort: false,
       aoColumns: [
         {sTitle: "Domain"},
         {sTitle: "Type"},
@@ -19,6 +20,24 @@ function showDomain(server, domain) {
       ]
     });
   });
+}
+
+function doLogShow(server, query) {
+  $('#holder').html('<table id="logTable"></table>');
+  $('#logModal').reveal();
+  $.getJSON(
+    server.url+"/jsonstat?command=log-grep&needle="+query+"&callback=?",
+    function(data) {
+      console.log(data);
+      $('#logTable').dataTable({
+        aaData: data,
+        bSort: false,
+        aoColumns: [{sTitle: "Line"}]
+      });
+      $('#logTable').dataTable().fnAdjustColumnSizing();
+    }
+  );
+  return false;
 }
 
 function doFlush(server, domain) {
@@ -105,6 +124,13 @@ function build_auth(server) {
         {sTitle: "Value"}
         ]
     });
+  });
+
+  $('#logSearchForm').bind('submit', function() {
+    return doLogShow(server, $('#logQuery').val());
+  });
+  $('#logModal form').bind('submit', function() {
+    return doLogShow(server, $('#logQuery2').val());
   });
 
   $('#btnActionFlushCache').click(function() {

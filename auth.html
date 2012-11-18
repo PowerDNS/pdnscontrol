@@ -61,6 +61,13 @@
         <li><a href="#" class="button" id="btnActionDeploy">Deploy</a></li>
       </ul>
       <hr>
+      <form id="logSearchForm">
+      <fieldset>
+      <legend>Log Search</legend>
+      <input type="text" id="logQuery" placeholder="Standard Input" />
+      </fieldset>
+      </form>
+
       </p>
       	<dl class="tabs">
 	  <dd class="active"><a href="#graph">Graph</a></dd>
@@ -100,12 +107,28 @@
         );
       });
     });
+
   </script> 
 
-<div id="domainModal" class="reveal-modal expand">
-<table id="domain"></table>
-<a class="close-reveal-modal">&#215;</a>
-</div>  
+  <div id="domainModal" class="reveal-modal expand">
+    <table id="domain"></table>
+    <a class="close-reveal-modal">&#215;</a>
+  </div>
+
+  <div id="logModal" class="reveal-modal expand">
+    <div class="row">
+      <div class="ten columns">
+        <form>
+	  <fieldset>
+	    <legend>Log Search</legend>
+	    <input type="text" id="logQuery2" placeholder="Standard Input" />
+	  </fieldset>
+        </form>
+      </div>
+      </div>
+    <div class="row"><div class="twelve columns"><span id="holder"></span></div></div>
+    <a class="close-reveal-modal">&#215;</a>
+  </div>
 
 <div id="flushModal" class="reveal-modal medium">
 <h3>Flush entire cache or parts of it</h3>

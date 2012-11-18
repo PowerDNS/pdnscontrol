@@ -23,13 +23,13 @@ function build_index(servers) {
     }
     if(v.type==='Recursor') {
       $.getJSON(
-        v.url+"/?stats&callback=?",
+        v.url+"/?command=stats&callback=?",
 	function(data) {
 	  $("#up"+key).html(moment.duration(1.0*data["uptime"], "seconds").humanize());
 	}
       );
       $.getJSON(
-        v.url+"/?config&callback=?",
+        v.url+"/?command=config&callback=?",
 	function(data) {
 	  $("#mainip"+key).html(data["local-address"]);
 	  $("#version"+key).html(data["version-string"].split(" ")[2]);

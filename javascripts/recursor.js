@@ -1,3 +1,37 @@
+function doLogShow(server, query) {
+  $('#holder').html('<table id="logTable"></table>');
+  $('#logModal').reveal();
+  $.getJSON(
+    server.url+"/jsonstat?command=log-grep&needle="+query+"&callback=?",
+    function(data) {
+      console.log(data);
+      $('#logTable').dataTable({
+        aaData: data,
+        bSort: false,
+        aoColumns: [{sTitle: "Line"}]
+      });
+      $('#logTable').dataTable().fnAdjustColumnSizing();
+    }
+  );
+  return false;
+}
+
+function doFlush(server, domain) {
+  console.log("Should start the spinner now!");
+  $("#flushSpinner").spin("small");
+  $.getJSON(
+    server.url+'/?command=flush-cache&domain='+domain+'&callback=?',
+    function(data) {
+      $("#flushSpinner").html(data["number"]+" flushed");
+    }
+  );
+  $("#flushModal").close = function() {
+    $("#flushSpinner").html("");
+    $("#domainToFlush").val("");
+  };
+  return false;
+}
+
 function build_recursor(server) {
   var url = server.url;
   $("#server-name").html(server.name);
@@ -17,7 +51,7 @@ function build_recursor(server) {
 
   console.log(url);
 
-  $.getJSON(url+'?stats&callback=?', function(data) {
+  $.getJSON(url+'?command=stats&callback=?', function(data) {
     var flat = [];
     $.each(data, function(e) {
       flat.push([e, data[e]]);
@@ -35,7 +69,7 @@ function build_recursor(server) {
     });
   });
 
-  $.getJSON(url+'?config&callback=?', function(data) {
+  $.getJSON(url+'?command=config&callback=?', function(data) {
     var flat = [];
     $.each(data, function(e) {
       flat.push([e, data[e]]);
@@ -49,7 +83,7 @@ function build_recursor(server) {
     $("#version").html(data["version-string"].split(" ")[2]);
   });
 
-  $.getJSON(url+'?domains&callback=?', function(data) {
+  $.getJSON(url+'?command=domains&callback=?', function(data) {
     var flat = [];
     $.each(data, function(key, val) {
       flat.push([val.name, val.type, val.servers, val.rdbit]);
@@ -62,4 +96,27 @@ function build_recursor(server) {
     });
   });
 
+  $('#logSearchForm').bind('submit', function() {
+    return doLogShow(server, $('#logQuery').val());
+  });
+  $('#logModal form').bind('submit', function() {
+    return doLogShow(server, $('#logQuery2').val());
+  });
+
+  $('#btnActionFlushCache').click(function() {
+    $('#flushModal form').bind('submit', function() {
+      return doFlush(server, $('#domainToFlush').val());
+    });
+    $('#flushModal input.success').click(function() {
+      return doFlush(server, $('#domainToFlush').val());
+    });
+    $('#flushModal').reveal({
+      close: function() {
+        $('#flushSpinner').html('');
+        },
+      open: function() {
+        $('#domainToFlush').focus();
+        }
+    });
+  });
 }

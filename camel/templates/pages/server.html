@@ -1,0 +1,102 @@
+{% extends "/layout.html" -%}
+{% block body %}
+
+  <div class="row">
+
+    <div class="twelve columns">
+      <H2 id="server-name"></h2>
+      <p>Running version <strong><span id="version">...</span></strong>, up since <span
+      id="uptime">...</span></p>
+      <p>
+      <ul class="button-group four-up even">
+        <li><a href="#" class="alert button" id="btnActionShutdown">Shutdown</a></li>
+        <li><a href="#" class="button" id="btnActionRestart">Restart</a></li>
+        <li><a href="#" class="button" id="btnActionFlushCache">Flush cache</a></li>
+        <li><a href="#" class="button" id="btnActionDeploy">Deploy</a></li>
+      </ul>
+      <hr>
+      <form id="logSearchForm">
+      <fieldset>
+      <legend>Log Search</legend>
+      <input type="text" id="logQuery" placeholder="Standard Input" />
+      </fieldset>
+      </form>
+
+      </p>
+      	<dl class="tabs">
+	  <dd class="active"><a href="#graph">Graph</a></dd>
+  	  <dd><a href="#simple2">Statistics</a></dd>
+  	  <dd><a href="#simple3">Domains</a></dd>
+  	  <dd><a href="#simple4">Configuration</a></dd>
+	</dl>
+	<ul class="tabs-content">
+	  <li class="active" id="graphTab"></li>
+	  <li id="simple2Tab"><table id="statistics"></table></li>
+	  <li id="simple3Tab"><table id="domains"></table></li>	  
+	  <li id="simple4Tab"><table id="config"></table></li>
+	</ul>
+    </div>  
+  </div>
+
+{% if server.type == 'Authoritative' %}
+  <script src="{{ url_for('static', filename='javascripts/auth.js') }}"></script>
+  <script>
+    $(function() {
+      build_auth({{ server|tojson|safe }});
+    }
+  </script> 
+{% else %}
+  <script src="{{ url_for('static', filename='javascripts/recursor.js') }}"></script>
+  <script>
+    $(function() {
+      build_recursor({{ server|tojson|safe }});
+    }
+  </script> 
+
+{% endif %}
+
+  <div id="domainModal" class="reveal-modal expand">
+    <table id="domain"></table>
+    <a class="close-reveal-modal">&#215;</a>
+  </div>
+
+  <div id="logModal" class="reveal-modal expand">
+    <div class="row">
+      <div class="ten columns">
+        <form>
+	  <fieldset>
+	    <legend>Log Search</legend>
+	    <input type="text" id="logQuery2" placeholder="Standard Input" />
+	  </fieldset>
+        </form>
+      </div>
+      </div>
+    <div class="row"><div class="twelve columns"><span id="holder"></span></div></div>
+    <a class="close-reveal-modal">&#215;</a>
+  </div>
+
+<div id="flushModal" class="reveal-modal medium">
+<h3>Flush entire cache or parts of it</h3>
+<form>
+  <fieldset>
+
+    <legend>Flush</legend>
+
+    <label>Domain:</label>
+    <input id="domainToFlush" type="text" />
+    <br>
+    <div class="row">
+    <div class="six columns"></div>    
+    <div class="two columns"><input type="button" class="small alert button" onClick="$('#flushModal').trigger('reveal:close');" value="Cancel"/></div>
+    <div class="two columns right"><input type="button" class="small success button" value="Flush"/></div>
+    <div class="two columns" id="flushSpinner"></div>
+    
+    </div>
+    <br>
+  </fieldset>
+</form>
+<a class="close-reveal-modal">&#215;</a>
+</div>  
+
+
+{% endblock %}

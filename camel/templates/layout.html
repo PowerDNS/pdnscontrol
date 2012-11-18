@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8" />
+
+  <!-- Set the viewport width to device width for mobile -->
+  <meta name="viewport" content="width=device-width" />
+
+  <title>PowerDNS Control Server</title>
+  
+  <!-- Included CSS Files (Uncompressed) -->
+  <!--
+  <link rel="stylesheet" href="stylesheets/foundation.css">
+  -->
+
+  {% for css in ['demo_page','demo_table','demo_table_jui','jquery.dataTables','jquery.dataTables_themeroller'] %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='DataTables-1.9.4/media/css/'+css+'.css') }}">
+  {%- endfor -%}
+
+
+  <!-- Included CSS Files (Compressed) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/foundation.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/app.css') }}">
+
+  <script src="{{ url_for('static', filename='javascripts/modernizr.foundation.js') }}"></script>
+  <script src="{{ url_for('static', filename='javascripts/moment.min.js') }}"></script>  
+
+  <!-- IE Fix for HTML5 Tags -->
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+</head>
+<body>
+  <div class="row">
+      <div class="seven columns">
+      <h3>PowerDNS Control Server</h3>
+      </div>
+      <div class="four columns">
+      <br>
+      <img align="right" class="logo" src="http://xs.powerdns.com/logos/powerdns-logo-154px.png">
+      </div>
+      <div class="one column"></div>
+  </div>
+
+  <!-- Included JS Files (Compressed) -->
+  <script src="{{ url_for('static', filename='javascripts/jquery.js') }}"></script>
+  <script src="{{ url_for('static', filename='javascripts/foundation.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='javascripts/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='javascripts/jquery.sparkline.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='javascripts/underscore-min.js') }}"></script>
+  <script src="{{ url_for('static', filename='javascripts/purl.js') }}"></script>
+  <script src="{{ url_for('static', filename='javascripts/spin.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='javascripts/jquery.spin.js') }}"></script>
+  
+  <script src="{{ url_for('static', filename='javascripts/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='javascripts/shared.js') }}"></script>
+
+{%- block body %}{% endblock -%}
+
+</body>
+</html>
+ 

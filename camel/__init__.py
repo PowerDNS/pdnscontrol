@@ -27,6 +27,11 @@ from camel.views import pages, admin
 app.register_blueprint(pages.mod)
 app.register_blueprint(admin.mod, url_prefix='/admin')
 
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
 import logging
 from logging import Formatter
 if not app.debug:

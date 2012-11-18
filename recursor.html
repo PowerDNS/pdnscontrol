@@ -55,10 +55,10 @@
       <p>Running <strong><span id="version"></span></strong>, up since <span id="uptime"></span>.</p>
       <p>
       <ul class="button-group four-up even">
-        <li><a href="#" class="alert button">Shutdown</a></li>
-        <li><a href="#" class="button">Restart</a></li>
-        <li><a href="#" class="button" onClick="$('#flushModal').reveal({close: function(){ $('#flushSpinner').html(''); }});">Flush cache</a></li>
-        <li><a href="#" class="button">Deploy</a></li>
+        <li><a href="#" class="alert button" id="btnActionShutdown">Shutdown</a></li>
+        <li><a href="#" class="button" id="btnActionRestart">Restart</a></li>
+        <li><a href="#" class="button" id="btnActionFlushCache" onClick="$('#flushModal').reveal({close: function(){ $('#flushSpinner').html(''); }});">Flush cache</a></li>
+        <li><a href="#" class="button" id="btnActionDeploy">Deploy</a></li>
       </ul>
 
       <hr>

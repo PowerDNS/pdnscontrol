@@ -62,6 +62,13 @@
       </ul>
 
       <hr>
+      <form onSubmit="return doLogShow($('#logQuery').val());">
+      <fieldset>
+      <legend>Log Search</legend>
+      <input type="text" id="logQuery" placeholder="Standard Input" />
+      </fieldset>
+      </form>
+
       </p>
       	<dl class="tabs">
 	  <dd class="active"><a href="#graph">Graph</a></dd>
@@ -85,10 +92,13 @@
   <!-- Initialize JS Plugins -->
   <script src="javascripts/app.js"></script>
   <script src="javascripts/purl.js"></script>
+  <script src="javascripts/spin.min.js"></script>
+  <script src="javascripts/jquery.spin.js"></script>  
   
     <script>
+    var url;
     $(function() {
-        var url = $.url().param("url");
+        url = $.url().param("url");
         $("#server-name").html($.url().param("server-name"));        
         var graphname = $.url().param("server-name").replace(new RegExp("\\.","gm"), '-');
         var graphurl='<img src="http://89.188.0.40:8085/render/?width=686&height=308&_salt=1352972312.281&areaMode=first';
@@ -104,7 +114,7 @@
         graphurl += '&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000">';
         $("#graphTab").html(graphurl);
         console.log(url);
-	$.getJSON(url+'/?stats&callback=?', function(data) {
+	$.getJSON(url+'/?command=stats&callback=?', function(data) {
 		var flat=[];
 		$.each(data, function(e){
 		  flat.push([e, data[e]]);
@@ -119,7 +129,7 @@
 		  50, aoColumns:
 					   [{sTitle: "variable"}, {sTitle: "value"}]}); });
 
-	$.getJSON(url+'/?config&callback=?', function(data) {
+	$.getJSON(url+'/?command=config&callback=?', function(data) {
 		var flat=[];
 		$.each(data, function(e){
 		  flat.push([e, data[e]]);
@@ -132,7 +142,7 @@
 		$("#version").html(data["version-string"].split(" ")[2]); 
 	});
 
-	$.getJSON(url+'/?domains&callback=?', function(data) {
+	$.getJSON(url+'/?command=domains&callback=?', function(data) {
 		var flat=[];
 		$.each(data, function(key, val) {
 			flat.push([val.name, val.type, val.servers, val.rdbit]);
@@ -148,6 +158,79 @@
 
     });
     </script> 
+
+<div id="logModal" class="reveal-modal expand">
+	<div class="row"><div class="ten columns">
+	<form onSubmit="return doLogShow($('#logQuery2').val());">
+		<fieldset>
+		      <legend>Log Search</legend>
+		      <input type="text" id="logQuery2" placeholder="Standard Input" />
+	      </fieldset>
+      	</form>
+	</div></div>
+	<div class="row"><div class="twelve columns"><span id="holder"></span></div></div>
+	<a class="close-reveal-modal">&#215;</a>
+</div>  
+
+<div id="logModal" class="reveal-modal expand">
+<div class="row"><div class="twelve columns"><span id="holder"></span></div></div>
+<a class="close-reveal-modal">&#215;</a>
+</div>  
+
+
+<div id="flushModal" class="reveal-modal expand">
+<h3>Flush entire cache or parts of it</h3>
+<form onSubmit="return doFlush(url, $('#domainToFlush').val());">
+  <fieldset>
+
+    <legend>Flush</legend>
+
+    <label>Domain:</label>
+    <input id="domainToFlush" type="text"/>
+    <br>
+    <div class="row">
+    <div class="six columns"></div>    
+    <div class="two columns"><input type="button" class="small alert button" onClick="$('#flushModal').trigger('reveal:close');" value="Cancel"/></div>
+    <div class="two columns right"><input type="button" onClick="doFlush(url, $('#domainToFlush').val());" class="small success button" value="Flush"/></div>
+    <div class="two columns" id="flushSpinner"></div>
+    
+    </div>
+    <br>
+  </fieldset>
+</form>
+<a class="close-reveal-modal">&#215;</a>
+</div>  
+
+
+
+<script>
+function doFlush(url, domain)
+{
+	console.log("Should start the spinner now!");
+	$("#flushSpinner").spin("small");
+	$.getJSON(url+'/?command=flush-cache&domain='+domain+'&callback=?',
+	function(data) {
+		$("#flushSpinner").html(data["number"]+" flushed");
+	} );
+	$("#flushModal").close= function() { $("#flushSpinner").html(""); $("#domainToFlush").val("");};
+	return false;
+}
+
+    function doLogShow(query) {
+	$('#holder').html('<table id="logTable"></table>');
+    	$('#logModal').reveal();
+    	$.getJSON(url+"/jsonstat?command=log-grep&needle="+query+"&callback=?",
+	    	function(data) {
+	    		console.log(data);
+	    		$('#logTable').dataTable({ aaData: data, bSort:
+	    		false, aoColumns: [{sTitle: "Line"}]});
+	    		$('#logTable').dataTable().fnAdjustColumnSizing();
+    		} 
+    	);
+    	return false;
+    }
+</script>
+
   
 </body>
 </html>

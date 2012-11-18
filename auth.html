@@ -61,6 +61,13 @@
         <li><a href="#" class="button">Deploy</a></li>
       </ul>
       <hr>
+      <form onSubmit="return doLogShow($('#logQuery').val());">
+      <fieldset>
+      <legend>Log Search</legend>
+      <input type="text" id="logQuery" placeholder="Standard Input" />
+      </fieldset>
+      </form>
+
       </p>
       	<dl class="tabs">
 	  <dd class="active"><a href="#graph">Graph</a></dd>
@@ -142,17 +149,47 @@
 		});
 		console.log(flat);
 		$("#domain").html("");
-		$("#domain").dataTable( { bDestroy: true, aaData: flat, aoColumns: [
+		$("#domain").dataTable( { bDestroy: true, aaData: flat,
+		bSort: false, aoColumns: [
 			{sTitle: "Domain"}, {sTitle: "Type"}, {sTitle:
 			"TTL"}, {sTitle: "Priority"}, {sTitle: "content"}]});
 	});
     }
+    
+    function doLogShow(query) {
+	$('#holder').html('<table id="logTable"></table>');
+    	$('#logModal').reveal();
+    	$.getJSON(url+"/jsonstat?command=log-grep&needle="+query+"&callback=?",
+	    	function(data) {
+	    		console.log(data);
+	    		$('#logTable').dataTable({ aaData: data, bSort:
+	    		false, aoColumns: [{sTitle: "Line"}]});
+	    		$('#logTable').dataTable().fnAdjustColumnSizing();
+    		} 
+    	);
+    	return false;
+    }
     </script> 
 
 <div id="domainModal" class="reveal-modal expand">
-<table id="domain"></table>
+
+	<table id="domain"></table>
+	<a class="close-reveal-modal">&#215;</a>
+</div>  
+
+<div id="logModal" class="reveal-modal expand">
+	<div class="row"><div class="ten columns">
+	<form onSubmit="return doLogShow($('#logQuery2').val());">
+		<fieldset>
+		      <legend>Log Search</legend>
+		      <input type="text" id="logQuery2" placeholder="Standard Input" />
+	      </fieldset>
+      	</form>
+	</div></div>
+<div class="row"><div class="twelve columns"><span id="holder"></span></div></div>
 <a class="close-reveal-modal">&#215;</a>
 </div>  
+
 
 <div id="flushModal" class="reveal-modal medium">
 <h3>Flush entire cache or parts of it</h3>
@@ -176,6 +213,7 @@
 </form>
 <a class="close-reveal-modal">&#215;</a>
 </div>  
+
 
 <script>
 function doFlush(url, domain)

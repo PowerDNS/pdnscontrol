@@ -1,0 +1,250 @@
+#!/usr/bin/env python2.7
+
+from __future__ import print_function
+
+from wsgiref.simple_server import make_server
+from wsgiref.util import *
+
+import wsgissl
+from BaseHTTPServer import BaseHTTPRequestHandler
+import base64
+import ConfigParser
+import urlparse
+import urllib2
+import json
+import subprocess
+import tempfile
+import os
+import collections
+
+become_root = ['sudo', '-n']
+
+service = {'manager': 'pdnsmgrd', 'recursor': 'pdns-recursor', 'auth': 'pdns'}
+package = {'manager': 'pdnsmgrd', 'recursor': 'pdns-recursor', 'auth': 'pdns-server'}
+startstop_command = {'start': 'start', 'stop': 'stop', 'restart': 'restart'}
+config_file = {'manager': 'pdnsmgrd.conf', 'recursor': '/etc/powerdns/recursor.conf', 'auth': '/etc/powerdns/pdns.conf'}
+
+Config = ConfigParser.ConfigParser()
+
+Request = collections.namedtuple('Request', ['environ', 'args', 'path', 'method', 'body'])
+
+class ExposedException(Exception):
+    def __init__(self, message, status=500, headers=None):
+        if message is None:
+            message = BaseHTTPRequestHandler.responses[status][1]
+        Exception.__init__(self, message)
+        self.status = status
+        self.headers = headers
+        if headers is None:
+            self.headers = []
+
+class NotFoundException(ExposedException):
+    def __init__(self):
+        ExposedException.__init__(self, None, status=404)
+
+class AuthenticationRequiredException(ExposedException):
+    def __init__(self, www_auth):
+        ExposedException.__init__(self, None, status=401, headers=[('WWW-Authenticate', www_auth)])
+
+class Response(object):
+    def __init__(self, content, content_type='text/plain', headers=None, status=200):
+        self.content = content
+        self.content_type = content_type
+        self.headers = headers
+        if self.headers is None:
+            self.headers = []
+        self.status = status
+    def start(self, start_response):
+        status = self.status
+        if not isinstance(status, str):
+            status = str(status) + ' ' + BaseHTTPRequestHandler.responses[status][1]
+        headers = [
+            ('Content-Type', self.content_type),
+            ('Access-Control-Allow-Origin', Config.get('server', 'allow_origin')),
+            ('Server', 'Manager/0')
+            ] + self.headers
+        start_response(status, headers)
+        return [self.content]
+
+class JSONResponse(Response):
+    def __init__(self, data, callback=None, headers=None):
+        content = json.dumps(data)
+        content_type = 'application/json'
+        if callback is not None:
+            content_type = 'application/javascript'
+            content = callback + '(' + content + ');'
+        Response.__init__(self, content, content_type=content_type, headers=headers)
+
+class ExceptionResponse(Response):
+    def __init__(self, e):
+        Response.__init__(self, e.message, status=e.status, headers=e.headers)
+
+def run_proc(cmdline):
+    status = {'success': True, 'cmdline': cmdline}
+    try:
+        status['output'] = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        status['success'] = False
+        status['returncode'] = e.returncode
+        status['output'] = e.output
+    return status
+
+def do_start_stop_restart(action, target):
+    cmdline = become_root + ['service', service[target], startstop_command[action]]
+    return run_proc(cmdline)
+
+def do_install_upgrade(target, version):
+    cmdline = become_root + ['apt-get', 'update']
+    subprocess.check_output(cmdline)
+    pkg = package[target]
+    if len(version) > 0:
+        pkg = pkg + '==' + version
+    cmdline = become_root + ['apt-get', 'install', '-y', pkg]
+    return run_proc(cmdline)
+
+def do_configure(target, config):
+    (tfhandle, tfname) = tempfile.mkstemp()
+    tf = os.fdopen(tfhandle, 'w')
+    tf.write(config)
+    tf.close()
+    cmdline = become_root + ['cp', tfname, config_file[target]]
+    status = run_proc(cmdline)
+    os.unlink(tfname)
+    return status
+
+def handle_route_do(action, target, args):
+    if target not in ['manager', 'recursor', 'auth']:
+        raise ExposedException('unknown target')
+
+    if action in ['start','stop','restart']:
+        return do_start_stop_restart(action, target)
+    if action in ['install','upgrade']:
+        version = args.get('version', [''])[0]
+        return do_install_upgrade(target, version)
+    if action == 'configure':
+        config = str(args['config'][0])
+        if len(config) < 5:
+            raise ExposedException('invalid config')
+        return do_configure(target, config + "\n")
+
+    raise ExposedException('unknown action')
+
+def handle_route_server(server_name, subpath, request):
+    url = None
+    try:
+        url = Config.get('relay', server_name)
+    except:
+        pass
+
+    if url is None:
+        raise NotFoundException()
+
+    data = None
+    if request.method == 'POST':
+        data = request.body
+
+    result = ''
+    try:
+        conn = urllib2.urlopen(url + '/' + subpath + '?' + request.environ['QUERY_STRING'], data, timeout=5)
+        result = conn.read()
+        conn.close()
+    except urllib2.HTTPError as e:
+        raise ExposedException(e.reason, status=e.code)
+
+    headers = map(lambda kv: (kv[0].lower().strip(), kv[1].strip()), map(lambda h: h.split(': ', 1), conn.info().headers))
+    content_type = filter(lambda kv: kv[0] == 'content-type', headers)[0][1]
+    response = Response(result, content_type=content_type)
+
+    return response
+
+def authenticate(auth_data):
+    expected_username = Config.get('auth', 'username', None)
+    expected_password = Config.get('auth', 'password', None)
+    if not expected_username or not expected_password:
+        raise Exception('no username or password configured')
+
+    if auth_data is None or ' ' not in auth_data:
+        # no auth data supplied by client
+        return False
+
+    (client_method, client_credentials_encoded) = auth_data.split(' ', 2)
+    if client_method != 'Basic':
+        # unsupported auth method
+        return False
+
+    client_credentials = base64.b64decode(client_credentials_encoded)
+    (client_username, client_password) = client_credentials.split(':', 2)
+    if client_username == expected_username and client_password == expected_password:
+        return True
+    else:
+        return False
+
+def route(request):
+    if not authenticate(request.environ.get('HTTP_AUTHORIZATION', '')):
+        raise AuthenticationRequiredException('Basic realm="manager"')
+
+    if request.path == '/do':
+        action = request.args.get('action', [None])[0]
+        target = request.args.get('target', [None])[0]
+        if action is None or target is None:
+            raise NotFoundException()
+
+        return JSONResponse(handle_route_do(action, target, request.args), callback=request.args.get('callback', [None])[0])
+
+    elif request.path.startswith('/server/'):
+        server_name = request.path.split('/server/', 1)[1]
+        subpath = ''
+        if '/' in server_name:
+            (server_name, subpath) = server_name.split('/', 1)
+
+        return handle_route_server(server_name, subpath, request)
+
+    else:
+        raise NotFoundException()
+
+def manager_app(environ, start_response):
+
+    path = request_uri(environ)
+    parsed_path = urlparse.urlparse(path)
+    method = environ['REQUEST_METHOD']
+    args = {}
+    request_body = ''
+    if method == 'POST':
+        request_body_size = int(environ['CONTENT_LENGTH'])
+        request_body = str(environ['wsgi.input'].read(request_body_size))
+        args = urlparse.parse_qs(request_body)
+    else:
+        args = urlparse.parse_qs(parsed_path.query)
+
+    try:
+        path = '/'.join(filter(lambda component: component != '', parsed_path.path.split('/')))
+        if '..' in path:
+            raise NotFoundException()
+
+        path = '/' + path
+        request = Request(environ=environ, path=path, args=args, method=method, body=request_body)
+
+        response = route(request)
+
+    except ExposedException as e:
+        response = ExceptionResponse(e)
+
+    return response.start(start_response)
+
+if __name__ == '__main__':
+    Config.add_section('server')
+    Config.set('server', 'port', '8080')
+    Config.set('server', 'address', '127.0.0.1')
+    Config.read("pdnsmgrd.conf")
+
+    port = Config.getint('server', 'port')
+    address = Config.get('server', 'address')
+    if address == '':
+        address = '0.0.0.0'
+
+    httpd = make_server(address, port, manager_app, server_class=wsgissl.SecureWSGIServer, handler_class=wsgissl.SecureWSGIRequestHandler)
+    httpd.allow_reuse_address = True
+    httpd.set_credentials(Config.get('server', 'keyfile'), Config.get('server', 'certfile'))
+
+    print("Serving https://%s:%d/ ..." % (address, port))
+    httpd.serve_forever()

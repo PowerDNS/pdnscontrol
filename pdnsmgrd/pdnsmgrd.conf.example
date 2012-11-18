@@ -1,0 +1,13 @@
+[auth]
+username = secret
+password = sikrit
+
+[server]
+port = 8080
+address =
+certfile = ssl-cert-snakeoil.pem
+keyfile = ssl-cert-snakeoil.key
+allow_origin = *
+
+[relay]
+1 = http://xs.powerdns.com:8082/

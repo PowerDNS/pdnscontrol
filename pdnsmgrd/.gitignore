@@ -1,0 +1,4 @@
+pdnsmgrd.conf
+ssl-cert-*
+*.pyc
+__pycache__

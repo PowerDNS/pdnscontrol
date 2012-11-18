@@ -43,16 +43,15 @@
   <script>
     $(function() {
       build_auth({{ server|tojson|safe }});
-    }
+    });
   </script> 
 {% else %}
   <script src="{{ url_for('static', filename='javascripts/recursor.js') }}"></script>
   <script>
     $(function() {
       build_recursor({{ server|tojson|safe }});
-    }
+    });
   </script> 
-
 {% endif %}
 
   <div id="domainModal" class="reveal-modal expand">

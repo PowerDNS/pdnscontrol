@@ -40,11 +40,11 @@
 <body>
   <div class="row">
       <div class="seven columns">
-      <h3><a href="/camel">PowerDNS Control Server</a></h3>
+      <h3><a href="./">PowerDNS Control Server</a></h3>
       </div>
       <div class="five columns">
       <br>
-      <a href="/camel"><img align="right" class="logo" src="http://xs.powerdns.com/logos/powerdns-logo-154px.png"></a>
+      <a href="./"><img align="right" class="logo" src="http://xs.powerdns.com/logos/powerdns-logo-154px.png"></a>
       </div>
   </div>
   <div class="row">
@@ -55,13 +55,13 @@
       id="uptime">...</span></p>
       <p>
       <ul class="button-group four-up even">
-        <li><a href="#" class="alert button">Shutdown</a></li>
-        <li><a href="#" class="button">Restart</a></li>
-        <li><a href="#" class="button" onClick="$('#flushModal').reveal({close: function(){ $('#flushSpinner').html(''); }});">Flush cache</a></li>
-        <li><a href="#" class="button">Deploy</a></li>
+        <li><a href="#" class="alert button" id="btnActionShutdown">Shutdown</a></li>
+        <li><a href="#" class="button" id="btnActionRestart">Restart</a></li>
+        <li><a href="#" class="button" id="btnActionFlushCache">Flush cache</a></li>
+        <li><a href="#" class="button" id="btnActionDeploy">Deploy</a></li>
       </ul>
       <hr>
-      <form onSubmit="return doLogShow($('#logQuery').val());">
+      <form id="logSearchForm">
       <fieldset>
       <legend>Log Search</legend>
       <input type="text" id="logQuery" placeholder="Standard Input" />
@@ -88,112 +88,51 @@
   <script src="javascripts/jquery.js"></script>
   <script src="javascripts/foundation.min.js"></script>
   <script src="javascripts/jquery.dataTables.min.js"></script>  
-  <!-- Initialize JS Plugins -->
-  <script src="javascripts/app.js"></script>
+  <script src="javascripts/underscore-min.js"></script>
   <script src="javascripts/purl.js"></script>
   <script src="javascripts/jquery.foundation.reveal.js"></script>
   <script src="javascripts/spin.min.js"></script>
   <script src="javascripts/jquery.spin.js"></script>
-    <script>
-    var url;
-    
+  <!-- Initialize JS Plugins -->
+  <script src="javascripts/app.js"></script>
+  <script src="javascripts/auth.js"></script>
+  <script>
     $(function() {
-        url = $.url().param("url");
-        $("#server-name").html($.url().param("server-name"));
-        var graphname = $.url().param("server-name").replace(new RegExp("\\.","gm"), '-');
-        var graphurl= 'http://89.188.0.40:8085/render/?width=686&height=308&_salt=1352972312.281&areaMode=first';
-        graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.auth.udp-answers),\'Answers\')';
-        graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.auth.udp-queries), \'Queries\')';
-        graphurl += '&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
-	$("#graphTab").html('<img src="'+graphurl+'">');
-        
-	$.getJSON(url+'/jsonstat?command=get&callback=?', function(data) {
-		var flat=[];
-		$.each(data, function(e){
-		  flat.push([e, data[e]]);
-		});
-		
-		$("#version").html(data["version"]);
-		moment.lang('en');
-		var startup = moment().subtract('seconds', data["uptime"]);
-		$("#uptime").html(startup.format('LLLL') + " ("+startup.fromNow()+")");
-		$("#statistics").dataTable( { aaData: flat, iDisplayLength:
-		  50, aoColumns:
-					   [{sTitle: "variable"}, {sTitle: "value"}]}); });
-					   
-	$.getJSON(url+'/jsonstat?command=domains&callback=?', function(data) {
-		var flat=[];
-		$.each(data["domains"], function(e){
-		  var d = data["domains"][e];
-		  flat.push([ '<a href="#" onClick="showDomain(\''+d.name+'\');">'+d.name+'</a>',  d.kind,  d.masters, d.serial]);
-		});
-		  
-		$("#domains").dataTable( { aaData: flat, iDisplayLength:  50, aoColumns:
-					   [{sTitle: "Domain"}, {sTitle:  "Kind"}, {sTitle:
-					   "Masters"}, {sTitle: "Serial"} ]}); });					   
-
-	$.getJSON(url+'/jsonstat?command=config&callback=?', function(data) {
-		$("#config").dataTable( { aaData: data, iDisplayLength:  50, aoColumns:
-					   [{sTitle: "Variable"}, {sTitle:  "Value"}
-					   ]}); });					   
-
-					   
+      $.getJSON("servers.json", function(servers) {
+        var server_name = $.url().param("server-name");
+        build_auth(
+          _.find(servers, function(server) {
+            return server['name'] === server_name;
+          })
+        );
+      });
     });
-    
-    function showDomain(domain) {
-	$("#domainModal").reveal();
-	$.getJSON(url+'/jsonstat?command=get-zone&callback=?&zone='+domain, function(data) {
-		var flat=[];
-		$.each(data, function(key, value) {
-			flat.push([value["name"], value["type"], value["ttl"], value["priority"], value["content"]]);
-		});
-		console.log(flat);
-		$("#domain").html("");
-		$("#domain").dataTable( { bDestroy: true, aaData: flat,
-		bSort: false, aoColumns: [
-			{sTitle: "Domain"}, {sTitle: "Type"}, {sTitle:
-			"TTL"}, {sTitle: "Priority"}, {sTitle: "content"}]});
-	});
-    }
-    
-    function doLogShow(query) {
-	$('#holder').html('<table id="logTable"></table>');
-    	$('#logModal').reveal();
-    	$.getJSON(url+"/jsonstat?command=log-grep&needle="+query+"&callback=?",
-	    	function(data) {
-	    		console.log(data);
-	    		$('#logTable').dataTable({ aaData: data, bSort:
-	    		false, aoColumns: [{sTitle: "Line"}]});
-	    		$('#logTable').dataTable().fnAdjustColumnSizing();
-    		} 
-    	);
-    	return false;
-    }
-    </script> 
 
-<div id="domainModal" class="reveal-modal expand">
+  </script> 
 
-	<table id="domain"></table>
-	<a class="close-reveal-modal">&#215;</a>
-</div>  
+  <div id="domainModal" class="reveal-modal expand">
+    <table id="domain"></table>
+    <a class="close-reveal-modal">&#215;</a>
+  </div>
 
-<div id="logModal" class="reveal-modal expand">
-	<div class="row"><div class="ten columns">
-	<form onSubmit="return doLogShow($('#logQuery2').val());">
-		<fieldset>
-		      <legend>Log Search</legend>
-		      <input type="text" id="logQuery2" placeholder="Standard Input" />
-	      </fieldset>
-      	</form>
-	</div></div>
-<div class="row"><div class="twelve columns"><span id="holder"></span></div></div>
-<a class="close-reveal-modal">&#215;</a>
-</div>  
-
+  <div id="logModal" class="reveal-modal expand">
+    <div class="row">
+      <div class="ten columns">
+        <form>
+	  <fieldset>
+	    <legend>Log Search</legend>
+	    <input type="text" id="logQuery2" placeholder="Standard Input" />
+	  </fieldset>
+        </form>
+      </div>
+      </div>
+    <div class="row"><div class="twelve columns"><span id="holder"></span></div></div>
+    <a class="close-reveal-modal">&#215;</a>
+  </div>
 
 <div id="flushModal" class="reveal-modal medium">
 <h3>Flush entire cache or parts of it</h3>
-<form onSubmit="return doFlush(url, $('#domainToFlush').val());">
+<form>
   <fieldset>
 
     <legend>Flush</legend>
@@ -204,7 +143,7 @@
     <div class="row">
     <div class="six columns"></div>    
     <div class="two columns"><input type="button" class="small alert button" onClick="$('#flushModal').trigger('reveal:close');" value="Cancel"/></div>
-    <div class="two columns right"><input type="button" onClick="doFlush(url, $('#domainToFlush').val());" class="small success button" value="Flush"/></div>
+    <div class="two columns right"><input type="button" class="small success button" value="Flush"/></div>
     <div class="two columns" id="flushSpinner"></div>
     
     </div>
@@ -213,21 +152,6 @@
 </form>
 <a class="close-reveal-modal">&#215;</a>
 </div>  
-
-
-<script>
-function doFlush(url, domain)
-{
-	console.log("Should start the spinner now!");
-	$("#flushSpinner").spin("small");
-	$.getJSON(url+'/jsonstat?command=flush-cache&domain='+domain+'&callback=?',
-	function(data) {
-		$("#flushSpinner").html(data["number"]+" flushed");
-	} );
-	$("#flushModal").close= function() { $("#flushSpinner").html(""); $("#domainToFlush").val("");};
-	return false;
-}
-</script>
 
 </body>
 </html>

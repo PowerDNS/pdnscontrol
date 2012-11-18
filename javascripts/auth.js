@@ -131,6 +131,12 @@ function build_auth(server) {
   });
   $('#logModal form').bind('submit', function() {
     return doLogShow(server, $('#logQuery2').val());
+
+  $('#btnActionRestart').click(function() {
+    server_start_stop_restart(server, 'restart');
+  });
+  $('#btnActionShutdown').click(function() {
+    server_start_stop_restart(server, 'stop');
   });
 
   $('#btnActionFlushCache').click(function() {

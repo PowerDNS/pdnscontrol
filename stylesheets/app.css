@@ -19,6 +19,17 @@ IMG.logo {
     margin-top: 7px; 
 }
 
+.output pre {
+    margin-bottom: 2em;
+    margin-top: 0.8em;
+    background: #eee;
+    padding: 5px 5px 5px 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    border-bottom: 2px solid #bbb;
+    border-right: 2px solid #bbb;
+}
+
 /* -----------------------------------------
    Page Name 1
 ----------------------------------------- */

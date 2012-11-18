@@ -10,7 +10,8 @@
       "type" : "Authoritative"
    },
    {
-      "url" : "http://xs.powerdns.com:8082/",
+      "manager_url": "https://secret:sikrit@hlds.namespace.at:8080/do/",
+      "url"  : "https://secret:sikrit@hlds.namespace.at:8080/server/1/",
       "name" : "xs.powerdns.com",
       "type" : "Recursor"
    },

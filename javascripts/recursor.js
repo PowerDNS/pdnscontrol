@@ -103,6 +103,14 @@ function build_recursor(server) {
     return doLogShow(server, $('#logQuery2').val());
   });
 
+  $('#btnActionRestart').click(function() {
+    server_start_stop_restart(server, 'restart');
+  });
+  $('#btnActionShutdown').click(function() {
+    server_start_stop_restart(server, 'stop');
+  });
+
+
   $('#btnActionFlushCache').click(function() {
     $('#flushModal form').bind('submit', function() {
       return doFlush(server, $('#domainToFlush').val());

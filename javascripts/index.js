@@ -3,7 +3,7 @@ function build_index(servers) {
     var url = (v.type === 'Authoritative') ? 'auth.html' : 'recursor.html';
 
     $('<tr><td><label for="checkbox3"><input type="checkbox" id="checkbox3"></label></td>' +
-      '<td>'+v.type+'</td><td><a href="'+url+'?url='+v.url+'&server-name='+v.name+'">'+v.name+'</a></td><td id="mainip'+key+'"></td><td id="version' +
+      '<td>'+v.type+'</td><td><a href="'+url+'?server-name='+v.name+'">'+v.name+'</a></td><td id="mainip'+key+'"></td><td id="version' +
       key+'">...</td><td id="up'+key+'">...</td><td><span id="sparkline'+key+'"></span></td></tr>').appendTo('#servers > tbody:last');
     if(v.type==='Authoritative') {
       $.getJSON(

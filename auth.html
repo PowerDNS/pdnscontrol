@@ -57,7 +57,7 @@
       <ul class="button-group four-up even">
         <li><a href="#" class="alert button">Shutdown</a></li>
         <li><a href="#" class="button">Restart</a></li>
-        <li><a href="#" class="button" onClick="$('#flushModal').reveal({close: function(){ $('#flushSpinner').html(''); }});">Flush cache</a></li>
+        <li><a href="#" class="button" id="btnActionFlushCache">Flush cache</a></li>
         <li><a href="#" class="button">Deploy</a></li>
       </ul>
       <hr>
@@ -109,7 +109,7 @@
 
 <div id="flushModal" class="reveal-modal medium">
 <h3>Flush entire cache or parts of it</h3>
-<form onSubmit="return doFlush(url, $('#domainToFlush').val());">
+<form>
   <fieldset>
 
     <legend>Flush</legend>
@@ -120,7 +120,7 @@
     <div class="row">
     <div class="six columns"></div>    
     <div class="two columns"><input type="button" class="small alert button" onClick="$('#flushModal').trigger('reveal:close');" value="Cancel"/></div>
-    <div class="two columns right"><input type="button" onClick="doFlush(url, $('#domainToFlush').val());" class="small success button" value="Flush"/></div>
+    <div class="two columns right"><input type="button" class="small success button" value="Flush"/></div>
     <div class="two columns" id="flushSpinner"></div>
     
     </div>

@@ -1,6 +1,4 @@
-var url;
-
-function showDomain(domain) {
+function showDomain(url, domain) {
   $("#domainModal").reveal();
   $.getJSON(url+'/jsonstat?command=get-zone&callback=?&zone='+domain, function(data) {
     var flat=[];
@@ -40,7 +38,7 @@ function doFlush(url, domain) {
 }
 
 function build_auth(server) {
-  url = server.url;
+  var url = server.url;
   $("#server-name").html(server.name);
 
   var graphname = server.name.replace(new RegExp("\\.","gm"), '-');
@@ -72,7 +70,7 @@ function build_auth(server) {
     $.each(data["domains"], function(e) {
       var d = data["domains"][e];
       flat.push([
-        '<a href="#" onClick="showDomain(\''+d.name+'\');">'+d.name+'</a>',
+        '<a href="#" onClick="showDomain(\''+url+'\', \''+d.name+'\');">'+d.name+'</a>',
         d.kind,
         d.masters,
         d.serial
@@ -99,6 +97,23 @@ function build_auth(server) {
         {sTitle: "Variable"},
         {sTitle: "Value"}
         ]
+    });
+  });
+
+  $('#btnActionFlushCache').click(function() {
+    $('#flushModal form').bind('submit', function() {
+      return doFlush(url, $('#domainToFlush').val());
+    });
+    $('#flushModal input.success').click(function() {
+      return doFlush(url, $('#domainToFlush').val());
+    });
+    $('#flushModal').reveal({
+      close: function() {
+        $('#flushSpinner').html('');
+        },
+      open: function() {
+        $('#domainToFlush').focus();
+        }
     });
   });
 }

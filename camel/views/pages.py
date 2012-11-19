@@ -4,6 +4,7 @@ from flask import Blueprint, render_template, request, url_for, redirect, sessio
 from flask import current_app, jsonify, make_response
 import camel
 from camel.utils import jsonpify
+import urlparse
 
 mod = Blueprint('pages', __name__)
 
@@ -12,9 +13,11 @@ servers_public = map(lambda server: {'url': '/api/server/'+server['name']+'/', '
 @mod.route('/servers.json')
 def servers_json():
     # legacy URL which we need for pdns2graphite for the time being
-    content = json.dumps(servers_public)
-    mimetype = 'application/json'
-    return current_app.response_class(content, mimetype=mimetype)
+    servers = []
+    for server in servers_public:
+        server['url'] = urlparse.urljoin(request.url_root, server['url'])
+        servers.append(server)
+    return jsonify(servers=servers)
 
 @mod.route('/')
 def index():

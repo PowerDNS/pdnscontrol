@@ -37,9 +37,10 @@ function server_start_stop_restart(server, action) {
           append("<label class=error>"+action_title+" failed:</label>").
           append($('<pre>').text(result.output));
       }
-      spinner.html('');
     }).fail(function(jqXHR, textStatus) {
       alert('Request failed.');
+    }).always(function() {
+      spinner.html('');
     });
     return false; // cancel close
   });
@@ -75,8 +76,9 @@ function server_flush(server) {
     }).done(function(result) {
       spinner.text(result.content.number+" flushed");
     }).fail(function(jqXHR, textStatus) {
+      spinner.html('');
       alert('Request failed.');
-    });;
+    });
     return false; // cancel close
   });
 
@@ -238,7 +240,6 @@ function auth_show_domain(server, domain) {
     $.each(data.content, function(key, value) {
       flat.push([value["name"], value["type"], value["ttl"], value["priority"], value["content"]]);
     });
-    console.log(flat);
     table.dataTable({
       bDestroy: true,
       aaData: flat,
@@ -315,7 +316,6 @@ function build_recursor(server) {
     "alias(nonNegativeDerivative(%SOURCE%.questions), 'Questions')",
     "alias(sumSeries("+answers+"), 'Answers')",
   ], {areaMode: 'first'});
-  console.log(graphurl);
 
   $("#graphTab").append($('<img>').attr('src', graphurl));
 
@@ -346,7 +346,7 @@ function build_index(servers) {
     var serverid = key;
 
     var row = $(
-      '<tr id="server'+key+'">' +
+      '<tr id="server'+key+'" data-server-name="'+server.name+'">' +
         '<td><label for="checkbox'+key+'">' +
         '<input type="checkbox" id="checkbox'+key+'"></label></td>' +
         '<td>'+server.type+'</td>' +
@@ -368,7 +368,6 @@ function build_index(servers) {
 
     $.getJSON(server.url + 'config', function(data) {
       var config = data.config instanceof Array && _.object(data.config) || data;
-      console.log(data);
       row.find('.mainip').text(config['local-address'] + ' ' + (config['local-ipv6']||''));
       if (config['version-string']) {
 	row.find('.version').text(config["version-string"].split(" ")[2]);
@@ -451,5 +450,86 @@ function build_index(servers) {
   $('#checkboxAll').change(function() {
     var newState = this.checked;
     $('#servers input[type="checkbox"]').prop('checked', newState);
+  });
+
+  $('#btnActionFlushCache').click(function() {
+    $('#servers input[type=checkbox]')
+    var server_names = $('#servers tr[data-server-name] input[type=checkbox]:checked').parents('tr').map(function(k,v) { return v.dataset.serverName; });
+
+    if (server_names.length == 0) {
+      // TODO: never come here in the first place
+      alert('Please select servers to flush.');
+      return;
+    }
+
+    multi_flush(_.filter(servers, function(server) {
+      return _.contains(server_names, server.name);
+    }));
+  });
+
+}
+
+function multi_flush(servers) {
+  var html = '<h3>Flush entire cache or parts of it</h3>' +
+    '<div class="row"><input id="domainToFlush" type="text"></div>' +
+    '<div class="row"><div class="output" style="margin-left: 4em;">Servers:<br></div></div>' +
+    '<div class="row"><div class="right"><div class="inline-block spinner"></div>' +
+    '<div class="inline-block">' +
+    '<input type=button class="small button success" value="Flush"> ' +
+    '<input type=button class="small button alert" value="Cancel">' +
+    '</div></div>';
+
+  var modal = get_modal('fixedWidth1000', html);
+  var domainToFlush = $('#domainToFlush');
+
+  modal.find('.output').append(
+    $('<ul></ul>').append(
+      _.map(servers, function(server) { return $('<li>').text(server.name).attr('data-server-name', server.name).append(' &nbsp;  <span class=result></span>'); })
+    )
+  );
+
+  modal.find('input.success').click(function() {
+    var spinner = modal.find('.spinner').html('').spin('small');
+    var domain = domainToFlush.val();
+    var action = 'flush-cache';
+    var requests_done = 0;
+
+    _.each(servers, function(server) {
+      var output_result = modal.find('.output ul li[data-server-name="'+server.name+'"] span.result');
+      output_result.text('Working...');
+      $.ajax({
+        url: server.url+action,
+        data: {'domain': domain},
+        dataType: "json",
+        type: 'POST'
+      }).done(function(result) {
+        output_result.text(result.content.number+" flushed");
+      }).fail(function(jqXHR, textStatus) {
+        output_result.html('<b>Request failed.</b>');
+      }).always(function() {
+        requests_done = requests_done+1;
+        if (requests_done === servers.length) {
+          spinner.html('');
+        }
+      });
+    });
+
+    return false; // cancel close
+  });
+
+  modal.find('input.alert').click(function() {
+    modal.trigger('reveal:close');
+  });
+
+  domainToFlush.keypress(function(e) {
+    if (e.which == 13) {
+      modal.find('input.success').click();
+    }
+  });
+
+  modal.reveal({
+    open: function() {
+      domainToFlush.focus();
+    }
   });
 }

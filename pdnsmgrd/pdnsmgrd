@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 
 from __future__ import print_function
 
@@ -25,6 +25,27 @@ startstop_command = {'start': 'start', 'stop': 'stop', 'restart': 'restart'}
 Config = ConfigParser.ConfigParser()
 
 Request = collections.namedtuple('Request', ['environ', 'args', 'path', 'method', 'body'])
+
+def check_output(*popenargs, **kwargs):
+    r"""Run command with arguments and return its output as a byte string.
+
+    Backported from Python 2.7 as it's implemented as pure python on stdlib.
+    from https://gist.github.com/1027906
+
+    >>> check_output(['/usr/bin/python', '--version'])
+    Python 2.6.2
+    """
+    process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
+    output, unused_err = process.communicate()
+    retcode = process.poll()
+    if retcode:
+        cmd = kwargs.get("args")
+        if cmd is None:
+            cmd = popenargs[0]
+        error = subprocess.CalledProcessError(retcode, cmd)
+        error.output = output
+        raise error
+    return output
 
 class ExposedException(Exception):
     def __init__(self, message, status=500, headers=None):
@@ -80,7 +101,7 @@ class ExceptionResponse(Response):
 def run_proc(cmdline):
     status = {'success': True, 'cmdline': cmdline}
     try:
-        status['output'] = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
+        status['output'] = check_output(cmdline, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         status['success'] = False
         status['returncode'] = e.returncode
@@ -93,7 +114,7 @@ def do_start_stop_restart(action, target):
 
 def do_install_upgrade(target, version):
     cmdline = become_root + ['apt-get', 'update']
-    subprocess.check_output(cmdline)
+    check_output(cmdline)
     pkg = Config.get(target, 'package')
     if len(version) > 0:
         pkg = pkg + '==' + version

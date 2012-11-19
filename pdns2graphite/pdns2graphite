@@ -112,17 +112,16 @@ if __name__ == '__main__':
 
     while True:
 
-        for server in getserverlist(serverlist_url):
+        for server in getserverlist(serverlist_url)['servers']:
             url = server['url']
             if 'type' in server:
+                url = url + 'stats'
                 if server['type'] == 'Authoritative':
                     statlist = auth
                     type = 'auth'
-                    url = url + "/jsonstat?command=get"
                 else:
                     statlist = recursor
                     type = 'recursor'
-                    url = url + "/stats"
             graph_server(url, type, statlist, server['name'])
         time.sleep(DELAY)
 

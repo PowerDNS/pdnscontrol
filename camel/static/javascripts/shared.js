@@ -287,9 +287,9 @@ function build_auth(server) {
   $("#graphTab").append($('<img>').attr('src', graphurl));
 
   var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.auth', [
-    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.corrupt-packets), 'corrupt-packets'))",
-    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.servfail-packets), 'servfail-packets'))",
-    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.timedout-packets), 'timedout-packets'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.corrupt-packets), 'corrupt packets'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.servfail-packets), 'servfail packets'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.timedout-packets), 'timed out packets'))",
   ], {title: 'Errors'});
 
   $("#graphTab").append($('<img>').attr('src', graphurl));

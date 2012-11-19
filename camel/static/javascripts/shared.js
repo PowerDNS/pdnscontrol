@@ -14,7 +14,11 @@ function server_start_stop_restart(server, action) {
 
   modal.find('input.success').click(function() {
     var spinner = modal.find('.spinner').spin('small');
-    $.getJSON(server.url+action, function(result) {
+    $.ajax({
+      url: server.url+action,
+      dataType: "json",
+      type: 'POST'
+    }).done(function(result) {
       if (result.success) {
         modal.find('.output').
           empty().
@@ -34,6 +38,8 @@ function server_start_stop_restart(server, action) {
           append($('<pre>').text(result.output));
       }
       spinner.html('');
+    }).fail(function(jqXHR, textStatus) {
+      alert('Request failed.');
     });
     return false; // cancel close
   });
@@ -60,9 +66,17 @@ function server_flush(server) {
   modal.find('input.success').click(function() {
     var spinner = modal.find('.spinner').html('').spin('small');
     var domain = domainToFlush.val();
-    $.getJSON(server.url+'flush-cache?domain='+domain, function(result) {
+    var action = 'flush-cache';
+    $.ajax({
+      url: server.url+action,
+      data: {'domain': domain},
+      dataType: "json",
+      type: 'POST'
+    }).done(function(result) {
       spinner.text(result.content.number+" flushed");
-    });
+    }).fail(function(jqXHR, textStatus) {
+      alert('Request failed.');
+    });;
     return false; // cancel close
   });
 

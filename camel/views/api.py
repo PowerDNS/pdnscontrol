@@ -50,7 +50,7 @@ def server_loggrep(server):
 
     return jsonify({'needle': needle, 'content': json})
 
-@mod.route('/server/<server>/flush-cache')
+@mod.route('/server/<server>/flush-cache', methods=['POST'])
 def server_flushcache(server):
     server = filter(lambda x: x['name'] == server, camel.config['servers'])[0]
 
@@ -63,7 +63,7 @@ def server_flushcache(server):
 
     return jsonify({'domain': domain, 'content': json})
 
-@mod.route('/server/<server>/<action>')
+@mod.route('/server/<server>/<action>', methods=['GET','POST'])
 def server_stats(server, action):
     server = filter(lambda x: x['name'] == server, camel.config['servers'])[0]
 
@@ -71,7 +71,10 @@ def server_stats(server, action):
     manager_actions = ['start', 'stop', 'restart', 'update', 'install']
     generic_actions = pdns_actions + manager_actions
     if action not in generic_actions:
-        raise Exception("invalid api action")
+        return "invalid api action", 404
+
+    if action in manager_actions and request.method != 'POST':
+        return "must call action %s using POST" % (action,), 403
 
     remote_url = None
     if action in manager_actions:

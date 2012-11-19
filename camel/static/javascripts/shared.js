@@ -390,6 +390,10 @@ function build_index(servers) {
         target: 'nonNegativeDerivative(' + source + '.' + metric + ')'
       },
       success: function(data) {
+        if (data.length == 0) {
+          console.log('No sparkline data for host '+server.name);
+          return;
+        }
         var points = data[0].datapoints;
         var flat = [];
         $.each(points, function(key, value) {

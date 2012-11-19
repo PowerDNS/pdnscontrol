@@ -168,6 +168,10 @@ function build_server_common(server) {
   $('#btnActionFlushCache').click(function() {
     server_flush(server);
   });
+  $('#btnActionDeploy').click(function() {
+    alert('Server is up to date.');
+    return;
+  });
 
   $.getJSON(server.url+'stats', function(data) {
     if (server.type === 'Authoritative') {
@@ -287,9 +291,9 @@ function build_auth(server) {
   $("#graphTab").append($('<img>').attr('src', graphurl));
 
   var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.auth', [
-    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.corrupt-packets), 'corrupt-packets'))",
-    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.servfail-packets), 'servfail-packets'))",
-    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.timedout-packets), 'timedout-packets'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.corrupt-packets), 'corrupt packets'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.servfail-packets), 'servfail packets'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.timedout-packets), 'timed out packets'))",
   ], {title: 'Errors'});
 
   $("#graphTab").append($('<img>').attr('src', graphurl));
@@ -540,6 +544,10 @@ function build_index(servers) {
     }));
   });
 
+  $('#btnActionDeploy').click(function() {
+    alert('Servers are up to date.');
+    return;
+  });
 }
 
 function multi_flush(servers) {

@@ -5,11 +5,18 @@ from flask import current_app, jsonify, make_response
 import camel
 from camel.utils import jsonpify
 import requests
+import urlparse
 
 mod = Blueprint('api', __name__)
 
 def fetch_json(remote_url):
-    r = requests.get(remote_url, headers={'user-agent': 'Camel/0'})
+    verify = not camel.config.get('ignore_ssl_errors', False)
+    auth = None
+    parsed_url = urlparse.urlparse(remote_url).netloc
+    if '@' in parsed_url:
+        auth = parsed_url.split('@')[0].split(':')
+        auth = requests.auth.HTTPBasicAuth(auth[0], auth[1])
+    r = requests.get(remote_url, headers={'user-agent': 'Camel/0'}, verify=verify, auth=auth)
     r.raise_for_status()
     assert('json' in r.headers['content-type'])
     return r.json
@@ -17,7 +24,7 @@ def fetch_json(remote_url):
 def build_pdns_url(server):
     remote_url = server['url']
     if server['type'] == 'Authoritative':
-        remote_url += 'jsonstat'
+        remote_url = urlparse.urljoin(remote_url, '/jsonstat')
     return remote_url
 
 @mod.route('/server/<server>/zone/<zone>')
@@ -66,19 +73,22 @@ def server_stats(server, action):
     if action not in generic_actions:
         raise Exception("invalid api action")
 
-    remote_url = build_pdns_url(server)
+    remote_url = None
     if action in manager_actions:
         target = server['type']
-        remote_url = server['manager_url'] + '/do/?action='+action+'&target='+target
+        remote_url = urlparse.urljoin(server['manager_url'], '/do/?action='+action+'&target='+target)
 
-    remote_action = action
-    if server['type'] == 'Authoritative':
-        if action == 'stats':
-            remote_action = 'get'
-        elif action == 'config':
-            remote_action = 'config'
+    else:
+        # pdns actions
+        remote_action = action
+        if server['type'] == 'Authoritative':
+            if action == 'stats':
+                remote_action = 'get'
+            elif action == 'config':
+                remote_action = 'config'
+        remote_url = urlparse.urljoin(build_pdns_url(server), '?command=' + remote_action)
 
-    json = fetch_json(remote_url + '?command=' + remote_action)
+    json = fetch_json(remote_url)
 
     if isinstance(json, list):
         return jsonify({action: json})

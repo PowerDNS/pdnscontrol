@@ -2,6 +2,7 @@
   "DEBUG": true,
   "SECRET_KEY": "asdf",
   "LISTEN_ADDRESS": "0.0.0.0",
+  "ignore_ssl_errors": true,
   "servers": [
    {
       "url" : "http://powerdnssec1.ds9a.nl:8081/",
@@ -24,6 +25,5 @@
       "name" : "home.ds9a.nl",
       "type" : "Recursor"
    }
-]
-
+  ]
 }

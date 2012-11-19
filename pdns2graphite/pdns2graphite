@@ -7,7 +7,7 @@ import requests
 import json
 import time
 import socket
-
+import urlparse
 
 auth = [ 'udp-queries', 'udp-answers']
 recursor = [    # http://doc.powerdns.com/recursor-stats.html
@@ -121,7 +121,7 @@ if __name__ == '__main__':
         for server in getserverlist(serverlist_url)['servers']:
             url = server['url']
             if 'type' in server:
-                url = url + 'stats'
+                url = urlparse.urljoin(url, 'stats')
                 if server['type'] == 'Authoritative':
                     statlist = auth
                     type = 'auth'

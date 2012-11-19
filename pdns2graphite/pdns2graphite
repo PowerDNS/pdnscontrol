@@ -122,6 +122,13 @@ def graph_server(url, type, keys, node):
     logger.debug('carbon message: %s', message)
     send_it(message)
 
+def sleepuntil(ts):
+    now = time.time()
+    if now > ts:
+        logger.warning('no sleep between loops, increase interval?')
+        return
+    time.sleep(ts-now)
+
 def main():
     if len(sys.argv) < 2:
         sys.exit("Usage: %s serverlist.json [carbonserver port [interval]]" % sys.argv[0])
@@ -134,10 +141,11 @@ def main():
 
     if len(sys.argv) == 5:
         global DELAY
-        DELAY = int(sys.argv[4])
+        DELAY = float(sys.argv[4])
 
     logger.warning('starting up with serverlist %s', serverlist_url)
     while True:
+        lastpoll = time.time()
         logger.debug('polling')
         for server in getserverlist(serverlist_url):
             url = server['url']
@@ -150,7 +158,7 @@ def main():
                     statlist = recursor
                     type = 'recursor'
             graph_server(url, type, statlist, server['name'])
-        time.sleep(DELAY)
+        sleepuntil(lastpoll+DELAY)
 
 if __name__ == '__main__':
     main()

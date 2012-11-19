@@ -17,7 +17,7 @@ del f
 
 app = Flask(__name__)
 app.debug = config['DEBUG']
-app.secret_key = config['SECRET_KEY']
+app.secret_key = str(config['SECRET_KEY'])
 
 @app.errorhandler(404)
 def not_found(error):

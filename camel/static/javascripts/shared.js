@@ -125,4 +125,63 @@ function build_server_common(server) {
         }
     });
   });
+
+  $.getJSON(server.url+'stats', function(data) {
+    if (server.type === 'Authoritative') {
+      // recursor has this in config
+      $("#version").html(data["version"]);
+    }
+
+    moment.lang('en');
+    var startup = moment().subtract('seconds', data["uptime"]);
+    $("#uptime").html(startup.format('LLLL') + " ("+startup.fromNow()+")");
+
+    var flat = _.pairs(data);
+    $("#statistics").dataTable({
+      aaData: flat,
+      iDisplayLength: 50,
+      aoColumns: [
+        {sTitle: "Variable"},
+        {sTitle: "Value"}
+      ]
+    });
+  });
+
+  $.getJSON(server.url+'config', function(data) {
+    var flat;
+
+    if (server.type === 'Authoritative') {
+      flat = data.config;
+    } else {
+      flat = _.pairs(data);
+      // auth has this in stats
+      $("#version").html(data["version-string"].split(" ")[2]);
+    }
+
+    $("#config").dataTable({
+      aaData: flat,
+      iDisplayLength: 50,
+      aoColumns: [
+        {sTitle: "Variable"},
+        {sTitle: "Value"}
+        ]
+    });
+  });
+
+}
+
+function build_graph_url(source, targets, opts) {
+
+  var url = Config.graphite_server + '?width=686&height=308&_salt=1352972312.281';
+  opts = _.defaults(opts || {}, Config.graphite_default_opts);
+
+  url = _.reduce(_.pairs(opts), function(memo, pair) {
+    return memo + '&' + pair[0] + '=' + encodeURIComponent(pair[1]);
+  }, url);
+
+  url = _.reduce(targets, function(memo, target) {
+    return memo + '&target=' + encodeURIComponent(target.replace(/%SOURCE%/g, source));
+  }, url);
+
+  return url;
 }

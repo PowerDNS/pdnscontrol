@@ -23,34 +23,16 @@ function showDomain(server, domain) {
 }
 
 function build_auth(server) {
-  var url = server.url;
   $("#server-name").html(server.name);
 
-  var graphname = server.name.replace(new RegExp("\\.","gm"), '-');
-  var graphurl= Config.graphite_server+'?width=686&height=308&_salt=1352972312.281&areaMode=first';
-  graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.auth.udp-answers),\'Answers\')';
-  graphurl += '&target=alias(nonNegativeDerivative(pdns.'+graphname+'.auth.udp-queries), \'Queries\')';
-  graphurl += '&bgcolor=FFFFFF&majorGridLineColor=darkgray&minorGridLineColor=gray&fgcolor=000000';
-  $("#graphTab").html('<img src="'+graphurl+'">');
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.auth', [
+    "alias(nonNegativeDerivative(%SOURCE%.udp-answers), 'Answers')",
+    "alias(nonNegativeDerivative(%SOURCE%.udp-queries), 'Queries')",
+  ], {areaMode: 'first'});
 
-  $.getJSON(url+'stats', function(data) {
-    var flat = [];
-    $.each(data, function(e) {
-      flat.push([e, data[e]]);
-    });
+  $("#graphTab").append($('<img>').attr('src', graphurl));
 
-    $("#version").html(data["version"]);
-    moment.lang('en');
-    var startup = moment().subtract('seconds', data["uptime"]);
-    $("#uptime").html(startup.format('LLLL') + " ("+startup.fromNow()+")");
-    $("#statistics").dataTable({
-      aaData: flat,
-      iDisplayLength: 50,
-      aoColumns: [{sTitle: "variable"}, {sTitle: "value"}]
-    });
-  });
-
-  $.getJSON(url+'domains', function(data) {
+  $.getJSON(server.url+'domains', function(data) {
     var flat = [];
     $.each(data["domains"], function(e) {
       var d = data["domains"][e];
@@ -80,16 +62,6 @@ function build_auth(server) {
     });
   });
 
-  $.getJSON(url+'config', function(data) {
-    $("#config").dataTable({
-      aaData: data.config,
-      iDisplayLength: 50,
-      aoColumns: [
-        {sTitle: "Variable"},
-        {sTitle: "Value"}
-        ]
-    });
-  });
 
   build_server_common(server);
 }

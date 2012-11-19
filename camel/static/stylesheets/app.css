@@ -38,7 +38,7 @@ IMG.logo {
     display: block;
 }
 a#appname {
-    color: black;
+    color: #666;
 }
 
 h2#server-name {
@@ -54,6 +54,21 @@ table.dataTable {
     border-collapse: separate;
     border-spacing: 0;
 }
+table.dataTable tr.odd {
+    background-color: hsl(34, 61%, 85%);
+}
+table.dataTable tr.odd td.sorting_1 {
+    background-color: hsl(34, 61%, 75%);
+}
+table.dataTable tr.even td.sorting_1 {
+    background-color: hsl(43, 100%, 96%);
+}
+/*
+table.dataTable tr.odd td.sorting_2
+table.dataTable tr.odd td.sorting_3
+table.dataTable tr.even td.sorting_2
+table.dataTable tr.even td.sorting_3
+*/
 
 html {
     overflow-y: scroll;
@@ -71,6 +86,16 @@ html {
 
 .inline-block {
     display: inline-block;
+}
+
+a {
+    color: #E38000;
+}
+a:hover {
+    color: #E3A000;
+}
+.tabs dd.active, .tabs li.active {
+    border-top: 3px solid #E38000;
 }
 
 /* -----------------------------------------

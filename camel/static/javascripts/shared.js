@@ -163,10 +163,11 @@ function servers_log_grep(servers, initial_query) {
 
   output.html('<table></table>');
   output.find('table').dataTable({
-        aoColumns: [{sTitle: "Line"}]
-      }).fnAdjustColumnSizing();
+    aoColumns: [{sTitle: "Line"}]
+  }).fnAdjustColumnSizing();
 
   function runQuery(query) {
+    output.find('table').dataTable().fnClearTable();
     _.each(servers, function(server) {
       $.getJSON(server.url+"log-grep?needle="+query, function(data) {
         output.find('table').dataTable().fnAddData(

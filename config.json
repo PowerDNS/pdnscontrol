@@ -31,5 +31,19 @@
       "name" : "xs-demo.powerdns.com",
       "type" : "Recursor"
    }
-  ]
+  ],
+  "auth": {
+    "admin": {
+      "id": "admin",
+      "name": "The Administrator",
+      "roles": ["view", "stats", "edit"],
+      "password": "changeme"
+    },
+    "graphite": {
+      "id": "graphite",
+      "name": "Stats Fetcher",
+      "roles": ["stats"],
+      "password": "notsecure"
+    }
+  }
 }

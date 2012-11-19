@@ -1,0 +1,37 @@
+{% extends "/layout.html" -%}
+{% block body %}
+
+<div class=row>
+  <div class="twelve columns">
+    <div class="panel">
+
+      <h3>Sign In</h3>
+
+{% if error %}
+<div id="loginFailed" style="padding: 1em; border: 2px solid red; margin-bottom: 1em;">
+Sorry, logging in failed.<br/>
+</div>
+{% endif %}
+
+      <form method="post" action="{{ url_for('.login') }}">
+
+        <label for=username>Username:</label>
+        <input type="text" name="username" id="username" size=20>
+
+        <label for=password>Password:</label>
+        <input type="password" name="password" id="password" size=20>
+
+        <input type=hidden name=next value="{{ next }}">
+
+        <div class="button-bar">
+          <button type="submit" class="button alert">Sign In</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

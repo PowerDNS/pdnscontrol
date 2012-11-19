@@ -30,10 +30,17 @@
 
 </head>
 <body>
-  <br>
-  <div class="row">
+
+  <div class="row" id="header">
     <div class="seven columns">
       <a href="{{ request.url_root }}" id="appname">PowerDNS Control Server</a>
+
+      {% if logged_in %}
+      <span id="current_user">
+      Signed in as <b>{{ user.name }}</b>. <a href="{{ url_for('account.logout') }}">Sign out</a>.
+      </span>
+      {% endif %}
+
     </div>
     <div class="five columns">
       <a target="_blank" href="http://www.powerdns.com/"><img align="right" class="logo" src="{{ url_for('static', filename='images/powerdns-logo-154px.png') }}"></a>

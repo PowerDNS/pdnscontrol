@@ -13,6 +13,10 @@
    Shared Styles
 ----------------------------------------- */
 
+body {
+    margin-top: 1em;
+}
+
 IMG.logo {
     vertical-align: bottom;
     margin-bottom: 14px; 
@@ -98,15 +102,21 @@ a:hover {
     border-top: 3px solid #E38000;
 }
 
+#current_user {
+    font-size: small;
+}
+
+#header {
+    margin-bottom: 1em;
+}
+
 /* -----------------------------------------
    Page Name 1
 ----------------------------------------- */
 
-
 .server-list ul.button-group {
     margin-bottom: 0;
 }
-
 
 
 /* -----------------------------------------

@@ -1,16 +1,18 @@
 import json
+import requests
+import urlparse
 
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
-import camel
+
+from camel import config
 from camel.utils import jsonpify
-import requests
-import urlparse
+from camel.auth import CamelAuth, requireApiAuth, requireApiRole
 
 mod = Blueprint('api', __name__)
 
 def fetch_json(remote_url):
-    verify = not camel.config.get('ignore_ssl_errors', False)
+    verify = not config.get('ignore_ssl_errors', False)
     auth = None
     parsed_url = urlparse.urlparse(remote_url).netloc
     if '@' in parsed_url:
@@ -25,15 +27,18 @@ def fetch_json(remote_url):
     assert('json' in r.headers['content-type'])
     return r.json
 
+
 def build_pdns_url(server):
     remote_url = server['url']
     if server['type'] == 'Authoritative':
         remote_url = urlparse.urljoin(remote_url, '/jsonstat')
     return remote_url
 
+
 @mod.route('/server/<server>/zone/<zone>')
+@requireApiRole('edit')
 def server_zone(server, zone):
-    server = filter(lambda x: x['name'] == server, camel.config['servers'])[0]
+    server = filter(lambda x: x['name'] == server, config['servers'])[0]
 
     remote_url = build_pdns_url(server)
     remote_url += '?command=get-zone&zone=' + zone
@@ -41,9 +46,11 @@ def server_zone(server, zone):
 
     return jsonify({'zone': zone, 'content': json})
 
+
 @mod.route('/server/<server>/log-grep')
+@requireApiRole('edit')
 def server_loggrep(server):
-    server = filter(lambda x: x['name'] == server, camel.config['servers'])[0]
+    server = filter(lambda x: x['name'] == server, config['servers'])[0]
 
     needle = request.values.get('needle')
 
@@ -54,9 +61,11 @@ def server_loggrep(server):
 
     return jsonify({'needle': needle, 'content': json})
 
+
 @mod.route('/server/<server>/flush-cache', methods=['POST'])
+@requireApiRole('edit')
 def server_flushcache(server):
-    server = filter(lambda x: x['name'] == server, camel.config['servers'])[0]
+    server = filter(lambda x: x['name'] == server, config['servers'])[0]
 
     domain = request.values.get('domain', '')
 
@@ -67,9 +76,11 @@ def server_flushcache(server):
 
     return jsonify({'domain': domain, 'content': json})
 
+
 @mod.route('/server/<server>/<action>', methods=['GET','POST'])
+@requireApiRole('stats')
 def server_stats(server, action):
-    server = filter(lambda x: x['name'] == server, camel.config['servers'])[0]
+    server = filter(lambda x: x['name'] == server, config['servers'])[0]
 
     pdns_actions = ['stats', 'domains', 'config']
     manager_actions = ['start', 'stop', 'restart', 'update', 'install']
@@ -77,8 +88,11 @@ def server_stats(server, action):
     if action not in generic_actions:
         return "invalid api action", 404
 
-    if action in manager_actions and request.method != 'POST':
-        return "must call action %s using POST" % (action,), 403
+    if action in manager_actions:
+        if request.method != 'POST':
+            return "must call action %s using POST" % (action,), 403
+        if not 'edit' in CamelAuth.getCurrentUser().roles:
+            return 'Not authorized', 401
 
     remote_url = None
     if action in manager_actions:

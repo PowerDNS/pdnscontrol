@@ -14,7 +14,7 @@ def index():
 @mod.route('/login', methods=['GET','POST'])
 def login():
     error = False
-    next = session.pop('next_url', '/')
+    next = session.pop('next_url', request.url_root)
 
     if request.method == 'POST':
         user_id = request.form.get('username')

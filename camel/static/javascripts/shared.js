@@ -342,7 +342,7 @@ function build_recursor(server) {
 
 function build_index(servers) {
   $.each(servers, function(key, server) {
-    var url = '/server/'+server.name;
+    var url = Config.url_root + 'server/'+server.name;
     var serverid = key;
 
     var row = $(

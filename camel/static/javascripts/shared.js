@@ -129,7 +129,8 @@ function server_log_grep(server, initial_query) {
       output.html('<table></table>');
       output.find('table').dataTable({
         aaData: data.content,
-        bSort: false,
+        aaSorting: [[0, 'desc']],
+        bSort: true,
         aoColumns: [{sTitle: "Line"}]
       }).fnAdjustColumnSizing();
     });

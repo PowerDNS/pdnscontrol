@@ -10,7 +10,28 @@ import socket
 import urlparse
 import logging
 
-auth = [ 'udp-queries', 'udp-answers']
+auth = [ 
+        'corrupt-packets',
+        'latency',
+        'packetcache-hit',
+        'packetcache-miss',
+        'packetcache-size',
+        'query-cache-hit',
+        'query-cache-miss',
+        'qsize-q',
+        'recursing-answers',
+        'recursing-questions',
+        'servfail-packets',
+        'tcp-answers',
+        'tcp-queries',
+        'timedout-packets',
+        'udp-answers', 
+        'udp-queries', 
+        'udp4-answers',
+        'udp4-queries',
+        'udp6-answers',
+        'udp6-queries'
+        ]
 recursor = [    # http://doc.powerdns.com/recursor-stats.html
 		"all-outqueries",
 		"answers0-1",
@@ -81,7 +102,7 @@ def nowtics():
 
 def getserverlist(serverlist_url):
     try:
-        r = requests.get(serverlist_url)
+        r = requests.get(serverlist_url, auth=('graphite','notsecure'))
     except requests.exceptions.RequestException:
         logger.error('error fetching server list', exc_info=True)
         return []
@@ -100,7 +121,7 @@ def graph_server(url, type, keys, node):
     node = node.replace('.', '-')
 
     try:
-        r = requests.get(url)
+        r = requests.get(url, auth=('graphite','notsecure'))
     except requests.exceptions.RequestException:
         logger.error('error fetching stats from %s', url, exc_info=True)
         return

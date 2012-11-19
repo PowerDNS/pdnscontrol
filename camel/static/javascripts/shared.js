@@ -261,11 +261,39 @@ function build_auth(server) {
   $("#server-name").html(server.name);
 
   var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.auth', [
-    "alias(nonNegativeDerivative(%SOURCE%.udp-answers), 'Answers')",
-    "alias(nonNegativeDerivative(%SOURCE%.udp-queries), 'Queries')",
-  ], {areaMode: 'first'});
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.udp-answers), 'UDP answers'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.udp-queries), 'UDP queries'))",
+  ], {areaMode: 'first', title: 'UDP Queries'});
 
   $("#graphTab").append($('<img>').attr('src', graphurl));
+
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.auth', [
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.tcp-answers), 'TCP answers'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.tcp-queries), 'TCP queries'))",
+  ], {areaMode: 'first', title: 'TCP Queries'});
+
+  $("#graphTab").append($('<img>').attr('src', graphurl));
+
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.auth', [
+    "cactiStyle(alias(%SOURCE%.latency, 'latency'))",
+  ], {title: 'Latency'});
+
+  $("#graphTab").append($('<img>').attr('src', graphurl));
+
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.auth', [
+    "cactiStyle(alias(%SOURCE%.qsize-q, 'queue size'))",
+  ], {title: 'Database queue'});
+
+  $("#graphTab").append($('<img>').attr('src', graphurl));
+
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.auth', [
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.corrupt-packets), 'corrupt-packets'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.servfail-packets), 'servfail-packets'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.timedout-packets), 'timedout-packets'))",
+  ], {title: 'Errors'});
+
+  $("#graphTab").append($('<img>').attr('src', graphurl));
+
 
   $.getJSON(server.url+'domains', function(data) {
     var flat = [];
@@ -315,7 +343,48 @@ function build_recursor(server) {
   var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.recursor', [
     "alias(nonNegativeDerivative(%SOURCE%.questions), 'Questions')",
     "alias(sumSeries("+answers+"), 'Answers')",
-  ], {areaMode: 'first'});
+  ], {areaMode: 'first', title: 'Queries'});
+
+  $("#graphTab").append($('<img>').attr('src', graphurl));
+
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.recursor', [
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.answers0-1), 'in 1ms'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.answers1-10), 'in 10ms'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.answers10-100), 'in 100ms'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.answers100-1000), 'in 1s'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.answers-slow), 'over 1s'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.outgoing-timeouts), 'timeouts'))",
+  ], {areaMode: 'stacked', title: 'Latency distribution'});
+
+  $("#graphTab").append($('<img>').attr('src', graphurl));
+
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.recursor', [
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.cache-hits), 'cache hits'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.cache-misses), 'cache misses'))",
+  ], {title: 'Cache'});
+
+  $("#graphTab").append($('<img>').attr('src', graphurl));
+
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.recursor', [
+    "cactiStyle(alias(%SOURCE%.cache-entries, 'entries'))",
+    "cactiStyle(alias(%SOURCE%.negcache-entries, 'negative entries'))",
+  ], {areaMode: 'stacked', title: 'Cache size'});
+
+  $("#graphTab").append($('<img>').attr('src', graphurl));
+
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.recursor', [
+    "cactiStyle(alias(%SOURCE%.concurrent-queries, 'queries'))",
+  ], {areaMode: 'stacked', title: 'Concurrent queries'});
+
+  $("#graphTab").append($('<img>').attr('src', graphurl));
+
+  var graphurl = build_graph_url('pdns.'+server.name.replace(/\./gm,'-')+'.recursor', [
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.spoof-prevents), 'spoofs'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.resource-limits), 'resources'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.client-parse-errors), 'client'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.server-parse-errors), 'server'))",
+    "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.tcp-client-overflow), 'tcp concurrency'))",
+  ], {title: 'Exceptions'});
 
   $("#graphTab").append($('<img>').attr('src', graphurl));
 

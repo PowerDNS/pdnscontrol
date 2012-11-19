@@ -1,0 +1,164 @@
+#!/usr/bin/env python
+# Jan-Piet Mens <jpmens(at)gmail.com>
+
+import sys
+import os
+import requests
+import json
+import time
+import socket
+import urlparse
+import logging
+
+auth = [ 'udp-queries', 'udp-answers']
+recursor = [    # http://doc.powerdns.com/recursor-stats.html
+		"all-outqueries",
+		"answers0-1",
+		"answers100-1000",
+		"answers10-100",
+		"answers1-10",
+		"answers-slow",
+		"cache-bytes",
+		"cache-entries",
+		"cache-hits",
+		"cache-misses",
+		"chain-resends",
+		"client-parse-errors",
+		"concurrent-queries",
+		"dlg-only-drops",
+		"dont-outqueries",
+		"ipv6-outqueries",
+		"max-mthread-stack",
+		"negcache-entries",
+		"noerror-answers",
+		"nsspeeds-entries",
+		"nsset-invalidations",
+		"nxdomain-answers",
+		"outgoing-timeouts",
+		"over-capacity-drops",
+		"packetcache-bytes",
+		"packetcache-entries",
+		"packetcache-hits",
+		"packetcache-misses",
+		"qa-latency",
+		"questions",
+		"resource-limits",
+		"server-parse-errors",
+		"servfail-answers",
+		"spoof-prevents",
+		"sys-msec",
+		"tcp-client-overflow",
+		"tcp-outqueries",
+		"tcp-questions",
+		"throttled-out",
+		"throttle-entries",
+		"unauthorized-tcp",
+		"unauthorized-udp",
+		"unexpected-packets",
+		"uptime",
+		"user-msec"
+   ]
+
+CARBONSERVER = '127.0.0.1'
+CARBONPORT = 2003
+DELAY = 15  #seconds
+
+logging.basicConfig()
+logger = logging.getLogger('pdns2graphite')
+
+def send_it(message):
+
+    try:
+        sock = socket.socket()
+        sock.connect((CARBONSERVER, CARBONPORT))
+        sock.sendall(message)
+        sock.close()
+    except socket.error:
+        logger.warning("Can't connect to Carbon server at %s:%s, dropping message", CARBONSERVER, CARBONPORT, exc_info=True)
+
+def nowtics():
+    return int(time.time())
+
+def getserverlist(serverlist_url):
+    try:
+        r = requests.get(serverlist_url)
+    except requests.exceptions.RequestException:
+        logger.error('error fetching server list', exc_info=True)
+        return []
+
+    try:
+        s = json.loads(r.text)
+    except ValueError:
+        logger.error('error decoding server list', exc_info=True)
+        return []
+
+    return s['servers']
+
+def graph_server(url, type, keys, node):
+
+    logger.debug('getting stats for %s server %s (%s)', type, node, url)
+    node = node.replace('.', '-')
+
+    try:
+        r = requests.get(url)
+    except requests.exceptions.RequestException:
+        logger.error('error fetching stats from %s', url, exc_info=True)
+        return
+
+    try:
+        stats = json.loads(r.text)
+    except ValueError:
+        logger.error('error decoding stats from %s', url, exc_info=True)
+        return
+
+    timestamp = nowtics()
+    lines = []
+
+    for s in keys:
+        if s in stats:
+            lines.append("pdns.%s.%s.%s %s %d" % (node, type, s, stats[s], timestamp))
+
+    message = '\n'.join(lines) + '\n'
+    logger.debug('carbon message: %s', message)
+    send_it(message)
+
+def sleepuntil(ts):
+    now = time.time()
+    if now > ts:
+        logger.warning('no sleep between loops, increase interval?')
+        return
+    time.sleep(ts-now)
+
+def main():
+    if len(sys.argv) < 2:
+        sys.exit("Usage: %s serverlist.json [carbonserver port [interval]]" % sys.argv[0])
+
+    serverlist_url = sys.argv[1]
+    if len(sys.argv) >= 4:
+        global CARBONSERVER, CARBONPORT
+        CARBONSERVER = sys.argv[2]
+        CARBONPORT = int(sys.argv[3])
+
+    if len(sys.argv) == 5:
+        global DELAY
+        DELAY = float(sys.argv[4])
+
+    logger.warning('starting up with serverlist %s', serverlist_url)
+    while True:
+        lastpoll = time.time()
+        logger.debug('polling')
+        for server in getserverlist(serverlist_url):
+            url = server['url']
+            if 'type' in server:
+                url = urlparse.urljoin(url, 'stats')
+                if server['type'] == 'Authoritative':
+                    statlist = auth
+                    type = 'auth'
+                else:
+                    statlist = recursor
+                    type = 'recursor'
+            graph_server(url, type, statlist, server['name'])
+        sleepuntil(lastpoll+DELAY)
+
+if __name__ == '__main__':
+    main()

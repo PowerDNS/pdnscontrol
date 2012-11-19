@@ -30,6 +30,12 @@
       "url"  : "http://xs.powerdns.com:8083/",
       "name" : "xs-demo.powerdns.com",
       "type" : "Recursor"
+   },
+   {
+      "manager_url": "https://secret:sikrit@hlds.namespace.at:8080/",
+      "url"  : "https://secret:sikrit@hlds.namespace.at:8080/server/1/",
+      "name" : "test-recursor.zeha.at",
+      "type" : "Recursor"
    }
   ],
   "auth": {

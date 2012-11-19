@@ -1,0 +1,8 @@
+#!/home/camel/camel/.pbundle/virtualenv/bin/python
+from flup.server.fcgi import WSGIServer
+import os
+os.chdir('/home/camel/camel')
+from camel import app
+if __name__ == '__main__':
+    WSGIServer(app, bindAddress = '/tmp/fcgi.sock-0').run()
+

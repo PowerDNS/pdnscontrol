@@ -1,6 +1,7 @@
-import json
 import requests
 import urlparse
+import json
+import time
 
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
@@ -25,7 +26,11 @@ def fetch_json(remote_url):
                      timeout=5)
     r.raise_for_status()
     assert('json' in r.headers['content-type'])
-    return r.json
+
+    # don't use r.json here, as it will read from r.text, which will trigger
+    # content encoding auto-detection in almost all cases, WHICH IS EXTREMELY
+    # SLOOOOOOOOOOOOOOOOOOOOOOW. just don't.
+    return json.loads(r.content)
 
 
 def build_pdns_url(server):
@@ -42,9 +47,9 @@ def server_zone(server, zone):
 
     remote_url = build_pdns_url(server)
     remote_url += '?command=get-zone&zone=' + zone
-    json = fetch_json(remote_url)
+    data = fetch_json(remote_url)
 
-    return jsonify({'zone': zone, 'content': json})
+    return jsonify({'zone': zone, 'content': data})
 
 
 @mod.route('/server/<server>/log-grep')
@@ -57,9 +62,9 @@ def server_loggrep(server):
     remote_url = build_pdns_url(server)
     remote_url += '?command=log-grep&needle=' + needle
 
-    json = fetch_json(remote_url)
+    data = fetch_json(remote_url)
 
-    return jsonify({'needle': needle, 'content': json})
+    return jsonify({'needle': needle, 'content': data})
 
 
 @mod.route('/server/<server>/flush-cache', methods=['POST'])
@@ -72,9 +77,9 @@ def server_flushcache(server):
     remote_url = build_pdns_url(server)
     remote_url += '?command=flush-cache&domain=' + domain
 
-    json = fetch_json(remote_url)
+    data = fetch_json(remote_url)
 
-    return jsonify({'domain': domain, 'content': json})
+    return jsonify({'domain': domain, 'content': data})
 
 
 @mod.route('/server/<server>/<action>', methods=['GET','POST'])
@@ -109,9 +114,9 @@ def server_stats(server, action):
                 remote_action = 'config'
         remote_url = urlparse.urljoin(build_pdns_url(server), '?command=' + remote_action)
 
-    json = fetch_json(remote_url)
+    data = fetch_json(remote_url)
 
-    if isinstance(json, list):
-        return jsonify({action: json})
+    if isinstance(data, list):
+        return jsonify({action: data})
     else:
-        return jsonify(json)
+        return jsonify(data)

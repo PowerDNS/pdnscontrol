@@ -11,6 +11,7 @@ or
 
 # Configuration
 
+    cp config.json.example config.json
     editor config.json
 
 # Running (Debug mode)

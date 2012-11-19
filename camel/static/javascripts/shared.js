@@ -168,6 +168,10 @@ function build_server_common(server) {
   $('#btnActionFlushCache').click(function() {
     server_flush(server);
   });
+  $('#btnActionDeploy').click(function() {
+    alert('Server is up to date.');
+    return;
+  });
 
   $.getJSON(server.url+'stats', function(data) {
     if (server.type === 'Authoritative') {
@@ -540,6 +544,10 @@ function build_index(servers) {
     }));
   });
 
+  $('#btnActionDeploy').click(function() {
+    alert('Servers are up to date.');
+    return;
+  });
 }
 
 function multi_flush(servers) {

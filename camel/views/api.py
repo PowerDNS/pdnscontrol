@@ -30,7 +30,12 @@ def fetch_json(remote_url):
     # don't use r.json here, as it will read from r.text, which will trigger
     # content encoding auto-detection in almost all cases, WHICH IS EXTREMELY
     # SLOOOOOOOOOOOOOOOOOOOOOOW. just don't.
-    return json.loads(r.content)
+    data = None
+    try:
+        data = json.loads(r.content)
+    except UnicodeDecodeError:
+        data = json.loads(r.content, 'iso-8859-1')
+    return data
 
 
 def build_pdns_url(server):

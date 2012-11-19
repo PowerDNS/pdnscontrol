@@ -151,6 +151,47 @@ function server_log_grep(server, initial_query) {
   });
 }
 
+function servers_log_grep(servers, initial_query) {
+  var html = '<div class=row><div class="twelve columns"><fieldset>' +
+    '<legend>Log Search</legend><input type=text placeholder="Standard Input"></fieldset></div></div>' +
+    '<div class=row><div class="twelve columns output"><table></table></div></div>';
+
+  var modal = get_modal('expand', html);
+  var input_field = modal.find('input');
+  input_field.val(initial_query);
+  var output = modal.find('.output');
+
+  output.html('<table></table>');
+  output.find('table').dataTable({
+        aoColumns: [{sTitle: "Line"}]
+      }).fnAdjustColumnSizing();
+
+  function runQuery(query) {
+    _.each(servers, function(server) {
+      $.getJSON(server.url+"log-grep?needle="+query, function(data) {
+        output.find('table').dataTable().fnAddData(
+          data.content
+          );
+      });
+    });
+  }
+
+  input_field.keypress(function(e) {
+    if (e.keyCode == 13) {
+      runQuery(this.value);
+      return false;
+    }
+    return true;
+  });
+
+  runQuery(initial_query);
+  modal.reveal({
+    open: function() {
+      input_field.focus();
+    }
+  });
+}
+
 function build_server_common(server) {
   $('#logQueryInitial').keypress(function(e) {
     if (e.which == 13) {
@@ -549,6 +590,15 @@ function build_index(servers) {
     alert('Servers are up to date.');
     return;
   });
+
+  $('#logQueryInitial').keypress(function(e) {
+    if (e.which == 13) {
+      servers_log_grep(servers, this.value);
+      return false;
+    }
+    return true;
+  });
+
 }
 
 function multi_flush(servers) {

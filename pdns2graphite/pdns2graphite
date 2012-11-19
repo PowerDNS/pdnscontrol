@@ -8,6 +8,7 @@ import json
 import time
 import socket
 import urlparse
+import logging
 
 auth = [ 'udp-queries', 'udp-answers']
 recursor = [    # http://doc.powerdns.com/recursor-stats.html
@@ -62,6 +63,9 @@ CARBONSERVER = '127.0.0.1'
 CARBONPORT = 2003
 DELAY = 15  #seconds
 
+logging.basicConfig()
+logger = logging.getLogger('pdns2graphite')
+
 def send_it(message):
 
     try:
@@ -70,27 +74,42 @@ def send_it(message):
         sock.sendall(message)
         sock.close()
     except socket.error:
-        print "Can't connect to Carbon server at %s:%s" % (CARBONSERVER, CARBONPORT)
-        sys.exit(1)
-    except:
-        pass
+        logger.warning("Can't connect to Carbon server at %s:%s, dropping message", CARBONSERVER, CARBONPORT, exc_info=True)
 
 def nowtics():
     return int(time.time())
 
 def getserverlist(serverlist_url):
+    try:
+        r = requests.get(serverlist_url)
+    except requests.exceptions.RequestException:
+        logger.error('error fetching server list', exc_info=True)
+        return []
 
-    r = requests.get(serverlist_url)
-    s = json.loads(r.text)
-    return s
+    try:
+        s = json.loads(r.text)
+    except ValueError:
+        logger.error('error decoding server list', exc_info=True)
+        return []
+
+    return s['servers']
 
 def graph_server(url, type, keys, node):
 
-    print "--------- %-10s %-20s %s" % (type, node, url)
+    logger.debug('getting stats for %s server %s (%s)', type, node, url)
     node = node.replace('.', '-')
 
-    r = requests.get(url)
-    stats = json.loads(r.text)
+    try:
+        r = requests.get(url)
+    except requests.exceptions.RequestException:
+        logger.error('error fetching stats from %s', url, exc_info=True)
+        return
+
+    try:
+        stats = json.loads(r.text)
+    except ValueError:
+        logger.error('error decoding stats from %s', url, exc_info=True)
+        return
 
     timestamp = nowtics()
     lines = []
@@ -100,7 +119,7 @@ def graph_server(url, type, keys, node):
             lines.append("pdns.%s.%s.%s %s %d" % (node, type, s, stats[s], timestamp))
 
     message = '\n'.join(lines) + '\n'
-    print message
+    logger.debug('carbon message: %s', message)
     send_it(message)
 
 if __name__ == '__main__':
@@ -116,9 +135,10 @@ if __name__ == '__main__':
     if len(sys.argv) == 5:
         DELAY = int(sys.argv[4])
 
+    logger.warning('starting up with serverlist %s', serverlist_url)
     while True:
-
-        for server in getserverlist(serverlist_url)['servers']:
+        logger.debug('polling')
+        for server in getserverlist(serverlist_url):
             url = server['url']
             if 'type' in server:
                 url = urlparse.urljoin(url, 'stats')

@@ -10,7 +10,28 @@ import socket
 import urlparse
 import logging
 
-auth = [ 'udp-queries', 'udp-answers']
+auth = [ 
+        'corrupt-packets',
+        'latency',
+        'packetcache-hit',
+        'packetcache-miss',
+        'packetcache-size',
+        'query-cache-hit',
+        'query-cache-miss',
+        'qsize-q',
+        'recursing-answers',
+        'recursing-questions',
+        'servfail-packets',
+        'tcp-answers',
+        'tcp-queries',
+        'timedout-packets',
+        'udp-answers', 
+        'udp-queries', 
+        'udp4-answers',
+        'udp4-queries',
+        'udp6-answers',
+        'udp6-queries'
+        ]
 recursor = [    # http://doc.powerdns.com/recursor-stats.html
 		"all-outqueries",
 		"answers0-1",

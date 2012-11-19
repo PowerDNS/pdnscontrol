@@ -32,6 +32,19 @@ IMG.logo {
     overflow: auto;
 }
 
+#appname {
+    font-size: 27px;
+    font-weight: bold;
+    display: block;
+}
+a#appname {
+    color: black;
+}
+
+h2#server-name {
+    margin-top: 0;
+}
+
 /* override foundation css where it conflicts with dataTable */
 .dataTables_wrapper select, .dataTables_wrapper input, .dataTables_wrapper label {
     width: auto;

@@ -114,7 +114,7 @@ def graph_server(url, type, keys, node):
     timestamp = nowtics()
     lines = []
 
-    for s in statlist:
+    for s in keys:
         if s in stats:
             lines.append("pdns.%s.%s.%s %s %d" % (node, type, s, stats[s], timestamp))
 
@@ -122,17 +122,18 @@ def graph_server(url, type, keys, node):
     logger.debug('carbon message: %s', message)
     send_it(message)
 
-if __name__ == '__main__':
-
+def main():
     if len(sys.argv) < 2:
         sys.exit("Usage: %s serverlist.json [carbonserver port [interval]]" % sys.argv[0])
 
     serverlist_url = sys.argv[1]
     if len(sys.argv) >= 4:
+        global CARBONSERVER, CARBONPORT
         CARBONSERVER = sys.argv[2]
         CARBONPORT = int(sys.argv[3])
 
     if len(sys.argv) == 5:
+        global DELAY
         DELAY = int(sys.argv[4])
 
     logger.warning('starting up with serverlist %s', serverlist_url)
@@ -151,3 +152,5 @@ if __name__ == '__main__':
             graph_server(url, type, statlist, server['name'])
         time.sleep(DELAY)
 
+if __name__ == '__main__':
+    main()

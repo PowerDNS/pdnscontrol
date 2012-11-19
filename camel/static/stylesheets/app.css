@@ -50,6 +50,10 @@ h2#server-name {
     width: auto;
     display: inline;
 }
+table.dataTable {
+    border-collapse: separate;
+    border-spacing: 0;
+}
 
 html {
     overflow-y: scroll;

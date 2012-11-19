@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width" />
   <title>PowerDNS Control Server</title>
 
-  {% for css in ['demo_page','demo_table','demo_table_jui','jquery.dataTables','jquery.dataTables_themeroller'] %}
+  {% for css in ['jquery.dataTables','demo_table'] %}
   <link rel="stylesheet" href="{{ url_for('static', filename='DataTables-1.9.4/media/css/'+css+'.css') }}">
   {%- endfor -%}
 

@@ -16,7 +16,11 @@ def fetch_json(remote_url):
     if '@' in parsed_url:
         auth = parsed_url.split('@')[0].split(':')
         auth = requests.auth.HTTPBasicAuth(auth[0], auth[1])
-    r = requests.get(remote_url, headers={'user-agent': 'Camel/0'}, verify=verify, auth=auth)
+    r = requests.get(remote_url,
+                     headers={'user-agent': 'Camel/0'},
+                     verify=verify,
+                     auth=auth,
+                     timeout=5)
     r.raise_for_status()
     assert('json' in r.headers['content-type'])
     return r.json

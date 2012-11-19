@@ -15,12 +15,10 @@
         <li><a href="#" class="button" id="btnActionDeploy">Deploy</a></li>
       </ul>
       <hr>
-      <form id="logSearchForm">
       <fieldset>
       <legend>Log Search</legend>
-      <input type="text" id="logQuery" placeholder="Standard Input" />
+      <input type="text" id="logQueryInitial" placeholder="Standard Input" />
       </fieldset>
-      </form>
 
       </p>
       	<dl class="tabs">
@@ -38,64 +36,14 @@
     </div>  
   </div>
 
+  <script>
+    $(function() {
 {% if server.type == 'Authoritative' %}
-  <script src="{{ url_for('static', filename='javascripts/auth.js') }}"></script>
-  <script>
-    $(function() {
       build_auth({{ server|tojson|safe }});
-    });
-  </script> 
 {% else %}
-  <script src="{{ url_for('static', filename='javascripts/recursor.js') }}"></script>
-  <script>
-    $(function() {
       build_recursor({{ server|tojson|safe }});
+{% endif %}
     });
   </script> 
-{% endif %}
-
-  <div id="domainModal" class="reveal-modal expand">
-    <table id="domain"></table>
-    <a class="close-reveal-modal">&#215;</a>
-  </div>
-
-  <div id="logModal" class="reveal-modal expand">
-    <div class="row">
-      <div class="ten columns">
-        <form>
-	  <fieldset>
-	    <legend>Log Search</legend>
-	    <input type="text" id="logQuery2" placeholder="Standard Input" />
-	  </fieldset>
-        </form>
-      </div>
-      </div>
-    <div class="row"><div class="twelve columns"><span id="holder"></span></div></div>
-    <a class="close-reveal-modal">&#215;</a>
-  </div>
-
-<div id="flushModal" class="reveal-modal medium">
-<h3>Flush entire cache or parts of it</h3>
-<form>
-  <fieldset>
-
-    <legend>Flush</legend>
-
-    <label>Domain:</label>
-    <input id="domainToFlush" type="text" />
-    <br>
-    <div class="row">
-    <div class="six columns"></div>    
-    <div class="two columns"><input type="button" class="small alert button" onClick="$('#flushModal').trigger('reveal:close');" value="Cancel"/></div>
-    <div class="two columns right"><input type="button" class="small success button" value="Flush"/></div>
-    <div class="two columns" id="flushSpinner"></div>
-    
-    </div>
-    <br>
-  </fieldset>
-</form>
-<a class="close-reveal-modal">&#215;</a>
-</div>  
-
 
 {% endblock %}

@@ -1,27 +1,17 @@
 <!DOCTYPE html>
-
-<!-- paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ -->
+{# paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ #}
 <!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
 <!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
   <meta charset="utf-8" />
-
-  <!-- Set the viewport width to device width for mobile -->
   <meta name="viewport" content="width=device-width" />
-
   <title>PowerDNS Control Server</title>
-  
-  <!-- Included CSS Files (Uncompressed) -->
-  <!--
-  <link rel="stylesheet" href="stylesheets/foundation.css">
-  -->
 
   {% for css in ['demo_page','demo_table','demo_table_jui','jquery.dataTables','jquery.dataTables_themeroller'] %}
   <link rel="stylesheet" href="{{ url_for('static', filename='DataTables-1.9.4/media/css/'+css+'.css') }}">
   {%- endfor -%}
-
 
   <!-- Included CSS Files (Compressed) -->
   <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/foundation.min.css') }}">
@@ -35,21 +25,43 @@
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
 
+  {# must have jquery loaded for body block, everything else can be loaded later #}
+  <script src="{{ url_for('static', filename='javascripts/jquery.js') }}"></script>
+
 </head>
 <body>
   <div class="row">
-      <div class="seven columns">
+    <div class="seven columns">
       <h3><a href="{{ request.url_root }}">PowerDNS Control Server</a></h3>
-      </div>
-      <div class="five columns">
+    </div>
+    <div class="five columns">
       <br>
-      <img align="right" class="logo" src="{{ url_for('static', filename='images/powerdns-logo-154px.png') }}">
-      </div>
-      <div class="one column"></div>
+      <a target="_blank" href="http://www.powerdns.com/"><img align="right" class="logo" src="{{ url_for('static', filename='images/powerdns-logo-154px.png') }}"></a>
+    </div>
   </div>
 
-  <!-- Included JS Files (Compressed) -->
-  <script src="{{ url_for('static', filename='javascripts/jquery.js') }}"></script>
+<script>
+{# FIXME: move this into it's own route and make it cacheable #}
+var Config = {
+  graphite_server: "http://89.188.0.40:8085/render/",
+  graphite_default_opts: {
+    bgcolor: "FFFFFF",
+    majorGridLineColor: "darkgray",
+    minorGridLineColor: "gray",
+    fgcolor: "000000",
+    width: "1000",
+    height: "308",
+  },
+  graphite_suffixes: {
+    'Authoritative': 'auth',
+    'Recursor': 'recursor'
+  }
+};
+</script>
+
+{%- block body %}{% endblock -%}
+
+  <!-- Included JS Files -->
   <script src="{{ url_for('static', filename='javascripts/foundation.min.js') }}"></script>
   <script src="{{ url_for('static', filename='javascripts/jquery.dataTables.min.js') }}"></script>
   <script src="{{ url_for('static', filename='javascripts/jquery.sparkline.min.js') }}"></script>
@@ -57,23 +69,9 @@
   <script src="{{ url_for('static', filename='javascripts/purl.js') }}"></script>
   <script src="{{ url_for('static', filename='javascripts/spin.min.js') }}"></script>
   <script src="{{ url_for('static', filename='javascripts/jquery.spin.js') }}"></script>
-  
+  <!-- app-specific code -->
   <script src="{{ url_for('static', filename='javascripts/app.js') }}"></script>
   <script src="{{ url_for('static', filename='javascripts/shared.js') }}"></script>
-
-<script>
-var Config = {
-  graphite_server: "http://89.188.0.40:8085/render/",
-  graphite_default_opts: {
-    bgcolor: "FFFFFF",
-    majorGridLineColor: "darkgray",
-    minorGridLineColor: "gray",
-    fgcolor: "000000"
-  }
-};
-</script>
-
-{%- block body %}{% endblock -%}
 
 </body>
 </html>

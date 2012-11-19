@@ -7,8 +7,7 @@
       <table id="servers" class="twelve">
         <thead>
           <tr>
-            <th><label for="checkbox3"><input type="checkbox" 
-              id="checkbox3"></label></th>
+            <th><input type="checkbox" id="checkboxAll"></th>
             <th>Type</th>
             <th>Name</th>
             <th>Main IP</th>
@@ -21,32 +20,28 @@
           </tbody>
         </table>  
         <div class="button-bar">
-        <ul class="button-group">
-                <li><a href="#" class="button" onClick="$('#flushModal').reveal({close: function(){ $('#flushSpinner').html(''); }});">Flush cache</a></li>
-        </ul>
-        <ul class="button-group">
-        <li><a href="#" class="button">Deploy</a></li>
-
-        <li><a href="#" class="button">Restart</a></li>
-        <li><a href="#" class="alert button" onClick="alert('Not funny');">Shutdown</a></li>
-
-      </ul></div>
-	</div>
+          <ul class="button-group">
+            <li><a href="#" class="button" onClick="$('#flushModal').reveal({close: function(){ $('#flushSpinner').html(''); }});">Flush cache</a></li>
+          </ul>
+          <ul class="button-group">
+            <li><a href="#" class="button">Deploy</a></li>
+            <li><a href="#" class="button">Restart</a></li>
+            <li><a href="#" class="alert button" onClick="alert('Not funny');">Shutdown</a></li>
+          </ul>
+        </div>
+      </div>
       <form>
-      <fieldset>
-      <legend>Log Search</legend>
-      <input type="text" placeholder="Standard Input" />
-      </fieldset>
+        <fieldset>
+          <legend>Log Search</legend>
+          <input type="text" placeholder="Standard Input" />
+        </fieldset>
       </form>
 
-
       <h3>Aggregate statistics</h3>
-        <h4>Authoritative Servers</h4>
-	<div id="graphDiv"></div>
+      <div id="graphDiv"></div>
     </div>  
   </div>
 
-  <script src="{{ url_for('static', filename='javascripts/index.js') }}"></script>
   <script>
     $(function() {
     build_index({{servers|tojson|safe}});

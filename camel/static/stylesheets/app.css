@@ -16,7 +16,8 @@
 IMG.logo {
     vertical-align: bottom;
     margin-bottom: 14px; 
-    margin-top: 7px; 
+    margin-top: 7px;
+    border: 0;
 }
 
 .output pre {
@@ -28,6 +29,31 @@ IMG.logo {
     border: 1px solid #ccc;
     border-bottom: 2px solid #bbb;
     border-right: 2px solid #bbb;
+    overflow: auto;
+}
+
+/* override foundation css where it conflicts with dataTable */
+.dataTables_wrapper select, .dataTables_wrapper input, .dataTables_wrapper label {
+    width: auto;
+    display: inline;
+}
+
+html {
+    overflow-y: scroll;
+}
+
+.reveal-modal.fixedWidth1000 {
+    width: 950px;
+    margin-left: -475px;
+}
+
+.spinner {
+    margin-right: 1em;
+    width: 80px;
+}
+
+.inline-block {
+    display: inline-block;
 }
 
 /* -----------------------------------------

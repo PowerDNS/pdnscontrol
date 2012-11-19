@@ -102,7 +102,7 @@ def nowtics():
 
 def getserverlist(serverlist_url):
     try:
-        r = requests.get(serverlist_url)
+        r = requests.get(serverlist_url, auth=('graphite','notsecure'))
     except requests.exceptions.RequestException:
         logger.error('error fetching server list', exc_info=True)
         return []
@@ -121,7 +121,7 @@ def graph_server(url, type, keys, node):
     node = node.replace('.', '-')
 
     try:
-        r = requests.get(url)
+        r = requests.get(url, auth=('graphite','notsecure'))
     except requests.exceptions.RequestException:
         logger.error('error fetching stats from %s', url, exc_info=True)
         return

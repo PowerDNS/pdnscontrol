@@ -54,7 +54,7 @@ def server_loggrep(server):
 def server_flushcache(server):
     server = filter(lambda x: x['name'] == server, camel.config['servers'])[0]
 
-    domain = request.values.get('domain')
+    domain = request.values.get('domain', '')
 
     remote_url = build_pdns_url(server)
     remote_url += '?command=flush-cache&domain=' + domain
@@ -67,7 +67,7 @@ def server_flushcache(server):
 def server_stats(server, action):
     server = filter(lambda x: x['name'] == server, camel.config['servers'])[0]
 
-    pdns_actions = ['stats', 'domains', 'flush-cache', 'config']
+    pdns_actions = ['stats', 'domains', 'config']
     manager_actions = ['start', 'stop', 'restart', 'update', 'install']
     generic_actions = pdns_actions + manager_actions
     if action not in generic_actions:

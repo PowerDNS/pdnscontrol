@@ -1,3 +1,4 @@
+; // shared.js
 
 function server_start_stop_restart(server, action) {
   var action_title_list = {restart: 'Restart', stop: 'Shutdown', start: 'Start'};

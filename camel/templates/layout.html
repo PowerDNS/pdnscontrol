@@ -9,24 +9,27 @@
   <meta name="viewport" content="width=device-width" />
   <title>PowerDNS Control Server</title>
 
-  {% for css in ['jquery.dataTables','demo_table'] %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='DataTables-1.9.4/media/css/'+css+'.css') }}">
-  {%- endfor -%}
+  {% assets output="gen/styles-%(version)s.css",
+    "dataTables/media/css/jquery.dataTables.css",
+    "stylesheets/foundation.min.css",
+    "stylesheets/dataTables.css",
+    "stylesheets/app.css"
+  %}
+  <link rel="stylesheet" href="{{ ASSET_URL }}">
+  {% endassets %}
 
-  <!-- Included CSS Files (Compressed) -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/foundation.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/app.css') }}">
-
-  <script src="{{ url_for('static', filename='javascripts/modernizr.foundation.js') }}"></script>
-  <script src="{{ url_for('static', filename='javascripts/moment.min.js') }}"></script>  
+  {% assets output="gen/js-head-%(version)s.js",
+    "javascripts/modernizr.foundation.js",
+    "javascripts/moment.min.js",
+    "javascripts/jquery.js"
+  %}
+  <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
 
   <!-- IE Fix for HTML5 Tags -->
   <!--[if lt IE 9]>
     <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
-
-  {# must have jquery loaded for body block, everything else can be loaded later #}
-  <script src="{{ url_for('static', filename='javascripts/jquery.js') }}"></script>
 
 </head>
 <body>
@@ -69,17 +72,19 @@ var Config = {
 
 {%- block body %}{% endblock -%}
 
-  <!-- Included JS Files -->
-  <script src="{{ url_for('static', filename='javascripts/foundation.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='javascripts/jquery.dataTables.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='javascripts/jquery.sparkline.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='javascripts/underscore-min.js') }}"></script>
-  <script src="{{ url_for('static', filename='javascripts/purl.js') }}"></script>
-  <script src="{{ url_for('static', filename='javascripts/spin.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='javascripts/jquery.spin.js') }}"></script>
-  <!-- app-specific code -->
-  <script src="{{ url_for('static', filename='javascripts/app.js') }}"></script>
-  <script src="{{ url_for('static', filename='javascripts/shared.js') }}"></script>
+  {% assets output="gen/js-body-%(version)s.js",
+    "javascripts/foundation.min.js",
+    "javascripts/jquery.dataTables.min.js",
+    "javascripts/jquery.sparkline.min.js",
+    "javascripts/underscore-min.js",
+    "javascripts/purl.js",
+    "javascripts/spin.min.js",
+    "javascripts/jquery.spin.js",
+    "javascripts/app.js",
+    "javascripts/shared.js"
+  %}
+  <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
 
 </body>
 </html>

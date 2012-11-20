@@ -6,8 +6,8 @@
 #
                              
 from flask import Flask, session, g, render_template, send_from_directory
+import flask.ext.assets
 import json
-
 import os.path
 
 f = open('config.json', 'r')
@@ -18,6 +18,9 @@ del f
 app = Flask(__name__)
 app.debug = config['DEBUG']
 app.secret_key = str(config['SECRET_KEY'])
+
+asset_env = flask.ext.assets.Environment(app)
+asset_env.debug = app.debug
 
 @app.errorhandler(404)
 def not_found(error):

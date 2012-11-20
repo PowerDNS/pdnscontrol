@@ -1,2 +1,4 @@
 flask==0.9
 requests
+Flask-Assets==0.7
+webassets==0.7.1

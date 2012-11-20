@@ -2,11 +2,12 @@
 
 ## Quickstart
 
-    apt-get install python2.7 ssl-cert
+    apt-get install python ssl-cert
     sudo cat /etc/ssl/private/ssl-cert-snakeoil.key > ssl-cert-snakeoil.key
     cp /etc/ssl/certs/ssl-cert-snakeoil.pem ssl-cert-snakeoil.pem
     cp pdnsmgrd.conf.example pdnsmgrd.conf
     editor pdnsmgrd.conf
+    su - pdnsmgr
     ./pdnsmgrd
 
 
@@ -50,9 +51,18 @@ GET or POST. Result format will be determined by upstream server.
 
 #### Example
 
-    curl -u 'secret:sikrit' -k https://localhost:8080/server/recursor_1/
+    curl -u 'secret:sikrit' -k https://localhost:8080/server/1/
     {"aaaa-additional-processing": "off"
     , "additional-processing": "off"
     , "allow-from": "127.0.0.0/8, 10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12, ::1/128, fe80::/10"
     ...
     }
+
+## sudo configuration Example
+
+    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns restart
+    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns-recursor restart
+    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns stop
+    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns-recursor stop
+    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns start
+    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns-recursor start

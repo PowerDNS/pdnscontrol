@@ -16,7 +16,7 @@ f.close()
 del f
 
 app = Flask(__name__)
-app.debug = config['DEBUG']
+app.debug = False # safe default
 app.secret_key = str(config['SECRET_KEY'])
 
 asset_env = flask.ext.assets.Environment(app)
@@ -40,30 +40,10 @@ def favicon():
 
 import logging
 from logging import Formatter
-if not app.debug:
-    app.logger.setLevel(logging.INFO) # turn on logging for most things
-    from logging.handlers import SMTPHandler
-    mail_handler = SMTPHandler(config.SMTP_RELAY, config.APP_MAIL, config.ADMIN_MAIL, 'Camel critical error')
-    mail_handler.setLevel(logging.ERROR)
-    mail_handler.setFormatter(Formatter('''
-Message type:       %(levelname)s
-Location:           %(pathname)s:%(lineno)d
-Module:             %(module)s
-Function:           %(funcName)s
-Time:               %(asctime)s
-
-Message:
-
-%(message)s
-'''))
-    app.logger.addHandler(mail_handler)
 
 from logging.handlers import RotatingFileHandler
-file_handler = RotatingFileHandler("app.log", maxBytes=(100*1024*1024), delay = (not app.debug))
-if app.debug:
-    file_handler.setLevel(logging.DEBUG)
-else:
-    file_handler.setLevel(logging.INFO)
+file_handler = RotatingFileHandler("app.log", maxBytes=(100*1024*1024), delay=True)
+file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(Formatter(
     '%(asctime)s %(levelname)s [in %(pathname)s:%(lineno)d]: %(message)s'
 ))

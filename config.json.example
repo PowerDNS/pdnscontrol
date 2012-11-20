@@ -1,7 +1,5 @@
 {
-  "DEBUG": true,
   "SECRET_KEY": "asdf",
-  "LISTEN_ADDRESS": "0.0.0.0",
   "ignore_ssl_errors": true,
   "graphite_server": "http://89.188.0.40:8085/render/",
   "servers": [

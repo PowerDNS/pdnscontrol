@@ -33,7 +33,7 @@ The list is expected in the following format:
 ```
 
 Each server in the array is queried for JSON output of statistics, depending on
-wether it's an authoritative or recursor server. (The list of parameters is
+whether it's an authoritative or recursor server. (The list of parameters is
 hardcoded into `pdns2graphite`.) Authentication information (for accessing
 statistics from the name servers) is currently hard-coded into the program as
 well. FIXME.
@@ -42,11 +42,11 @@ The `url` in the above JSON object is expected to return valid JSON out of
 which stats are read and pushed to Carbon (via the specified TCP port to the
 specified Carbon host -- default: `127.0.0.1:2003`) in a single message.
 
-Please keep an eye on syslog during operation
 
 ## Todo
 
 * Better error-handling
+* syslog support
 
 ## Authors
 

@@ -23,6 +23,7 @@ app.secret_key = str(config['SECRET_KEY'])
 def not_found(error):
     return 'Not found', 404
 
+from camel.utils import inject_config
 from camel.views import pages, account, admin, api
 app.register_blueprint(pages.mod)
 app.register_blueprint(account.mod, url_prefix='/account')

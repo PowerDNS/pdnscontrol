@@ -51,7 +51,7 @@
 {# FIXME: move this into its own route and make it cacheable #}
 var Config = {
   url_root: "{{ request.url_root }}",
-  graphite_server: "http://89.188.0.40:8085/render/",
+  graphite_server: "{{ config['graphite_server'] }}",
   graphite_default_opts: {
     bgcolor: "FFFFFF",
     majorGridLineColor: "darkgray",

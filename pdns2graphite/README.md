@@ -13,23 +13,20 @@ servers from a URL and retrieves statistics from those PowerDNS servers
 The list is expected in the following format:
 
 ```json
-[
-   {
-      "url" : "http://server.nl:8081/",
-      "name" : "server.nl",
-      "type" : "Authoritative"
-   },
-   {
-      "url" : "http://server2.at:8081/",
-      "name" : "server2.at",
-      "type" : "Authoritative"
-   },
-   {
-      "url" : "http://server4.com:8082/",
-      "name" : "server4.com",
-      "type" : "Recursor"
-   }
-]
+{
+  "servers": [
+    {
+      "url": "https://ns.example.com/control/api/server/ns.example.com/", 
+      "type": "Authoritative", 
+      "name": "ns.example.com"
+    }, 
+    {
+      "url": "https://server1/control/api/server/server1.com/", 
+      "type": "Recursor", 
+      "name": "server1.com"
+    }
+  ]
+}
 ```
 
 Each server in the array is queried for JSON output of statistics, depending on

@@ -13,7 +13,7 @@ from camel.auth import CamelAuth, requireApiAuth, requireApiRole
 mod = Blueprint('api', __name__)
 
 def fetch_json(remote_url):
-    verify = not config.get('ignore_ssl_errors', False)
+    verify = not current_app.config.get('IGNORE_SSL_ERRORS', False)
     auth = None
     parsed_url = urlparse.urlparse(remote_url).netloc
     if '@' in parsed_url:

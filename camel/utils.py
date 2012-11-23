@@ -1,8 +1,7 @@
 from flask import request, current_app
 import json
 
-from camel import config, app
-
+from camel import app
 
 def jsonpify(*args, **kwargs):
     callback = request.args['callback']
@@ -14,4 +13,4 @@ def jsonpify(*args, **kwargs):
 
 @app.context_processor
 def inject_config():
-    return dict(config=config)
+    return dict(config=current_app.config)

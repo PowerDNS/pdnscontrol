@@ -1,7 +1,4 @@
 {
-  "SECRET_KEY": "asdf",
-  "ignore_ssl_errors": true,
-  "graphite_server": "http://89.188.0.40:8085/render/",
   "servers": [
    {
       "url" : "http://powerdnssec1.ds9a.nl:8081/",

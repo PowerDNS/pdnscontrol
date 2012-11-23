@@ -39,8 +39,10 @@ or
 
 #### Configuration
 
-    cp config.json.example config.json
-    editor config.json
+    cp instance/pdnscontrol.conf.example instance/pdnscontrol.conf
+    cp instance/config.json.example instance/config.json
+    editor instance/pdnscontrol.conf
+    editor instance/config.json
 
 #### Running (Debug mode)
 

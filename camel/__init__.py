@@ -10,14 +10,13 @@ import flask.ext.assets
 import json
 import os.path
 
-f = open('config.json', 'r')
-config = json.loads(f.read())
-f.close()
-del f
+app = Flask(__name__, instance_relative_config=True)
+app.config.from_object('camel.default_settings')
+app.config.from_pyfile('pdnscontrol.conf')
 
-app = Flask(__name__)
-app.debug = False # safe default
-app.secret_key = str(config['SECRET_KEY'])
+config = None
+with app.open_instance_resource('config.json') as f:
+    config = json.loads(f.read())
 
 asset_env = flask.ext.assets.Environment(app)
 asset_env.debug = app.debug
@@ -38,13 +37,15 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
-import logging
-from logging import Formatter
-
-from logging.handlers import RotatingFileHandler
-file_handler = RotatingFileHandler("app.log", maxBytes=(100*1024*1024), delay=True)
-file_handler.setLevel(logging.INFO)
-file_handler.setFormatter(Formatter(
-    '%(asctime)s %(levelname)s [in %(pathname)s:%(lineno)d]: %(message)s'
+log_file = app.config['LOG_FILE']
+if log_file is not None and log_file != '':
+    import logging
+    import logging.handlers
+    file_handler = logging.handlers.RotatingFileHandler(os.path.join(app.instance_path, log_file), maxBytes=(100*1024*1024), delay=True)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s [in %(pathname)s:%(lineno)d]: %(message)s'
 ))
-app.logger.addHandler(file_handler)
+    app.logger.addHandler(file_handler)
+
+del log_file

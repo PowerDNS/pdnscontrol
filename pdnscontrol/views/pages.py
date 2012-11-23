@@ -4,9 +4,9 @@ from flask import Blueprint, render_template, request, url_for, redirect, sessio
 from flask import current_app, jsonify, make_response
 import urlparse
 
-from camel import config
-from camel.utils import jsonpify
-from camel.auth import requireLoggedInRole, requireLoggedIn, requireApiRole, CamelAuth
+from pdnscontrol import config
+from pdnscontrol.utils import jsonpify
+from pdnscontrol.auth import requireLoggedInRole, requireLoggedIn, requireApiRole, CamelAuth
 
 
 mod = Blueprint('pages', __name__)

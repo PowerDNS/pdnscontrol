@@ -33,8 +33,8 @@ Flask-based web app.
 
 or
 
-    virtualenv venv-camel
-    . ./venv-camel/bin/activate
+    virtualenv venv-pdnscontrol
+    . ./venv-pdnscontrol/bin/activate
     pip install -r requirements.txt
 
 #### Configuration
@@ -50,7 +50,7 @@ or
 
 or
 
-    . ./venv-camel/bin/activate
+    . ./venv-pdnscontrol/bin/activate
     python debug.py
 
 

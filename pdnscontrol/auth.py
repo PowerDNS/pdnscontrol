@@ -2,7 +2,7 @@ from flask import Response, jsonify, request, url_for, redirect, session, g
 from functools import wraps
 import json
 
-from camel import config, app
+from pdnscontrol import config, app
 
 class User(object):
     def __init__(self, user_data):

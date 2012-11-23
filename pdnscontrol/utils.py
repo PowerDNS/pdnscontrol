@@ -1,7 +1,7 @@
 from flask import request, current_app
 import json
 
-from camel import app
+from pdnscontrol import app
 
 def jsonpify(*args, **kwargs):
     callback = request.args['callback']

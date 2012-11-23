@@ -6,9 +6,9 @@ import time
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
 
-from camel import config
-from camel.utils import jsonpify
-from camel.auth import CamelAuth, requireApiAuth, requireApiRole
+from pdnscontrol import config
+from pdnscontrol.utils import jsonpify
+from pdnscontrol.auth import CamelAuth, requireApiAuth, requireApiRole
 
 mod = Blueprint('api', __name__)
 

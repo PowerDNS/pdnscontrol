@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, url_for, redirect, session, g, make_response
 
-from camel.auth import CamelAuth, requireLoggedIn
+from pdnscontrol.auth import CamelAuth, requireLoggedIn
 
 mod = Blueprint('account', __name__)
 
@@ -17,10 +17,10 @@ def login():
     next = session.pop('next_url', request.url_root)
 
     if request.method == 'POST':
-        user_id = request.form.get('username')
+        login = request.form.get('login')
         password = request.form.get('password')
 
-        error = not CamelAuth.login(user_id, password)
+        error = not CamelAuth.login(login, password)
         if not error:
             return redirect(next)
 

@@ -1,0 +1,23 @@
+
+
+# Encryption key for client-side sessions.
+# Please generate a new one, f.e. using this:
+#   python -c 'print repr(open("/dev/urandom","rb").read(42))'
+# SECRET_KEY = 'changeme'
+
+# Your database.
+# Example: DATABASE_URI = 'postgresql://user:password@localhost:5432/pdnscontrol'
+#
+# DATABASE_URI = ''
+
+# PREFERRED_URL_SCHEME = 'http'
+# LOG_FILE = 'app.log'
+
+# GRAPHITE_SERVER = '/graphite/render/'
+# IGNORE_SSL_ERRORS = False
+
+# USE_X_SENDFILE = False
+# SESSION_COOKIE_NAME = 'PdnsControlSess'
+
+# DEBUG = False
+

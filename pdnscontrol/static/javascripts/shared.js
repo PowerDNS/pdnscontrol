@@ -601,6 +601,65 @@ function build_index(servers) {
     return true;
   });
 
+  $('#btnServerAdd').click(function() {
+    server_add();
+  });
+}
+
+
+function server_add() {
+  var html = '<h3>Add Server</h3>' +
+    '<form class=custom>' +
+    '<label>Server Name:</label><input type=text name=name placeholder="host.company.corp">' +
+    '<div class=row><div class="four columns">' +
+    '<label for="type1"><input name="daemon_type" type="radio" id="type1" style="display:none;"><span class="custom radio checked"></span> Authoritative</label>' +
+    '<label for="type2"><input name="daemon_type" type="radio" id="type2" style="display:none;"><span class="custom radio"></span> Recursor</label>' +
+    '</div></div>' +
+    '<label>Statistics URL:</label><input type=text name=stats_url>' +
+    '<label>Manager URL:</label><input type=text name=manager_url>' +
+    '<div class="row"><div class="right"><div class="inline-block spinner"></div>' +
+    '<div class="inline-block">' +
+    '<input type=submit class="small button success" value="Save"> ' +
+    '<input type=button class="small button alert" value="Cancel">' +
+    '</div></div>';
+
+  var modal = get_modal('fixedWidth1000', html);
+  var form = modal.find('form');
+  form.bind('submit', function() {
+    var spinner = modal.find('.spinner').html('').spin('small');
+    var server = {
+      name: form.find('input[name=name]').val(),
+      daemon_type: null,
+      stats_url: form.find('input[name=stats_url]').val(),
+      manager_url: form.find('input[name=manager_url]').val()
+    };
+    server.daemon_type = form.find('input[name=daemon_type]').first().val() === 'on' ? 'Authoritative' : 'Recursor';
+
+    $.ajax({
+      type: 'PUT',
+      url: '/api/server/',
+      data: JSON.stringify({server: server}),
+      contentType: 'application/json; charset=utf-8'
+    }).done(function(data) {
+      window.location.href = Config.url_root + 'server/' + server.name;
+    }).fail(function(jqXHR) {
+      alert('Failed.');
+    }).always(function() {
+      spinner.html('');
+    });
+
+    return false;
+  });
+
+  modal.find('input.alert').click(function() {
+    modal.trigger('reveal:close');
+  });
+
+  modal.reveal({
+    open: function() {
+      modal.find('input')[0].focus();
+    }
+  });
 }
 
 function multi_flush(servers) {

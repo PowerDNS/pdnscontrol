@@ -12,6 +12,7 @@
   {% assets output="gen/styles-%(version)s.css",
     "dataTables/media/css/jquery.dataTables.css",
     "stylesheets/foundation.min.css",
+    "stylesheets/general_foundicons.css",
     "stylesheets/dataTables.css",
     "stylesheets/app.css"
   %}
@@ -19,9 +20,7 @@
   {% endassets %}
 
   {% assets output="gen/js-head-%(version)s.js",
-    "javascripts/modernizr.foundation.js",
-    "javascripts/moment.min.js",
-    "javascripts/jquery.js"
+    "javascripts/foundation.min.js"
   %}
   <script src="{{ ASSET_URL }}"></script>
   {% endassets %}
@@ -51,10 +50,14 @@
   </div>
 
 <script>
+var User = {
+  name: "{{ user.name }}",
+  roles: {{ user_roles|tojson|safe }}
+};
 {# FIXME: move this into its own route and make it cacheable #}
 var Config = {
   url_root: "{{ request.url_root }}",
-  graphite_server: "{{ config['graphite_server'] }}",
+  graphite_server: "{{ config['GRAPHITE_SERVER'] }}",
   graphite_default_opts: {
     bgcolor: "FFFFFF",
     majorGridLineColor: "darkgray",
@@ -73,7 +76,7 @@ var Config = {
 {%- block body %}{% endblock -%}
 
   {% assets output="gen/js-body-%(version)s.js",
-    "javascripts/foundation.min.js",
+    "javascripts/moment.min.js",
     "javascripts/jquery.dataTables.min.js",
     "javascripts/jquery.sparkline.min.js",
     "javascripts/underscore-min.js",

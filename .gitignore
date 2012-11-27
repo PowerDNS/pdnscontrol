@@ -1,5 +1,6 @@
 *.pyc
 __pycache__
 .pbundle
-camel.fcgi
-config.json
+instance/pdnscontrol.fcgi
+instance/pdnscontrol.conf
+instance/test.db

@@ -18,6 +18,7 @@ Features:
 * PowerDNS Authoritative 3.2-pre (svn 2905+)
 * PowerDNS Recursor 3.5-pre (svn 2905+)
 * Graphite
+* PostgreSQL 8.3 or newer database
 * Cron
 
 ## Components
@@ -33,14 +34,16 @@ Flask-based web app.
 
 or
 
-    virtualenv venv-camel
-    . ./venv-camel/bin/activate
+    virtualenv venv-pdnscontrol
+    . ./venv-pdnscontrol/bin/activate
     pip install -r requirements.txt
 
 #### Configuration
 
-    cp config.json.example config.json
-    editor config.json
+    cp instance/pdnscontrol.conf.example instance/pdnscontrol.conf
+    editor instance/pdnscontrol.conf
+    cd instance && python install.py
+
 
 #### Running (Debug mode)
 
@@ -48,7 +51,7 @@ or
 
 or
 
-    . ./venv-camel/bin/activate
+    . ./venv-pdnscontrol/bin/activate
     python debug.py
 
 

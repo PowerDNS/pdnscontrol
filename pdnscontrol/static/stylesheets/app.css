@@ -118,6 +118,9 @@ a:hover {
     margin-bottom: 0;
 }
 
+#btnServerAdd:hover span:after {
+    content: " Add";
+}
 
 /* -----------------------------------------
    Page Name 2

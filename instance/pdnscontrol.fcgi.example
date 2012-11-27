@@ -1,0 +1,8 @@
+#!/home/pdnscontrol/pdnscontrol/.pbundle/virtualenv/bin/python
+from flup.server.fcgi import WSGIServer
+import os, sys
+srcdir = os.path.dirname(os.path.abspath(__file__+'/..'))
+sys.path.insert(0, srcdir)
+from pdnscontrol import app
+if __name__ == '__main__':
+    WSGIServer(app, bindAddress = '/tmp/fcgi.sock-0').run()

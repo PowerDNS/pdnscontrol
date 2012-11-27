@@ -637,7 +637,7 @@ function server_add() {
 
     $.ajax({
       type: 'PUT',
-      url: '/api/server/',
+      url: Config.url_root + 'api/server/',
       data: JSON.stringify({server: server}),
       contentType: 'application/json; charset=utf-8'
     }).done(function(data) {

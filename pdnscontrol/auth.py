@@ -2,14 +2,8 @@ from flask import Response, jsonify, request, url_for, redirect, session, g
 from functools import wraps
 import json
 
-from pdnscontrol import config, app
-
-class User(object):
-    def __init__(self, user_data):
-        self.id = user_data['id']
-        self.name = user_data['name']
-        self.roles = user_data['roles']
-        self.password = user_data['password']
+from pdnscontrol import app
+from pdnscontrol.models import User, UserRole, db
 
 
 class CamelAuth(object):
@@ -21,7 +15,7 @@ class CamelAuth(object):
         user_id = session.get('AuthUser_user_id', None)
         user = None
         if user_id != None:
-            user = User(config['auth'][user_id])
+            user = db.session.query(User).filter_by(id=user_id).first()
         if session.get('AuthUser_logged_in','0') == 1 and type(user) is User:
             g.AuthUser = user
             pass
@@ -34,17 +28,17 @@ class CamelAuth(object):
         return CamelAuth.getCurrentUser() is not None
 
     @staticmethod
-    def login(user_id, password):
+    def login(login, password):
         user = None
         try:
-            user = User(config['auth'][user_id])
+            user = db.session.query(User).filter_by(login=login).first()
         except Exception as e:
             pass
 
         if type(user) is not User:
             return False
 
-        if user.password != password:
+        if not user.check_password(password):
             return False
 
         session['AuthUser_logged_in'] = 1
@@ -64,7 +58,7 @@ def inject_auth_data():
     user = CamelAuth.getCurrentUser()
     if user is not None:
         logged_in = True
-    return dict(user=user, logged_in=logged_in)
+    return dict(user=user, logged_in=logged_in, user_roles=[r.name for r in user.roles])
 
 
 def _forceLogin():
@@ -90,7 +84,7 @@ def requireLoggedInRole(role):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             user = CamelAuth.getCurrentUser()
-            if role in user.roles:
+            if user.has_role(role):
                 return f(*args, **kwargs)
             return _forceLogin()
 
@@ -130,7 +124,7 @@ def requireApiRole(role):
         def decorated_function(*args, **kwargs):
 
             user = CamelAuth.getCurrentUser()
-            if role in user.roles:
+            if user.has_role(role):
                 return f(*args, **kwargs)
             return _apiLogin()
 

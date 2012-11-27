@@ -3,4 +3,4 @@ __pycache__
 .pbundle
 instance/pdnscontrol.fcgi
 instance/pdnscontrol.conf
-instance/config.json
+instance/test.db

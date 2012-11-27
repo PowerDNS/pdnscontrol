@@ -6,9 +6,9 @@ import time
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
 
-from pdnscontrol import config
 from pdnscontrol.utils import jsonpify
 from pdnscontrol.auth import CamelAuth, requireApiAuth, requireApiRole
+from pdnscontrol.models import db, Server
 
 mod = Blueprint('api', __name__)
 
@@ -39,16 +39,48 @@ def fetch_json(remote_url):
 
 
 def build_pdns_url(server):
-    remote_url = server['url']
-    if server['type'] == 'Authoritative':
+    remote_url = server.stats_url
+    if server.daemon_type == 'Authoritative':
         remote_url = urlparse.urljoin(remote_url, '/jsonstat')
     return remote_url
+
+
+@mod.route('/server/', methods=['PUT'])
+@requireApiRole('edit')
+def server_create():
+    obj = request.json['server']
+    server = Server(obj['name'], obj['daemon_type'], obj['stats_url'], obj['manager_url'])
+    db.session.add(server)
+    db.session.commit()
+    return jsonify(server=dict(server))
+
+
+@mod.route('/server/<server>', methods=['DELETE'])
+@requireApiRole('edit')
+def server_delete(server):
+    server = db.session.query(Server).filter_by(name=server).first()
+    db.session.delete(server)
+    db.session.commit()
+    return ""
+
+
+@mod.route('/server/<server>', methods=['POST'])
+@requireApiRole('edit')
+def server_edit(server):
+    server = db.session.query(Server).filter_by(name=server).first()
+    server.name = obj['name']
+    server.daemon_type = obj['daemon_type']
+    server.stats_url = obj['stats_url']
+    server.manager_url = obj['manager_url']
+    db.session.add(server)
+    db.session.commit()
+    return jsonify(server=dict(server))
 
 
 @mod.route('/server/<server>/zone/<zone>')
 @requireApiRole('edit')
 def server_zone(server, zone):
-    server = filter(lambda x: x['name'] == server, config['servers'])[0]
+    server = db.session.query(Server).filter_by(name=server).first()
 
     remote_url = build_pdns_url(server)
     remote_url += '?command=get-zone&zone=' + zone
@@ -60,7 +92,7 @@ def server_zone(server, zone):
 @mod.route('/server/<server>/log-grep')
 @requireApiRole('edit')
 def server_loggrep(server):
-    server = filter(lambda x: x['name'] == server, config['servers'])[0]
+    server = db.session.query(Server).filter_by(name=server).first()
 
     needle = request.values.get('needle')
 
@@ -75,7 +107,7 @@ def server_loggrep(server):
 @mod.route('/server/<server>/flush-cache', methods=['POST'])
 @requireApiRole('edit')
 def server_flushcache(server):
-    server = filter(lambda x: x['name'] == server, config['servers'])[0]
+    server = db.session.query(Server).filter_by(name=server).first()
 
     domain = request.values.get('domain', '')
 
@@ -90,7 +122,7 @@ def server_flushcache(server):
 @mod.route('/server/<server>/<action>', methods=['GET','POST'])
 @requireApiRole('stats')
 def server_stats(server, action):
-    server = filter(lambda x: x['name'] == server, config['servers'])[0]
+    server = db.session.query(Server).filter_by(name=server).first()
 
     pdns_actions = ['stats', 'domains', 'config']
     manager_actions = ['start', 'stop', 'restart', 'update', 'install']
@@ -101,18 +133,18 @@ def server_stats(server, action):
     if action in manager_actions:
         if request.method != 'POST':
             return "must call action %s using POST" % (action,), 403
-        if not 'edit' in CamelAuth.getCurrentUser().roles:
+        if not CamelAuth.getCurrentUser().has_role('edit'):
             return 'Not authorized', 401
 
     remote_url = None
     if action in manager_actions:
-        target = server['type']
-        remote_url = urlparse.urljoin(server['manager_url'], '/do/?action='+action+'&target='+target)
+        target = server.daemon_type
+        remote_url = urlparse.urljoin(server.manager_url, '/do/?action='+action+'&target='+target)
 
     else:
         # pdns actions
         remote_action = action
-        if server['type'] == 'Authoritative':
+        if server.daemon_type == 'Authoritative':
             if action == 'stats':
                 remote_action = 'get'
             elif action == 'config':

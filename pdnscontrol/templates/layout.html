@@ -50,6 +50,10 @@
   </div>
 
 <script>
+var User = {
+  name: "{{ user.name }}",
+  roles: {{ user_roles|tojson|safe }}
+};
 {# FIXME: move this into its own route and make it cacheable #}
 var Config = {
   url_root: "{{ request.url_root }}",

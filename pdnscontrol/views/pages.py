@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, url_for, redirect, sessio
 from flask import current_app, jsonify, make_response
 import urlparse
 
-from pdnscontrol import config
+from pdnscontrol.models import *
 from pdnscontrol.utils import jsonpify
 from pdnscontrol.auth import requireLoggedInRole, requireLoggedIn, requireApiRole, CamelAuth
 
@@ -13,11 +13,11 @@ mod = Blueprint('pages', __name__)
 
 def servers_public():
     servers = []
-    for server in config['servers']:
+    for server in Server.query.all():
         server = {
-            'url': request.url_root + 'api/server/'+server['name']+'/',
-            'name': server['name'],
-            'type': server['type']
+            'url': request.url_root + 'api/server/'+server.name+'/',
+            'name': server.name,
+            'type': server.daemon_type
             }
         servers.append(server)
     return servers

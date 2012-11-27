@@ -1,4 +1,6 @@
 flask==0.9
-requests
+requests==0.14.2
 Flask-Assets==0.7
 webassets==0.7.1
+Flask-SQLAlchemy==0.16
+SQLAlchemy==0.7.9

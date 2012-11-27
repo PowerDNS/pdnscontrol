@@ -17,10 +17,10 @@ def login():
     next = session.pop('next_url', request.url_root)
 
     if request.method == 'POST':
-        user_id = request.form.get('username')
+        login = request.form.get('login')
         password = request.form.get('password')
 
-        error = not CamelAuth.login(user_id, password)
+        error = not CamelAuth.login(login, password)
         if not error:
             return redirect(next)
 

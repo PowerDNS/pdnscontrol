@@ -18,6 +18,7 @@ Features:
 * PowerDNS Authoritative 3.2-pre (svn 2905+)
 * PowerDNS Recursor 3.5-pre (svn 2905+)
 * Graphite
+* PostgreSQL 8.3 or newer database
 * Cron
 
 ## Components
@@ -40,9 +41,9 @@ or
 #### Configuration
 
     cp instance/pdnscontrol.conf.example instance/pdnscontrol.conf
-    cp instance/config.json.example instance/config.json
     editor instance/pdnscontrol.conf
-    editor instance/config.json
+    cd instance && python install.py
+
 
 #### Running (Debug mode)
 

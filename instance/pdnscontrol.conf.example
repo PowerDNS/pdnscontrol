@@ -5,6 +5,11 @@
 #   python -c 'print repr(open("/dev/urandom","rb").read(42))'
 # SECRET_KEY = 'changeme'
 
+# Your database.
+# Example: DATABASE_URI = 'postgresql://user:password@localhost:5432/pdnscontrol'
+#
+# DATABASE_URI = ''
+
 # PREFERRED_URL_SCHEME = 'http'
 # LOG_FILE = 'app.log'
 

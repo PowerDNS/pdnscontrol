@@ -8,16 +8,14 @@
 
 from flask import Flask, session, g, render_template, send_from_directory
 import flask.ext.assets
+import flask.ext.sqlalchemy
 import json
 import os.path
 
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_object('pdnscontrol.default_settings')
 app.config.from_pyfile('pdnscontrol.conf')
-
-config = None
-with app.open_instance_resource('config.json') as f:
-    config = json.loads(f.read())
+app.config['SQLALCHEMY_DATABASE_URI'] = app.config['DATABASE_URI']
 
 asset_env = flask.ext.assets.Environment(app)
 asset_env.debug = app.debug

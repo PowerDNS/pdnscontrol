@@ -56,9 +56,11 @@ class CamelAuth(object):
 def inject_auth_data():
     logged_in = False
     user = CamelAuth.getCurrentUser()
+    roles = []
     if user is not None:
         logged_in = True
-    return dict(user=user, logged_in=logged_in, user_roles=[r.name for r in user.roles])
+        roles = [r.name for r in user.roles]
+    return dict(user=user, logged_in=logged_in, user_roles=roles)
 
 
 def _forceLogin():

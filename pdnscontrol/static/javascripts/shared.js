@@ -633,7 +633,7 @@ function server_add() {
       stats_url: form.find('input[name=stats_url]').val(),
       manager_url: form.find('input[name=manager_url]').val()
     };
-    server.daemon_type = form.find('input[name=daemon_type]').first().val() === 'on' ? 'Authoritative' : 'Recursor';
+    server.daemon_type = form.find('input[name=daemon_type]').first().attr('checked') === 'on' ? 'Authoritative' : 'Recursor';
 
     $.ajax({
       type: 'PUT',

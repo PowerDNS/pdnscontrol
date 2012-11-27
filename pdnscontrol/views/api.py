@@ -2,6 +2,7 @@ import requests
 import urlparse
 import json
 import time
+import sys
 
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
@@ -24,8 +25,11 @@ def fetch_json(remote_url):
                      verify=verify,
                      auth=auth,
                      timeout=5)
-    r.raise_for_status()
-    assert('json' in r.headers['content-type'])
+    try:
+        r.raise_for_status()
+        assert('json' in r.headers['content-type'])
+    except Exception as e:
+        raise Exception("While fetching " + remote_url + ": " + str(e)), None, sys.exc_info()[2]
 
     # don't use r.json here, as it will read from r.text, which will trigger
     # content encoding auto-detection in almost all cases, WHICH IS EXTREMELY

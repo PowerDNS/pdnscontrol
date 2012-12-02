@@ -612,7 +612,7 @@ function server_add() {
     '<form class=custom>' +
     '<label>Server Name:</label><input type=text name=name placeholder="host.company.corp">' +
     '<div class=row><div class="four columns">' +
-    '<label for="type1"><input name="daemon_type" type="radio" id="type1" style="display:none;"><span class="custom radio checked"></span> Authoritative</label>' +
+    '<label for="type1"><input name="daemon_type" type="radio" id="type1" style="display:none;" checked><span class="custom radio checked"></span> Authoritative</label>' +
     '<label for="type2"><input name="daemon_type" type="radio" id="type2" style="display:none;"><span class="custom radio"></span> Recursor</label>' +
     '</div></div>' +
     '<label>Statistics URL:</label><input type=text name=stats_url>' +
@@ -633,7 +633,7 @@ function server_add() {
       stats_url: form.find('input[name=stats_url]').val(),
       manager_url: form.find('input[name=manager_url]').val()
     };
-    server.daemon_type = form.find('input[name=daemon_type]').first().attr('checked') === 'on' ? 'Authoritative' : 'Recursor';
+    server.daemon_type = form.find('input[name=daemon_type]')[0].checked ? 'Authoritative' : 'Recursor';
 
     $.ajax({
       type: 'PUT',

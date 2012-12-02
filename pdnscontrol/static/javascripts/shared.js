@@ -306,15 +306,16 @@ function auth_show_domain(server, domain, zone_records) {
     loading.replaceWith(table);
     table.dataTable({
       bDestroy: true,
+      bAutoWidth: 0,
       aaData: flat,
       bSort: false,
       aoColumns: [
         {sTitle: "Domain"},
-        {sTitle: "Type"},
-        {sTitle: "TTL"},
-        {sTitle: "Priority"},
+        {sTitle: "Type", sWidth: "50"},
+        {sTitle: "TTL", sWidth: "50"},
+        {sTitle: "Priority", sWidth: "50"},
         {sTitle: "Content"},
-        {sTitle: "", mData: null}
+        {sTitle: "", mData: null, sWidth: "50"}
       ],
       fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         $('td:eq(5)', nRow).html('<button class="link-button"><i class="foundicon-edit"></i></button>');

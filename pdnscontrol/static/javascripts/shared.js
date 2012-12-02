@@ -377,7 +377,7 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
     $('<div class="right"><div class="inline-block spinner"></div></div>').append(
       $('<div class="inline-block"></div>').append(
 
-        $('<button class="small button alert">Delete All</button>').
+        $('<button class="small button alert delete">Delete All</button>').
           click(function() {
             if (!confirm("Are you sure about deleting all " + qtype + " records?")) {
               return;
@@ -545,6 +545,11 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
         this_editor_state.max_row_id = rowId;
       }
     });
+
+    if (this_editor_state.rrset.length == 0) {
+      // remote Delete button when there were no existing records
+      actionrow.find('.delete').remove();
+    }
 
     // the initial empty row
     append_empty_record(this_editor_state);

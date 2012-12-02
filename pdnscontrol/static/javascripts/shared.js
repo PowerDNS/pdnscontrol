@@ -107,6 +107,10 @@ function get_modal(classes, client_html) {
     $('body').append(html);
     modal = $('#actionModal');
   }
+  var was_open = modal.hasClass('open');
+  if (was_open) {
+    classes += ' open';
+  }
   modal.attr('class', 'reveal-modal '+classes);
   modal.html('<a class="close-reveal-modal">&#215;</a>');
   if (client_html) {

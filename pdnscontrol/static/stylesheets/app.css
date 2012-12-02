@@ -122,6 +122,34 @@ a:hover {
     content: " Add";
 }
 
+/* hack for foundicons. transforms a button into something that
+ * resembles a link. */
+.link-button {
+    border: none;
+    background: none;
+    color: #E38000;
+    cursor: pointer;
+}
+.link-button:hover {
+    color: #E3A000;
+}
+
+table.dataTable td[contenteditable=true]:focus {
+    background: yellow;
+}
+
+/* these are used for data tables built by hand */
+table.dataTable tbody tr:nth-child(odd) {
+    background-color: hsl(34, 61%, 85%);
+}
+table.dataTable tbody tr:nth-child(even) {
+    background-color: white;
+}
+
+.empty .actions button {
+    display: none;
+}
+
 /* -----------------------------------------
    Page Name 2
 ----------------------------------------- */

@@ -13,20 +13,37 @@ from pdnscontrol.models import db, Server
 
 mod = Blueprint('api', __name__)
 
-def fetch_json(remote_url):
-    verify = not current_app.config.get('IGNORE_SSL_ERRORS', False)
+def auth_from_url(url):
     auth = None
-    parsed_url = urlparse.urlparse(remote_url).netloc
+    parsed_url = urlparse.urlparse(url).netloc
     if '@' in parsed_url:
         auth = parsed_url.split('@')[0].split(':')
         auth = requests.auth.HTTPBasicAuth(auth[0], auth[1])
-    r = requests.get(remote_url,
-                     headers={'user-agent': 'Camel/0'},
-                     verify=verify,
-                     auth=auth,
-                     timeout=5)
+    return auth
+
+
+def fetch_remote(remote_url, method='GET', data=None):
+    verify = not current_app.config.get('IGNORE_SSL_ERRORS', False)
+    r = requests.request(
+        method,
+        remote_url,
+        headers={'user-agent': 'Camel/0'},
+        verify=verify,
+        auth=auth_from_url(remote_url),
+        timeout=5,
+        data=data
+        )
     try:
         r.raise_for_status()
+    except Exception as e:
+        raise Exception("While fetching " + remote_url + ": " + str(e)), None, sys.exc_info()[2]
+
+    return r
+
+
+def fetch_json(remote_url, method='GET', data=None):
+    r = fetch_remote(remote_url, method=method, data=data)
+    try:
         assert('json' in r.headers['content-type'])
     except Exception as e:
         raise Exception("While fetching " + remote_url + ": " + str(e)), None, sys.exc_info()[2]
@@ -83,7 +100,19 @@ def server_edit(server):
     return jsonify(server=dict(server))
 
 
-@mod.route('/server/<server>/zone/<zone>')
+@mod.route('/server/<server>/zones/<zone>/names/<qname>/types/<qtype>', methods=['GET','PUT','POST','DELETE'])
+@requireApiRole('edit')
+def server_zone_qname_qtype(server, zone, qname, qtype):
+    server = db.session.query(Server).filter_by(name=server).first()
+
+    remote_url = build_pdns_url(server)
+    remote_url += '?command=zone-rest&rest=/' + zone + '/' + qname + '/' + qtype
+    print remote_url
+    r = fetch_remote(remote_url, method=request.method, data=request.data)
+    return make_response((r.content, r.status_code, {}))
+
+
+@mod.route('/server/<server>/zones/<zone>')
 @requireApiRole('edit')
 def server_zone(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()

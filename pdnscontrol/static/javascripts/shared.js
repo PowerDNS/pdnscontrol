@@ -287,19 +287,23 @@ function load_zone(server, zone, callback) {
   });
 }
 
-function auth_show_domain(server, domain) {
-  var table = $('<table></table>');
+function auth_show_domain(server, domain, zone_records) {
+  var loading = $('<span>Loading...</span>');
   var html = $('<div></div>').
     append($('<h3></h3>').text('Domain '+domain)).
-    append(table);
+    append(loading);
   var modal = get_modal('expand', html);
   router_set('#view=domain&domain=' + encodeURIComponent(domain));
 
-  load_zone(server, domain, function(data) {
+  function render_table(zone_records) {
     var flat=[];
-    $.each(data, function(key, value) {
-      flat.push([value["name"], value["type"], value["ttl"], value["priority"], value["content"]]);
+    $.each(zone_records, function(key, value) {
+      if (value.type != 'TYPE0') {
+        flat.push([value["name"], value["type"], value["ttl"], value["priority"], value["content"]]);
+      }
     });
+    var table = $('<table></table>');
+    loading.replaceWith(table);
     table.dataTable({
       bDestroy: true,
       aaData: flat,
@@ -310,10 +314,25 @@ function auth_show_domain(server, domain) {
         {sTitle: "TTL"},
         {sTitle: "Priority"},
         {sTitle: "content"}
-      ]
+      ],
+      fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+        $('td:eq(1)', nRow).html(aData[1] + ' <button class="link-button"><i class="foundicon-edit"></i></button>');
+        $('td:eq(1) button', nRow).click(function(e) {
+          auth_edit_record(server, domain, aData[0], aData[1], zone_records);
+          e.preventDefault();
+        });
+      }
     });
     modal.find('.dataTables_wrapper').css('overflow-x', 'auto'); // hackish
-  });
+  }
+
+  if (zone_records) {
+    render_table(zone_records);
+  } else {
+    load_zone(server, domain, function(records) {
+      render_table(records);
+    });
+  }
   if (!modal.hasClass('open')) {
     modal.reveal({
       close: function() {
@@ -321,6 +340,207 @@ function auth_show_domain(server, domain) {
       }
     });
   }
+}
+
+function auth_edit_record(server, domain, qname, qtype, zone_records) {
+  var table = $('<table width=100% class="dataTable"></table>');
+  var actionrow = $('<div class=row><br></div>').append(
+    $('<div class="right"><div class="inline-block spinner"></div></div>').append(
+      $('<div class="inline-block"></div>').append(
+
+        $('<button class="small button alert">Delete All</button>').
+          click(function() {
+            if (!confirm("Are you sure about deleting all " + qtype + " records?")) {
+              return;
+            }
+
+            $.ajax({
+              dataType: 'json',
+              url: server.url+'zones/'+domain+'/names/'+qname+'/types/'+qtype,
+              type: 'DELETE',
+            }).fail(function(jqXHR, textStatus) {
+              alert(textStatus);
+            }).success(function() {
+              // don't pass zone_records, so auth_show_domains fetches the
+              // zone anew, so it gets any changes we've made.
+              auth_show_domain(server, domain);
+            });
+
+          }),
+        ' &nbsp; &nbsp; ',
+
+        $('<button class="small button success">Save</button>'),
+        ' ',
+
+        $('<button class="small button">Cancel</button>').
+          click(function(){
+            auth_show_domain(server, domain, zone_records);
+          })
+      )
+    )
+  );
+
+
+  var html = $('<div></div>').
+    append($('<h3></h3>').text('Edit ' + qname + '/' + qtype)).
+    append(table).
+    append(actionrow);
+
+  var modal = get_modal('expand', html);
+  var flat = [];
+  router_set('#view=edit-record&domain=' + encodeURIComponent(domain) + '&qname=' + encodeURIComponent(qname) + '&qtype=' + encodeURIComponent(qtype));
+
+  function render_edit(zone_records) {
+    table.append(
+      $('<thead role=row></thead>').append(
+        $('<tr></tr>').append(
+          $('<th width=200>Domain</th>'),
+          $('<th width=50>Type</th>'),
+          $('<th width=50>TTL</th>'),
+          $('<th width=50>Priority</th>'),
+          $('<th>Content</th>'),
+          $('<th width=50></th>')
+        )
+      )
+    );
+    var tbody = $('<tbody role=alert></body>');
+
+    var rowId = 0;
+
+    var this_editor_state = {
+      rrset: [],
+      max_row_id: 0
+    };
+
+    modal.find('.success').
+      click(function() {
+        $.ajax({
+          dataType: 'json',
+          url: server.url+'zones/'+domain+'/names/'+qname+'/types/'+qtype,
+          type: 'POST',
+          data: JSON.stringify({records: this_editor_state.rrset}),
+          contentType: 'application/json; charset=utf-8'
+        }).fail(function(jqXHR, textStatus) {
+          alert(textStatus);
+        }).success(function(data) {
+          if (data.error) {
+            alert(error);
+          } else {
+            // don't pass zone_records, so auth_show_domains fetches the
+            // zone anew, so it gets any changes we've made.
+            auth_show_domain(server, domain);
+          }
+        })
+      });
+
+    function render_record(editor_state, record, rowId) {
+      function blur_field() {
+        var $this = $(this);
+        var fieldname = $this.data().field;
+        record[fieldname] = $this.text().trim();
+      }
+
+      var row = $('<tr></tr>').
+        append(
+          $('<td></td>').text(record.name),
+          $('<td></td>').text(record.type),
+          $('<td contenteditable=true data-field="ttl"></td>').blur(blur_field).text(record.ttl),
+          $('<td contenteditable=true data-field="priority"></td>').blur(blur_field).text(record.priority),
+          $('<td contenteditable=true data-field="content"></td>').blur(blur_field).text(record.content),
+          $('<td class=actions></td>').append(
+            $('<button class="link-button"><i class="foundicon-trash"></i></button>').click(function(e) {
+              editor_state.rrset.splice(editor_state.rrset.indexOf(record), 1);
+              row.remove();
+              e.preventDefault();
+            })
+          )
+        );
+      return row;
+    }
+
+    function append_empty_record(editor_state) {
+      var rowId = editor_state.max_row_id + 1;
+      tbody.append(
+        render_empty_record(editor_state, rowId)
+      );
+      editor_state.max_row_id = rowId;
+    }
+
+    function ensure_empty_row(editor_state) {
+      var empties = tbody.find('tr.empty');
+      if (empties.length == 0) {
+        append_empty_record(editor_state);
+      }
+    }
+
+    function render_empty_record(editor_state, rowId) {
+      var record = {name: qname, type: qtype, ttl: '', content: '', priority: ''};
+
+      function blur_empty_field() {
+        var $this = $(this);
+        var changed = false;
+        var row = $this.parent();
+        if ($this.text().trim() != '') {
+          if (row.hasClass('empty')) {
+            changed = true;
+            row.removeClass('empty');
+          }
+        }
+
+        if (changed) {
+          editor_state.rrset.push(record);
+          ensure_empty_row(editor_state);
+        }
+      }
+
+      var tr = render_record(editor_state, record, rowId);
+      tr.addClass('empty');
+      tr.find('td[contenteditable=true]').blur(blur_empty_field);
+      tbody.append(tr);
+    }
+
+    $.each(zone_records, function(key, record) {
+      if (record.name == qname && record.type == qtype) {
+        var rowId = this_editor_state.max_row_id + 1;
+        this_editor_state.rrset.push(record);
+        tbody.append(render_record(this_editor_state, record, rowId));
+        this_editor_state.max_row_id = rowId;
+      }
+    });
+
+    // the initial empty row
+    append_empty_record(this_editor_state);
+
+    table.append(tbody);
+
+    // setTimeout is a hack for page reloads
+    window.setTimeout(function() {
+      table.find('td[contenteditable=true]').first().focus();
+    }, 200);
+  }
+
+  if (zone_records) {
+    render_edit(zone_records);
+  } else {
+    load_zone(server, domain, function(records) {
+      render_edit(records);
+    });
+  }
+
+  if (!modal.hasClass('open')) {
+    modal.reveal({
+      close: function() {
+        router_set('');
+      },
+      open: function() {
+        // setTimeout is a hack for page reloads
+        window.setTimeout(function() {
+          table.find('td[contenteditable=true]').first().focus();
+        }, 200);
+      }
+    });
+  }
+
 }
 
 function build_auth(server) {
@@ -782,5 +1002,7 @@ function router_reroute(server) {
 
   if (args.view == 'domain') {
     auth_show_domain(server, args.domain);
+  } else if (args.view == 'edit-record') {
+    auth_edit_record(server, args.domain, args.qname, args.qtype);
   }
 }

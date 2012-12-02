@@ -281,6 +281,12 @@ function build_graph_url(source, targets, opts) {
   return url;
 }
 
+function load_zone(server, zone, callback) {
+  $.getJSON(server.url+'zones/'+zone, function(data) {
+    callback(data.content);
+  });
+}
+
 function auth_show_domain(server, domain) {
   var table = $('<table></table>');
   var html = $('<div></div>').
@@ -289,9 +295,9 @@ function auth_show_domain(server, domain) {
   var modal = get_modal('expand', html);
   router_set('#view=domain&domain=' + encodeURIComponent(domain));
 
-  $.getJSON(server.url+'zone/'+domain, function(data) {
+  load_zone(server, domain, function(data) {
     var flat=[];
-    $.each(data.content, function(key, value) {
+    $.each(data, function(key, value) {
       flat.push([value["name"], value["type"], value["ttl"], value["priority"], value["content"]]);
     });
     table.dataTable({

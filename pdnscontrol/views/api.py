@@ -1,5 +1,6 @@
 import requests
 import urlparse
+import urllib
 import json
 import time
 import sys
@@ -100,19 +101,23 @@ def server_edit(server):
     return jsonify(server=dict(server))
 
 
-@mod.route('/server/<server>/zones/<zone>/names/<qname>/types/<qtype>', methods=['GET','PUT','POST','DELETE'])
+@mod.route('/server/<server>/zones/<path:zone>/names/<path:qname>/types/<qtype>', methods=['GET','PUT','POST','DELETE'])
 @requireApiRole('edit')
 def server_zone_qname_qtype(server, zone, qname, qtype):
     server = db.session.query(Server).filter_by(name=server).first()
 
     remote_url = build_pdns_url(server)
-    remote_url += '?command=zone-rest&rest=/' + zone + '/' + qname + '/' + qtype
+    remote_url += '?command=zone-rest&rest=/{zone}/{qname}/{qtype}'.format(
+        zone=urllib.quote_plus(zone.encode("utf-8")),
+        qname=urllib.quote_plus(qname.encode("utf-8")),
+        qtype=urllib.quote_plus(qtype.encode("utf-8"))
+        )
     print remote_url
     r = fetch_remote(remote_url, method=request.method, data=request.data)
     return make_response((r.content, r.status_code, {}))
 
 
-@mod.route('/server/<server>/zones/<zone>')
+@mod.route('/server/<server>/zones/<path:zone>')
 @requireApiRole('edit')
 def server_zone(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()

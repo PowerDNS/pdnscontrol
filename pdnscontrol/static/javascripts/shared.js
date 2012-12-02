@@ -282,7 +282,7 @@ function build_graph_url(source, targets, opts) {
 }
 
 function load_zone(server, zone, callback) {
-  $.getJSON(server.url+'zones/'+zone, function(data) {
+  $.getJSON(server.url+'zones/'+encodeURIComponent(zone), function(data) {
     callback(data.content);
   });
 }
@@ -389,7 +389,7 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
 
             $.ajax({
               dataType: 'json',
-              url: server.url+'zones/'+domain+'/names/'+qname+'/types/'+qtype,
+              url: server.url+'zones/'+encodeURIComponent(domain)+'/names/'+encodeURIComponent(qname)+'/types/'+encodeURIComponent(qtype),
               type: 'DELETE',
             }).fail(function(jqXHR, textStatus) {
               spinner.html('');
@@ -454,7 +454,7 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
 
         $.ajax({
           dataType: 'json',
-          url: server.url+'zones/'+domain+'/names/'+qname+'/types/'+qtype,
+          url: server.url+'zones/'+encodeURIComponent(domain)+'/names/'+encodeURIComponent(qname)+'/types/'+encodeURIComponent(qtype),
           type: 'POST',
           data: JSON.stringify({records: this_editor_state.rrset}),
           contentType: 'application/json; charset=utf-8'
@@ -1039,7 +1039,7 @@ function router_reroute(server) {
   var args = {};
   for (var i = 0; i < splitted.length; i++) {
     var pair = splitted[i].split('=');
-    args[pair[0]] = pair[1];
+    args[pair[0]] = decodeURIComponent(pair[1]);
   }
   if (!args.view) {
     return;

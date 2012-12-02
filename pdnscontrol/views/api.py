@@ -45,7 +45,9 @@ def fetch_json(remote_url):
 def build_pdns_url(server):
     remote_url = server.stats_url
     if server.daemon_type == 'Authoritative':
-        remote_url = urlparse.urljoin(remote_url, '/jsonstat')
+        if remote_url[-1] != '/':
+            remote_url = remote_url + '/'
+        remote_url = remote_url + 'jsonstat'
     return remote_url
 
 

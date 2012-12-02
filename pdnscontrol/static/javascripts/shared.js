@@ -375,6 +375,7 @@ function build_auth(server) {
 
 
   build_server_common(server);
+  init_router(server);
 }
 
 function build_recursor(server) {
@@ -725,4 +726,38 @@ function multi_flush(servers) {
       domainToFlush.focus();
     }
   });
+}
+
+var last_hash = "";
+function init_router(server) {
+  router_reroute(server);
+  window.onhashchange = function() {
+    router_reroute(server);
+  };
+}
+
+function router_set(current_hash) {
+  last_hash = current_hash;
+  location.hash = current_hash;
+}
+
+function router_reroute(server) {
+  var hash = location.hash;
+  if (hash === last_hash) {
+    return;
+  }
+
+  if (hash.slice(0,1) == '#') {
+    hash = hash.slice(1);
+  }
+
+  var splitted = hash.split('&');
+  var args = {};
+  for (var i = 0; i < splitted.length; i++) {
+    var pair = splitted[i].split('=');
+    args[pair[0]] = pair[1];
+  }
+  if (!args.view) {
+    return;
+  }
 }

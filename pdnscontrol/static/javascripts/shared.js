@@ -313,11 +313,12 @@ function auth_show_domain(server, domain, zone_records) {
         {sTitle: "Type"},
         {sTitle: "TTL"},
         {sTitle: "Priority"},
-        {sTitle: "content"}
+        {sTitle: "Content"},
+        {sTitle: "", mData: null}
       ],
       fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-        $('td:eq(1)', nRow).html(aData[1] + ' <button class="link-button"><i class="foundicon-edit"></i></button>');
-        $('td:eq(1) button', nRow).click(function(e) {
+        $('td:eq(5)', nRow).html('<button class="link-button"><i class="foundicon-edit"></i></button>');
+        $('td:eq(5) button', nRow).click(function(e) {
           auth_edit_record(server, domain, aData[0], aData[1], zone_records);
           e.preventDefault();
         });

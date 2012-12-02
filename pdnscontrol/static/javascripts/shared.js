@@ -287,6 +287,8 @@ function auth_show_domain(server, domain) {
     append($('<h3></h3>').text('Domain '+domain)).
     append(table);
   var modal = get_modal('expand', html);
+  router_set('#view=domain&domain=' + encodeURIComponent(domain));
+
   $.getJSON(server.url+'zone/'+domain, function(data) {
     var flat=[];
     $.each(data.content, function(key, value) {
@@ -306,7 +308,13 @@ function auth_show_domain(server, domain) {
     });
     modal.find('.dataTables_wrapper').css('overflow-x', 'auto'); // hackish
   });
-  modal.reveal();
+  if (!modal.hasClass('open')) {
+    modal.reveal({
+      close: function() {
+        router_set('');
+      }
+    });
+  }
 }
 
 function build_auth(server) {
@@ -370,8 +378,9 @@ function build_auth(server) {
       ],
       fnRowCallback: function(nRow, aData, iDisplayIndex, iDisplayIndexFull) {
         $('td:eq(0)', nRow).html('<a href="#">'+aData[0]+'</a>');
-        $('td:eq(0) a', nRow).click(function() {
-            auth_show_domain(server, aData[0]);
+        $('td:eq(0) a', nRow).click(function(e) {
+          auth_show_domain(server, aData[0]);
+          e.preventDefault();
         });
       }
     });
@@ -763,5 +772,9 @@ function router_reroute(server) {
   }
   if (!args.view) {
     return;
+  }
+
+  if (args.view == 'domain') {
+    auth_show_domain(server, args.domain);
   }
 }

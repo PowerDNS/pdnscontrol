@@ -479,14 +479,25 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
         var fieldname = $this.data().field;
         record[fieldname] = $this.text().trim();
       }
+      function keydown_field(e) {
+        if (e.keyCode == 13) {
+          return false;
+        }
+      }
+      function paste_field(e) {
+        var that = $(this);
+        window.setTimeout(function() {
+          that.text(that.text());
+        }, 1);
+      }
 
       var row = $('<tr></tr>').
         append(
           $('<td></td>').text(record.name),
           $('<td></td>').text(record.type),
-          $('<td contenteditable=true data-field="ttl"></td>').blur(blur_field).text(record.ttl),
-          $('<td contenteditable=true data-field="priority"></td>').blur(blur_field).text(record.priority),
-          $('<td contenteditable=true data-field="content"></td>').blur(blur_field).text(record.content),
+          $('<td contenteditable=true data-field="ttl"></td>').text(record.ttl),
+          $('<td contenteditable=true data-field="priority"></td>').text(record.priority),
+          $('<td contenteditable=true data-field="content"></td>').text(record.content),
           $('<td class=actions></td>').append(
             $('<button class="link-button"><i class="foundicon-trash"></i></button>').click(function(e) {
               editor_state.rrset.splice(editor_state.rrset.indexOf(record), 1);
@@ -495,6 +506,10 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
             })
           )
         );
+      row.find('td[contenteditable=true]').
+        keydown(keydown_field).
+        blur(blur_field).
+        bind('paste', paste_field);
       return row;
     }
 

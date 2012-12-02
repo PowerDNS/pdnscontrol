@@ -542,8 +542,11 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
     $.each(zone_records, function(key, record) {
       if (record.name == qname && record.type == qtype) {
         var rowId = this_editor_state.max_row_id + 1;
-        this_editor_state.rrset.push(record);
-        tbody.append(render_record(this_editor_state, record, rowId));
+        // take a deep copy of record here, so we don't leak back broken
+        // data or uncommitted changes to show_auth_domain
+        var rec = $.extend(true, {}, record);
+        this_editor_state.rrset.push(rec);
+        tbody.append(render_record(this_editor_state, rec, rowId));
         this_editor_state.max_row_id = rowId;
       }
     });

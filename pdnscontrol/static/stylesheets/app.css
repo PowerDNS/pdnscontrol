@@ -150,6 +150,13 @@ table.dataTable tbody tr:nth-child(even) {
     display: none;
 }
 
+.newRecord input, .newRecord select {
+    display: inline;
+    width: auto;
+    height: auto;
+    padding: 0;
+}
+
 /* -----------------------------------------
    Page Name 2
 ----------------------------------------- */

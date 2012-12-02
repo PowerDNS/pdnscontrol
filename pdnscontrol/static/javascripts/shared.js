@@ -323,6 +323,33 @@ function auth_show_domain(server, domain, zone_records) {
         });
       }
     });
+    modal.append(
+      $('<div class="newRecord"><br><br></div>').append(
+        $('<input type=text id="newRecordName">'),
+        '.'+domain+' ',
+        $('<select id="newRecordType"></select>'),
+        ' ',
+        $('<button class="button small success">Add</button>').
+          click(function() {
+            var qname = $('#newRecordName').val().trim();
+            if (qname == '@') {
+              qname = '';
+            }
+            if (qname != '') {
+              qname = qname + '.';
+            }
+            qname = qname + domain;
+            var qtype = $('#newRecordType').val();
+            auth_edit_record(server, domain, qname, qtype, zone_records);
+          })
+      )
+    );
+    var newRecordType = $('#newRecordType');
+    var record_types = ["A","NS","CNAME","SOA","MR","PTR","HINFO","MX","TXT","RP","AFSDB","SIG","KEY","AAAA","LOC","SRV","CERT","NAPTR","DS","SSHFP","RRSIG","NSEC","DNSKEY","NSEC3","NSEC3PARAM","TLSA","SPF","DLV"];
+    for (var i=0; i<record_types.length; i++) {
+      newRecordType.append($('<option></option>').text(record_types[i]).val(record_types[i]));
+    }
+
     modal.find('.dataTables_wrapper').css('overflow-x', 'auto'); // hackish
   }
 
@@ -424,7 +451,7 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
           alert(textStatus);
         }).success(function(data) {
           if (data.error) {
-            alert(error);
+            alert(data.error);
           } else {
             // don't pass zone_records, so auth_show_domains fetches the
             // zone anew, so it gets any changes we've made.

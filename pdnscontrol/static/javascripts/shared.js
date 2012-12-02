@@ -8,7 +8,7 @@ function server_start_stop_restart(server, action) {
     '<div class="row"><div class="right"><div class="inline-block spinner"></div>' +
     '<div class="inline-block">' +
     '<input type=button class="small button success" value="' + action_title + '"> ' +
-    '<input type=button class="small button alert" value="Cancel">' +
+    '<input type=button class="small button cancel" value="Cancel">' +
     '</div></div>';
 
   var modal = get_modal('fixedWidth1000', html);
@@ -25,7 +25,7 @@ function server_start_stop_restart(server, action) {
           empty().
           append("<label>Success:</label>").
           append($('<pre>').text(result.output));
-        modal.find('input.alert').remove();
+        modal.find('input.cancel').remove();
         modal.find('input.success').
           val('Close').
           unbind('click').
@@ -46,7 +46,7 @@ function server_start_stop_restart(server, action) {
     return false; // cancel close
   });
 
-  modal.find('input.alert').click(function() {
+  modal.find('input.cancel').click(function() {
     modal.trigger('reveal:close');
   });
 
@@ -59,7 +59,7 @@ function server_flush(server) {
     '<div class="row"><div class="right"><div class="inline-block spinner"></div>' +
     '<div class="inline-block">' +
     '<input type=button class="small button success" value="Flush"> ' +
-    '<input type=button class="small button alert" value="Cancel">' +
+    '<input type=button class="small button cancel" value="Cancel">' +
     '</div></div>';
 
   var modal = get_modal('fixedWidth1000', html);
@@ -83,7 +83,7 @@ function server_flush(server) {
     return false; // cancel close
   });
 
-  modal.find('input.alert').click(function() {
+  modal.find('input.cancel').click(function() {
     modal.trigger('reveal:close');
   });
 
@@ -640,7 +640,7 @@ function server_add() {
     '<div class="row"><div class="right"><div class="inline-block spinner"></div>' +
     '<div class="inline-block">' +
     '<input type=submit class="small button success" value="Save"> ' +
-    '<input type=button class="small button alert" value="Cancel">' +
+    '<input type=button class="small button cancel" value="Cancel">' +
     '</div></div>';
 
   var modal = get_modal('fixedWidth1000', html);
@@ -671,7 +671,7 @@ function server_add() {
     return false;
   });
 
-  modal.find('input.alert').click(function() {
+  modal.find('input.cancel').click(function() {
     modal.trigger('reveal:close');
   });
 
@@ -689,7 +689,7 @@ function multi_flush(servers) {
     '<div class="row"><div class="right"><div class="inline-block spinner"></div>' +
     '<div class="inline-block">' +
     '<input type=button class="small button success" value="Flush"> ' +
-    '<input type=button class="small button alert" value="Cancel">' +
+    '<input type=button class="small button cancel" value="Cancel">' +
     '</div></div>';
 
   var modal = get_modal('fixedWidth1000', html);
@@ -730,7 +730,7 @@ function multi_flush(servers) {
     return false; // cancel close
   });
 
-  modal.find('input.alert').click(function() {
+  modal.find('input.cancel').click(function() {
     modal.trigger('reveal:close');
   });
 

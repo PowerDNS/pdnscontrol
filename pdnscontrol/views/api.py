@@ -112,7 +112,6 @@ def server_zone_qname_qtype(server, zone, qname, qtype):
         qname=urllib.quote_plus(qname.encode("utf-8")),
         qtype=urllib.quote_plus(qtype.encode("utf-8"))
         )
-    print remote_url
     r = fetch_remote(remote_url, method=request.method, data=request.data)
     return make_response((r.content, r.status_code, {}))
 

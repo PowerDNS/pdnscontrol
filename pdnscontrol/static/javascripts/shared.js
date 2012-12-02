@@ -371,7 +371,9 @@ function auth_show_domain(server, domain, zone_records) {
 
 function auth_edit_record(server, domain, qname, qtype, zone_records) {
   var table = $('<table width=100% class="dataTable"></table>');
-  var actionrow = $('<div class=row><br></div>').append(
+  var spinner;
+  var errorrow = $('<div class="alert-box alert"></div>').hide();
+  var actionrow = $('<div class=row></div>').append(
     $('<div class="right"><div class="inline-block spinner"></div></div>').append(
       $('<div class="inline-block"></div>').append(
 
@@ -381,11 +383,14 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
               return;
             }
 
+            var spinner = modal.find('.spinner').html('').spin('small');
+
             $.ajax({
               dataType: 'json',
               url: server.url+'zones/'+domain+'/names/'+qname+'/types/'+qtype,
               type: 'DELETE',
             }).fail(function(jqXHR, textStatus) {
+              spinner.html('');
               alert(textStatus);
             }).success(function() {
               // don't pass zone_records, so auth_show_domains fetches the
@@ -411,6 +416,8 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
   var html = $('<div></div>').
     append($('<h3></h3>').text('Edit ' + qname + '/' + qtype)).
     append(table).
+    append('<br>').
+    append(errorrow).
     append(actionrow);
 
   var modal = get_modal('expand', html);
@@ -441,6 +448,8 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
 
     modal.find('.success').
       click(function() {
+        var spinner = modal.find('.spinner').html('').spin('small');
+
         $.ajax({
           dataType: 'json',
           url: server.url+'zones/'+domain+'/names/'+qname+'/types/'+qtype,
@@ -448,10 +457,12 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
           data: JSON.stringify({records: this_editor_state.rrset}),
           contentType: 'application/json; charset=utf-8'
         }).fail(function(jqXHR, textStatus) {
+          spinner.html('');
           alert(textStatus);
         }).success(function(data) {
           if (data.error) {
-            alert(data.error);
+            errorrow.text(data.error).show();
+            spinner.html('');
           } else {
             // don't pass zone_records, so auth_show_domains fetches the
             // zone anew, so it gets any changes we've made.

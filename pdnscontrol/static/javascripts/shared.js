@@ -112,7 +112,23 @@ function get_modal(classes, client_html) {
     classes += ' open';
   }
   modal.attr('class', 'reveal-modal '+classes);
-  modal.html('<a class="close-reveal-modal">&#215;</a>');
+
+  // clear out the modal but preserve the close button, which has an
+  // event handler attached to it. (and the caller will likely not
+  // call reveal()).
+  if (was_open) {
+    var children = modal.children();
+    for (var i=0; i < children.length; i++) {
+      var child = $(children[i]);
+      if (child.hasClass('close-reveal-modal')) {
+        continue;
+      }
+      child.remove();
+    }
+  } else {
+    // wasn't open, so trust Foundation to recreate the event handler.
+    modal.html('<a class="close-reveal-modal">&#215;</a>');
+  }
   if (client_html) {
     modal.append(client_html);
   }

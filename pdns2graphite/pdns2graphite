@@ -153,7 +153,10 @@ def sleepuntil(ts):
 def main():
     global config
 
-    execfile('../instance/pdnscontrol.conf', config)
+    try:
+        execfile('../instance/pdnscontrol.conf', config)
+    except IOError:
+        sys.exit("%s: Can't load configuration file" % sys.argv[0])
 
     serverlist_url = 'http://localhost'
     CARBONSERVER = '127.0.0.1'

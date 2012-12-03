@@ -85,6 +85,8 @@ config = {
     'carbon_server'     : '127.0.0.1',
     'carbon_port'       : 2003,
     'carbon_delay'      : 5,
+    'pdnscontrol_user'  : None,
+    'pdnscontrol_pass'  : None,
 }
 
 logging.basicConfig()
@@ -170,8 +172,9 @@ def main():
     except:
         sys.exit("%s: Syntax error in configuration file `%s'" % (sys.argv[0], configfile))
 
-    if 'pdnscontrol_user' not in config or 'pdnscontrol_pass' not in config:
-        sys.exit("%s: Need pdnscontrol_{user|pass} in configuration" % (sys.argv[0]))
+    for k in config:
+        if config[k] is None:
+            sys.exit("%s: configuration value for `%s' is required" % (sys.argv[0], k))
 
     logger.warning('starting up with serverlist %s', config['serverlist_url'])
     while True:

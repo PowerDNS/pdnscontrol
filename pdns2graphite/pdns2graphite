@@ -80,7 +80,12 @@ recursor = [    # http://doc.powerdns.com/recursor-stats.html
 		"user-msec"
    ]
 
-config = {}
+config = {
+    'serverlist_url'    : 'http://localhost',
+    'carbon_server'     : '127.0.0.1',
+    'carbon_port'       : 2003,
+    'carbon_delay'      : 5,
+}
 
 logging.basicConfig()
 logger = logging.getLogger('pdns2graphite')
@@ -165,28 +170,14 @@ def main():
     except:
         sys.exit("%s: Syntax error in configuration file `%s'" % (sys.argv[0], configfile))
 
-    serverlist_url = 'http://localhost'
-    CARBONSERVER = '127.0.0.1'
-    CARBONPORT = 2003
-    DELAY = 5
-
-    if 'carbon_server' in config:
-        CARBONSERVER = config['carbon_server'] or '127.0.0.1'
-    if 'carbon_port' in config:
-        CARBONPORT = int(config['carbon_port'])
-    if 'carbon_delay' in config:
-        DELAY = float(config['carbon_delay'])
-    if 'serverlist_url' in config:
-        serverlist_url = config['serverlist_url']
-
     if 'pdnscontrol_user' not in config or 'pdnscontrol_pass' not in config:
-        sys.exit("Need pdnscontrol_{user|pass} in configuration")
+        sys.exit("%s: Need pdnscontrol_{user|pass} in configuration" % (sys.argv[0]))
 
-    logger.warning('starting up with serverlist %s', serverlist_url)
+    logger.warning('starting up with serverlist %s', config['serverlist_url'])
     while True:
         lastpoll = time.time()
         logger.debug('polling')
-        for server in getserverlist(serverlist_url):
+        for server in getserverlist(config['serverlist_url']):
             url = server['url']
             if 'type' in server:
                 url = urlparse.urljoin(url, 'stats')
@@ -197,7 +188,7 @@ def main():
                     statlist = recursor
                     type = 'recursor'
             graph_server(url, type, statlist, server['name'])
-        sleepuntil(lastpoll+DELAY)
+        sleepuntil(lastpoll + float(config['carbon_delay']))
 
 if __name__ == '__main__':
     main()

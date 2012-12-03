@@ -1,4 +1,4 @@
-# Camel
+# PowerDNS Web Control Panel
 
 PowerDNS Web Control Panel
 
@@ -23,7 +23,7 @@ Features:
 
 ## Components
 
-### Camel Web Frontend
+### PowerDNS Web Frontend
 
 Flask-based web app.
 

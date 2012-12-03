@@ -80,9 +80,7 @@ recursor = [    # http://doc.powerdns.com/recursor-stats.html
 		"user-msec"
    ]
 
-CARBONSERVER = '127.0.0.1'
-CARBONPORT = 2003
-DELAY = 15  #seconds
+config = {}
 
 logging.basicConfig()
 logger = logging.getLogger('pdns2graphite')
@@ -91,18 +89,19 @@ def send_it(message):
 
     try:
         sock = socket.socket()
-        sock.connect((CARBONSERVER, CARBONPORT))
+        sock.connect((config['carbon_server'], config['carbon_port']))
         sock.sendall(message)
         sock.close()
     except socket.error:
-        logger.warning("Can't connect to Carbon server at %s:%s, dropping message", CARBONSERVER, CARBONPORT, exc_info=True)
+        logger.warning("Can't connect to Carbon server at %s:%s, dropping message", config['carbon_server'], config['carbon_port'], exc_info=True)
 
 def nowtics():
     return int(time.time())
 
 def getserverlist(serverlist_url):
+    global config
     try:
-        r = requests.get(serverlist_url, auth=('graphite','notsecure'))
+        r = requests.get(serverlist_url, auth=(config['pdnscontrol_user'],config['pdnscontrol_pass']))
     except requests.exceptions.RequestException:
         logger.error('error fetching server list', exc_info=True)
         return []
@@ -116,12 +115,13 @@ def getserverlist(serverlist_url):
     return s['servers']
 
 def graph_server(url, type, keys, node):
+    global config
 
     logger.debug('getting stats for %s server %s (%s)', type, node, url)
     node = node.replace('.', '-')
 
     try:
-        r = requests.get(url, auth=('graphite','notsecure'))
+        r = requests.get(url, auth=(config['pdnscontrol_user'],config['pdnscontrol_pass']))
     except requests.exceptions.RequestException:
         logger.error('error fetching stats from %s', url, exc_info=True)
         return
@@ -151,18 +151,26 @@ def sleepuntil(ts):
     time.sleep(ts-now)
 
 def main():
-    if len(sys.argv) < 2:
-        sys.exit("Usage: %s serverlist.json [carbonserver port [interval]]" % sys.argv[0])
+    global config
 
-    serverlist_url = sys.argv[1]
-    if len(sys.argv) >= 4:
-        global CARBONSERVER, CARBONPORT
-        CARBONSERVER = sys.argv[2]
-        CARBONPORT = int(sys.argv[3])
+    execfile('../instance/pdnscontrol.conf', config)
 
-    if len(sys.argv) == 5:
-        global DELAY
-        DELAY = float(sys.argv[4])
+    serverlist_url = 'http://localhost'
+    CARBONSERVER = '127.0.0.1'
+    CARBONPORT = 2003
+    DELAY = 5
+
+    if 'carbon_server' in config:
+        CARBONSERVER = config['carbon_server'] or '127.0.0.1'
+    if 'carbon_port' in config:
+        CARBONPORT = int(config['carbon_port'])
+    if 'carbon_delay' in config:
+        DELAY = float(config['carbon_delay'])
+    if 'serverlist_url' in config:
+        serverlist_url = config['serverlist_url']
+
+    if 'pdnscontrol_user' not in config or 'pdnscontrol_pass' not in config:
+        sys.exit("Need pdnscontrol_{user|pass} in configuration")
 
     logger.warning('starting up with serverlist %s', serverlist_url)
     while True:

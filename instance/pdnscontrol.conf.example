@@ -21,3 +21,20 @@
 
 # DEBUG = False
 
+# For pdns2graphite:
+
+# URL of serverlist
+# serverlist_url = 'http://some.place/x/y'
+
+# Name or address of Carbon server (default: 127.0.0.1)
+# carbon_server = '10.0.12.1'
+
+# Port on which Carbon server listens (default: 2003)
+# carbon_port = 2003
+
+# Sleep between checks in seconds (default: 5)
+# carbon_delay = 5
+
+# Authentication: user & password (no defaults)
+# pdnscontrol_user = 'username'
+# pdnscontrol_pass = 'password'

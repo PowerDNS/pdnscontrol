@@ -60,6 +60,16 @@ def fetch_json(remote_url, method='GET', data=None):
     return data
 
 
+def forward_remote_response(response):
+    return make_response(
+        (
+            response.content,
+            response.status_code,
+            {'Content-Type': response.headers.get('Content-Type')}
+            )
+        )
+
+
 def build_pdns_url(server):
     remote_url = server.stats_url
     if server.daemon_type == 'Authoritative':
@@ -113,7 +123,7 @@ def server_zone_qname_qtype(server, zone, qname, qtype):
         qtype=urllib.quote_plus(qtype.encode("utf-8"))
         )
     r = fetch_remote(remote_url, method=request.method, data=request.data)
-    return make_response((r.content, r.status_code, {}))
+    return forward_remote_response(r)
 
 
 @mod.route('/server/<server>/zones/<path:zone>')

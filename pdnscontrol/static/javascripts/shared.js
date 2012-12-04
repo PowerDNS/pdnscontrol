@@ -147,9 +147,10 @@ function server_log_grep(server, initial_query) {
 
   function runQuery(query) {
     $.getJSON(server.url+"log-grep?needle="+query, function(data) {
+      var flat = _.map(data.content, function(line) { return [line]; });
       output.html('<table></table>');
       output.find('table').dataTable({
-        aaData: data.content,
+        aaData: flat,
         aaSorting: [[0, 'desc']],
         bSort: true,
         aoColumns: [{sTitle: "Line"}]
@@ -191,9 +192,10 @@ function servers_log_grep(servers, initial_query) {
     output.find('table').dataTable().fnClearTable();
     _.each(servers, function(server) {
       $.getJSON(server.url+"log-grep?needle="+query, function(data) {
+        var flat = _.map(data.content, function(line) { return [line]; });
         output.find('table').dataTable().fnAddData(
-          data.content
-          );
+          flat
+        );
       });
     });
   }

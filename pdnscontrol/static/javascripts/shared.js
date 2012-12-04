@@ -259,6 +259,12 @@ function build_server_common(server) {
   });
 
   $.getJSON(server.url+'config', function(data) {
+    server.config = data.config instanceof Array && _.object(data.config) || data;
+    server.config.mustDo = function(setting) {
+      var val = server.config[setting];
+      return (val!=="no") && (val!=="off");
+    };
+
     var flat;
 
     if (server.type === 'Authoritative') {
@@ -584,7 +590,7 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
       if (record.name == qname && record.type == qtype) {
         var rowId = this_editor_state.max_row_id + 1;
         // take a deep copy of record here, so we don't leak back broken
-        // data or uncommitted changes to show_auth_domain
+        // data or uncommitted changes to auth_show_domain
         var rec = $.extend(true, {}, record);
         this_editor_state.rrset.push(rec);
         tbody.append(render_record(this_editor_state, rec, rowId));
@@ -671,6 +677,7 @@ function build_auth(server) {
 
 
   $.getJSON(server.url+'domains', function(data) {
+    server.domains = {};
     var flat = [];
     $.each(data["domains"], function(e) {
       var d = data["domains"][e];
@@ -680,6 +687,7 @@ function build_auth(server) {
         d.masters,
         d.serial
       ]);
+      server.domains[d.name] = d;
     });
 
     $("#domains").dataTable({

@@ -309,6 +309,16 @@ function load_zone(server, zone, callback) {
   });
 }
 
+function pdns_control(server, command) {
+  return $.ajax({
+    dataType: 'json',
+    url: server.url+'control',
+    type: 'POST',
+    data: JSON.stringify({parameters: command}),
+    contentType: 'application/json; charset=utf-8'
+  });
+}
+
 function auth_show_domain(server, domain, zone_records) {
   var loading = $('<span>Loading...</span>');
   var html = $('<div></div>').

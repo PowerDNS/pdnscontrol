@@ -168,6 +168,21 @@ def server_flushcache(server):
     return jsonify({'domain': domain, 'content': data})
 
 
+# pdns_control protocol tunnel
+@mod.route('/server/<server>/control', methods=['POST'])
+@requireApiRole('edit')
+def server_control(server):
+    server = db.session.query(Server).filter_by(name=server).first()
+
+    data = request.data
+
+    remote_url = build_pdns_url(server)
+    remote_url += '?command=pdns-control'
+
+    r = fetch_remote(remote_url, method=request.method, data=request.data)
+    return forward_remote_response(r)
+
+
 @mod.route('/server/<server>/<action>', methods=['GET','POST'])
 @requireApiRole('stats')
 def server_stats(server, action):

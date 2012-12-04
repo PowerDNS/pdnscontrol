@@ -319,6 +319,17 @@ function pdns_control(server, command) {
   });
 }
 
+function alertbox_show(obj, kind, text) {
+  obj.
+    removeClass('alert').
+    removeClass('secondary').
+    removeClass('success').
+    addClass(kind).
+    text(text).
+    show();
+  return obj;
+}
+
 function auth_show_domain(server, domain, zone_records) {
   var loading = $('<span>Loading...</span>');
   var html = $('<div></div>').
@@ -360,25 +371,80 @@ function auth_show_domain(server, domain, zone_records) {
         });
       }
     });
-    modal.append(
-      $('<div class="newRecord"><br><br></div>').append(
-        $('<input type=text id="newRecordName">'),
-        '.'+domain+' ',
-        $('<select id="newRecordType"></select>'),
-        ' ',
-        $('<button class="button small success">Add</button>').
-          click(function() {
-            var qname = $('#newRecordName').val().trim();
-            if (qname == '@') {
-              qname = '';
-            }
-            if (qname != '') {
-              qname = qname + '.';
-            }
-            qname = qname + domain;
-            var qtype = $('#newRecordType').val();
-            auth_edit_record(server, domain, qname, qtype, zone_records);
+
+    // alert box used for displaying async results
+    var alertbox = $('<div class="alert-box"></div>').hide();
+
+    var buttons = [];
+    var domain_kind = server.domains[domain].kind.toUpperCase();
+    if (domain_kind == 'MASTER' ||
+        (domain_kind == 'SLAVE' && server.config.mustDo('slave-renotify'))
+       ){
+      // allow SLAVE here because we might have slaves slaving off this slave.
+      // should check slave-renotify before enabling it.
+      buttons.push(
+        $('<button class="button small">Notify slaves</button>')
+          .click(function() {
+            var spinner = modal.find('spinner').spin();
+            pdns_control(server, "NOTIFY " + domain)
+              .success(function(data) {
+                alertbox_show(alertbox, 'success', data.result);
+              })
+              .fail(function(jqXHR, textStatus) {
+                alertbox_show(alertbox, 'alert', 'Request failed.');
+              })
+              .always(function() {
+                spinner.html('');
+              });
           })
+      );
+    }
+    if (domain_kind == 'SLAVE') {
+      buttons.push(
+        $('<button class="button small">Update from master</button>')
+          .click(function() {
+            var spinner = modal.find('spinner').spin();
+            pdns_control(server, "RETRIEVE " + domain)
+              .success(function(data) {
+                alertbox_show(alertbox, 'success', data.result);
+              })
+              .fail(function(jqXHR, textStatus) {
+                alertbox_show(alertbox, 'alert', 'Request failed.');
+              })
+              .always(function() {
+                spinner.html('');
+              });
+          })
+      );
+    }
+
+    modal.append('<div><br><br></div>');
+    modal.append(alertbox);
+    modal.append(
+      $('<div></div>').append(
+        $('<div class="left newRecord"></div>').append(
+          $('<input type=text id="newRecordName">'),
+          '.'+domain+' ',
+          $('<select id="newRecordType"></select>'),
+          ' ',
+          $('<button class="button small success">Add</button>').
+            click(function() {
+              var qname = $('#newRecordName').val().trim();
+              if (qname == '@') {
+                qname = '';
+              }
+              if (qname != '') {
+                qname = qname + '.';
+              }
+              qname = qname + domain;
+              var qtype = $('#newRecordType').val();
+              auth_edit_record(server, domain, qname, qtype, zone_records);
+            })
+        ),
+        $('<div class="right"></div>').append(
+          '<div class="inline-block spinner"></div>',
+          buttons
+        )
       )
     );
     var newRecordType = $('#newRecordType');

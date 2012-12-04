@@ -315,6 +315,9 @@ function auth_show_domain(server, domain, zone_records) {
     var flat=[];
     $.each(zone_records, function(key, value) {
       if (value.type != 'TYPE0') {
+        if (value.type != 'MX' && value.type != 'SRV') {
+          value.priority = '';
+        }
         flat.push([value["name"], value["type"], value["ttl"], value["priority"], value["content"]]);
       }
     });
@@ -449,12 +452,16 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
           $('<th width=200>Domain</th>'),
           $('<th width=50>Type</th>'),
           $('<th width=50>TTL</th>'),
-          $('<th width=50>Priority</th>'),
+          $('<th class="priority" width=50>Priority</th>'),
           $('<th>Content</th>'),
           $('<th width=50></th>')
         )
       )
     );
+    if (qtype != 'SRV' && qtype != 'MX') {
+      table.find('th.priority').text('').hide();
+    }
+
     var tbody = $('<tbody role=alert></body>');
 
     var rowId = 0;
@@ -526,6 +533,9 @@ function auth_edit_record(server, domain, qname, qtype, zone_records) {
         keydown(keydown_field).
         blur(blur_field).
         bind('paste', paste_field);
+      if (record.type != 'SRV' && record.type != 'MX') {
+        row.find('td[data-field=priority]').text('').hide();
+      }
       return row;
     }
 

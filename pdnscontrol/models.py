@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from pdnscontrol import app
@@ -92,3 +92,16 @@ class Server(db.Model, IterableModel):
         self.daemon_type = daemon_type
         self.stats_url = stats_url
         self.manager_url = manager_url
+
+    @staticmethod
+    def all():
+        servers = []
+        for server in Server.query.all():
+            server = {
+                'url': request.url_root + 'api/server/'+server.name+'/',
+                'name': server.name,
+                'kind': server.daemon_type
+                }
+            servers.append(server)
+        return servers
+

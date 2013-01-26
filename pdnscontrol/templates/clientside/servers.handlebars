@@ -1,0 +1,73 @@
+<div class="row">
+  <div class="twelve columns">
+    <div class="panel server-list">
+      <table id="servers" class="twelve">
+        <thead>
+          <tr>
+            <th>{{view Ember.Checkbox checkedBinding="allSelected"}}</th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>Main IP</th>
+            <th>Version</th>
+            <th>Uptime</th>
+            <th>Load</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#unless controller.content }}
+          You don't seem to have any servers defined yet. Add some!
+          {{/unless}}
+          {{#each controller.arrangedContent}}
+          <tr>
+            <td><label>{{view Ember.Checkbox checkedBinding="isSelected" }}</label></td>
+            <td>{{kind}}</td>
+            <td>{{name}}</td>
+            <td>{{listen_address}}</td>
+            <td>{{version}}</td>
+            <td>{{uptime}}</td>
+            <td>{{load}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+      <div class="row">
+        <div class="seven columns">
+          <div class="button-bar">
+            <ul class="button-group">
+              <li><button class="button" {{action "flush_cache"}}>Flush cache</button></li>
+            </ul>
+            <ul class="button-group">
+              <li><button class="button" {{action "deploy"}}>Deploy</button></li>
+              <li><button class="button" {{action "restart"}}>Restart</button></li>
+              <li><button class="alert button" {{action "shutdown"}}>Shutdown</button></li>
+            </ul>
+          </div>
+        </div>
+        <div class="five columns">
+          <ul class="button-group right">
+            <li>
+              <button class="button" {{action "add"}}><span class="foundicon-plus"></span></button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    {{#view App.LogSearchView}}
+    <form>
+      <fieldset>
+        <legend>Log Search</legend>
+        {{view Ember.TextField valueBinding="query" placeholder="Standard Input"}}
+      </fieldset>
+    </form>
+    {{/view}}
+
+    <h3>Aggregate statistics</h3>
+    <div id="graphDiv">
+
+    </div>
+  </div>  
+</div>
+
+<div style="border: 1px solid green;">
+{{outlet}}
+</div>

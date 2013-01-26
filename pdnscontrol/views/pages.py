@@ -11,32 +11,19 @@ from pdnscontrol.auth import requireLoggedInRole, requireLoggedIn, requireApiRol
 
 mod = Blueprint('pages', __name__)
 
-def servers_public():
-    servers = []
-    for server in Server.query.all():
-        server = {
-            'url': request.url_root + 'api/server/'+server.name+'/',
-            'name': server.name,
-            'type': server.daemon_type
-            }
-        servers.append(server)
-    return servers
-
 @mod.route('/servers.json')
 @requireApiRole('stats')
 def servers_json():
     # legacy URL which we need for pdns2graphite for the time being
-    return jsonify(servers=servers_public())
+    return jsonify(servers=Server.all())
 
 
 @mod.route('/')
 @requireLoggedIn
 def index():
-    return render_template('/pages/index.html', servers=servers_public())
+    return render_template('/pages/clientjs.html')
 
-
-@mod.route('/server/<server>')
-@requireLoggedInRole('view')
-def server(server):
-    server = filter(lambda x: x['name'] == server, servers_public())[0]
-    return render_template('/pages/server.html', server=server)
+@mod.route('/<path:path>')
+@requireLoggedIn
+def catchall(path):
+    return render_template('/pages/clientjs.html')

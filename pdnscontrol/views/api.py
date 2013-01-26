@@ -79,7 +79,27 @@ def build_pdns_url(server):
     return remote_url
 
 
-@mod.route('/server/', methods=['PUT'])
+@mod.route('/servers/', methods=['GET'])
+@requireApiRole('view')
+def server_index():
+    s = Server.all()
+    return jsonify(servers=s)
+
+@mod.route('/servers/<server>', methods=['GET'])
+@requireApiRole('view')
+def server_get(server):
+    s = Server.query.filter_by(name=server).first()
+    if not s:
+        return "Not found", 404
+
+    s = {
+        'name': s.name,
+        'kind': s.daemon_type
+        }
+    return jsonify(server=s)
+
+
+@mod.route('/servers/', methods=['PUT'])
 @requireApiRole('edit')
 def server_create():
     obj = request.json['server']

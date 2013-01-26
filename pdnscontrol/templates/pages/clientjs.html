@@ -1,0 +1,18 @@
+{% extends "/layout.html" -%}
+{% block body %}
+
+
+  {% assets output="gen/js-ember-%(version)s.js",
+    "javascripts/handlebars.js",
+    "javascripts/ember.js",
+    "javascripts/ember-data.js"
+  %}
+  <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
+{# handlebars templates #}
+<script src="{{ url_for('static', filename='javascripts/templates.js') }}"></script>
+
+<script src="{{ url_for('static', filename='javascripts/shared.js') }}"></script>
+
+{% endblock %}

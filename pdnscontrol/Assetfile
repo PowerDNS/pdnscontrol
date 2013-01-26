@@ -5,6 +5,6 @@ output "static"
 input "templates/clientside" do
   match "**/*.handlebars" do
     handlebars :key_name_proc => proc { |input| input.path.split(File.extname(input.path))[0] }
-    concat "javascripts/templates.js"
+    concat "javascripts/gen/templates.js"
   end
 end

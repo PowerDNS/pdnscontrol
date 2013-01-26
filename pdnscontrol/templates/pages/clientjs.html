@@ -12,6 +12,10 @@
 {# pre-compiled handlebars templates #}
 <script src="{{ url_for('static', filename='javascripts/gen/templates.js') }}"></script>
 
-<script src="{{ url_for('static', filename='javascripts/shared.js') }}"></script>
+{# our ember-based app #}
+<script src="{{ url_for('static', filename='javascripts/app.js') }}"></script>
+<script src="{{ url_for('static', filename='javascripts/routes.js') }}"></script>
+<script src="{{ url_for('static', filename='javascripts/models.js') }}"></script>
+<script src="{{ url_for('static', filename='javascripts/views.js') }}"></script>
 
 {% endblock %}

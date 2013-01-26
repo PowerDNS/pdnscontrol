@@ -1,32 +1,4 @@
-window.App = Ember.Application.create({
-  LOG_TRANSITIONS: true
-});
-
-App.ApplicationView = Ember.View.extend({
-  templateName: 'application'
-});
-App.ApplicationController = Ember.Controller.extend();
-
-
-//// Models
-
-App.Store = DS.Store.extend({
-  revision: 11,
-  adapter: DS.RESTAdapter.create({
-    namespace: 'api'
-  })
-});
-
-App.Server = DS.Model.extend({
-  primaryKey: 'name',
-  name: DS.attr('string'),
-  kind: DS.attr('string'),
-  flush_cache: function() {
-    console.log('flushing cache of ', this, this.get('name'));
-  }
-});
-
-//// Routing
+//// Router setup
 
 App.Router.reopen({
   enableLogging: true,
@@ -75,11 +47,5 @@ App.ServersController = Ember.ArrayController.extend({
       forEach(function(item) {
         item.flush_cache();
       });
-  }
-});
-
-App.LogSearchView = Em.View.extend({
-  insertNewline: function() {
-    alert('searching something');
   }
 });

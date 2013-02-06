@@ -83,6 +83,8 @@ def build_pdns_url(server):
 @requireApiRole('view')
 def server_index():
     s = Server.all()
+    for server in s:
+        server['id'] = server['name']
     return jsonify(servers=s)
 
 
@@ -106,6 +108,7 @@ def server_get(server):
         return "Not found", 404
 
     s = {
+        'id': s.name,
         'name': s.name,
         'kind': s.daemon_type
         }

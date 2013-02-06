@@ -100,3 +100,7 @@ App.TabView = Em.View.extend({
   },
 
 });
+
+App.TableHeaderCellView = Ember.Table.HeaderCell.extend({
+  classNameBindings: ['content.isSortedBy:sorted-by','content.sortAscending:sort-ascending:sort-descending']
+});

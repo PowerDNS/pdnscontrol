@@ -164,6 +164,28 @@ table.dataTable tbody tr:nth-child(even) {
 .header-cell {
     font-weight: bold;
 }
+.header-cell span {
+    display: inline-block;
+    height: 100%;
+    width: 80%;
+    cursor: pointer;
+}
+.header-cell.sorted-by {
+}
+.header-cell.sorted-by.sort-ascending:before {
+    content: "\f017"; /* down-arrow */
+    font-family: "GeneralFoundicons";
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: inherit;
+}
+.header-cell.sorted-by.sort-descending:before {
+    content: "\f016"; /* up-arrow */
+    font-family: "GeneralFoundicons";
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: inherit;
+}
 
 /* -----------------------------------------
    Page Name 2

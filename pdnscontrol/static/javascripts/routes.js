@@ -160,6 +160,7 @@ App.ServerController = Ember.ObjectController.extend({
 
 App.SortedTableController = Ember.Table.TableController.extend({
   sortColumn: null,
+  sortAscending: null,
 
   sortByColumn: function(column) {
     if (column.get('sortAscending') === undefined ||
@@ -167,7 +168,11 @@ App.SortedTableController = Ember.Table.TableController.extend({
       column.toggleProperty('sortAscending');
     }
     var sortAscending = column.get('sortAscending');
+    this.get('columns').setEach('isSortedBy', false);
+    column.set('isSortedBy', true);
+
     this.set('sortColumn', column);
+    this.set('sortAscending', sortAscending);
 
     var content = this.get('content').slice();
     var sorted = content.sort(function(item1, item2) {
@@ -181,6 +186,10 @@ App.SortedTableController = Ember.Table.TableController.extend({
   }
 });
 
+App.SortedTableColumnDefinition = Ember.Table.ColumnDefinition.extend({
+  headerCellViewClass: 'App.TableHeaderCellView'
+});
+
 App.ServerConfigurationController = App.SortedTableController.extend({
   hasHeader: true,
   hasFooter: false,
@@ -189,15 +198,15 @@ App.ServerConfigurationController = App.SortedTableController.extend({
 
   columns: function() {
     return [
-      Ember.Table.ColumnDefinition.create({
+      App.SortedTableColumnDefinition.create({
         headerCellName: 'Name',
         columnWidth: 250,
-        getCellContent: function(row) { return row.get('name'); }
+        getCellContent: function(row) { return row.get('name'); },
       }),
-      Ember.Table.ColumnDefinition.create({
+      App.SortedTableColumnDefinition.create({
         headerCellName: 'Value',
         columnWidth: 600,
-        getCellContent: function(row) { return row.get('value'); }
+        getCellContent: function(row) { return row.get('value'); },
       })
     ];
   }.property(),
@@ -215,12 +224,14 @@ App.ServerStatsController = App.SortedTableController.extend({
       Ember.Table.ColumnDefinition.create({
         headerCellName: 'Name',
         columnWidth: 250,
-        getCellContent: function(row) { return row.get('name'); }
+        getCellContent: function(row) { return row.get('name'); },
+        headerCellViewClass: 'App.TableHeaderCellView'
       }),
       Ember.Table.ColumnDefinition.create({
         headerCellName: 'Value',
         columnWidth: 600,
-        getCellContent: function(row) { return row.get('value'); }
+        getCellContent: function(row) { return row.get('value'); },
+        headerCellViewClass: 'App.TableHeaderCellView'
       })
     ];
   }.property(),

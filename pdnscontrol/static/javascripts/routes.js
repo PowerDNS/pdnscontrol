@@ -234,10 +234,11 @@ App.ServerZonesController = App.SortedTableController.extend({
   numFixedColumns: 0,
 
   columns: function() {
-    console.log('columns setup with ', this.get('server'));
     if (this.get('server') === undefined) {
+      // While initializing we don't have a server yet.
       return [];
     }
+
     var cols = [
       Ember.Table.ColumnDefinition.create({
         headerCellName: 'Name',

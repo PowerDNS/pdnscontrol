@@ -1,6 +1,7 @@
 {% extends "/layout.html" -%}
 {% block body %}
 
+{# ember and ember-data #}
   {% assets output="gen/js-ember-%(version)s.js",
     "javascripts/handlebars.js",
     "javascripts/ember.js",
@@ -8,6 +9,16 @@
   %}
   <script src="{{ ASSET_URL }}"></script>
   {% endassets %}
+
+{# ember-table and dependencies #}
+  {% assets output="gen/js-table-%(version)s.js",
+    "javascripts/jquery-ui-1.9.0.custom.min.js",
+    "javascripts/jquery.mousewheel.js",
+    "javascripts/ember-table.js"
+  %}
+  <script src="{{ ASSET_URL }}"></script>
+  {% endassets %}
+
 
 {# pre-compiled handlebars templates #}
 <script src="{{ url_for('static', filename='javascripts/gen/templates.js') }}"></script>

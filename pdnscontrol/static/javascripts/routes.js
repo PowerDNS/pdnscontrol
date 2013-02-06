@@ -159,9 +159,15 @@ App.ServerController = Ember.ObjectController.extend({
 });
 
 App.SortedTableController = Ember.Table.TableController.extend({
+  sortColumn: null,
+
   sortByColumn: function(column) {
-    column.toggleProperty('sortAscending');
+    if (column.get('sortAscending') === undefined ||
+        column == this.get('sortColumn')) {
+      column.toggleProperty('sortAscending');
+    }
     var sortAscending = column.get('sortAscending');
+    this.set('sortColumn', column);
 
     var content = this.get('content').slice();
     var sorted = content.sort(function(item1, item2) {

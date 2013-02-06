@@ -1,11 +1,14 @@
 <div class="row" id="header">
   <div class="seven columns">
-    <span id="appname">
-    {{#linkTo 'index'}}PowerDNS Control Server{{/linkTo}}
-    </span>
+    {{#linkTo 'index' href=true id="appname"}}PowerDNS Control Server{{/linkTo}}
+
     <span id="current_user">
-      Signed in as <b>The Admin</b>. <a href="/account/logout">Sign out</a>.
+      Signed in as <b>{{current_user.name}}</b>. <a href="/account/logout">Sign out</a>.
     </span>
+
+  </div>
+  <div class="five columns">
+    <a target="_blank" href="http://www.powerdns.com/"><div class="logo"></div></a>
   </div>
 </div>
 

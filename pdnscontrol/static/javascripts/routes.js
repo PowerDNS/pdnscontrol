@@ -8,21 +8,18 @@ App.Router.reopen({
 App.Router.map(function() {
   this.resource('servers');
   this.resource('server', { path: '/server/:server_id' }, function() {
-    this.route('edit');
+    this.route('edit'); // TODO
     this.route('stats');
     this.route('domains');
     this.route('configuration');
   });
-
-  this.route("favorites", { path: "/favs" });
 });
 
 //// Routes
 
 App.IndexRoute = Ember.Route.extend({
-  setupController: function(controller) {
-    // Set the IndexController's `title`
-    controller.set('title', "PowerDNS Console (index)");
+  redirect: function() {
+    this.transitionTo('servers');
   }
 });
 

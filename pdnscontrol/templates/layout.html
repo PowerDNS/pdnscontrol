@@ -28,29 +28,14 @@
 </head>
 <body>
 
-  <div class="row" id="header">
-    <div class="seven columns">
-      <a href="{{ request.url_root }}" id="appname">PowerDNS Control Server</a>
-
-      {% if logged_in %}
-      <span id="current_user">
-      Signed in as <b>{{ user.name }}</b>. <a href="{{ url_for('account.logout') }}">Sign out</a>.
-      </span>
-      {% endif %}
-
-    </div>
-    <div class="five columns">
-      <a target="_blank" href="http://www.powerdns.com/"><img align="right" class="logo" src="{{ url_for('static', filename='images/powerdns-logo-154px.png') }}"></a>
-    </div>
-  </div>
-
 <script>
-var User = {
+var ServerData = {};
+ServerData.User = {
   name: "{{ user.name }}",
   roles: {{ user_roles|tojson|safe }}
 };
 {# FIXME: move this into its own route and make it cacheable #}
-var Config = {
+ServerData.Config = {
   url_root: "{{ request.url_root }}",
   graphite_server: "{{ config['GRAPHITE_SERVER'] }}",
   graphite_default_opts: {
@@ -81,6 +66,18 @@ var Config = {
   %}
   <script src="{{ ASSET_URL }}"></script>
   {% endassets %}
+
+{% block header %}
+  {# On Client-Side pages this block is overriden to be empty. #}
+  <div class="row" id="header">
+    <div class="seven columns">
+      <a href="{{ request.url_root }}" id="appname">PowerDNS Control Server</a>
+    </div>
+    <div class="five columns">
+      <a target="_blank" href="http://www.powerdns.com/"><div class="logo"></div></a>
+    </div>
+  </div>
+{% endblock %}
 
 {%- block body %}{% endblock -%}
 

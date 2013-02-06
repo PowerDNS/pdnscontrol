@@ -17,11 +17,15 @@ body {
     margin-top: 1em;
 }
 
-IMG.logo {
+.logo {
     vertical-align: bottom;
     margin-bottom: 14px; 
     margin-top: 7px;
     border: 0;
+    height: 20px;
+    width: 154px;
+    float: right;
+    background: url(../images/powerdns-logo-154px.png);
 }
 
 .output pre {

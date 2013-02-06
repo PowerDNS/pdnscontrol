@@ -21,7 +21,7 @@
           <tr>
             <td><label>{{view Ember.Checkbox checkedBinding="isSelected" }}</label></td>
             <td>{{kind}}</td>
-            <td>{{name}}</td>
+            <td>{{#linkTo 'server' this}}{{name}}{{/linkTo}}</td>
             <td>{{listen_address}}</td>
             <td>{{version}}</td>
             <td>{{uptime}}</td>

@@ -1,4 +1,30 @@
-<div style="border: 1px solid red;">
-<h3>{{model.name}}</h3>
+<div class="row">
+  <div class="twelve columns">
+    <h2>{{name}}</h2>
+    <p>Running version <strong>{{version}}</strong>, up since {{uptime}}.</p>
+    <p>
+      <ul class="button-group four-up even">
+        <li><button class="alert button" {{action "shutdown"}}>Shutdown</button></li>
+        <li><button class="button" {{action "restart"}}>Restart</button></li>
+        <li><button class="button" {{action "flush_cache"}}>Flush cache</button></li>
+        <li><button class="button" {{action "deploy"}}>Deploy</button></li>
+      </ul>
+      <hr>
 
+      <fieldset>
+        <legend>Log Search</legend>
+        {{view Ember.TextField valueBinding="query" placeholder="Standard Input" action="search_log"}}
+      </fieldset>
+    </p>
+
+    <dl class="tabs">
+      <dd class="active">{{#linkTo 'server.index'}}Graph{{/linkTo}}</a></dd>
+      <dd>{{#linkTo 'server.stats'}}Statistics{{/linkTo}}</dd>
+      <dd>{{#linkTo 'server.domains'}}Domains{{/linkTo}}</dd>
+      <dd>{{#linkTo 'server.configuration'}}Configuration{{/linkTo}}</dd>
+    </dl>
+
+    {{outlet}}
+
+  </div>
 </div>

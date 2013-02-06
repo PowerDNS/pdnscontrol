@@ -9,6 +9,9 @@ App.Router.map(function() {
   this.resource('servers');
   this.resource('server', { path: '/server/:server_id' }, function() {
     this.route('edit');
+    this.route('stats');
+    this.route('domains');
+    this.route('configuration');
   });
 
   this.route("favorites", { path: "/favs" });
@@ -29,9 +32,17 @@ App.ServersRoute = Ember.Route.extend({
   }
 });
 
-App.ServerIndexRoute = Ember.Route.extend({
-  model: function(params) {
-    return App.Server.find(params.server_id);
+App.ServerConfigurationRoute = Ember.Route.extend({
+  setupController: function(controller, model) {
+    this._super(controller, model);
+    controller.set('server', this.modelFor('server'));
+  }
+});
+
+App.ServerStatsRoute = Ember.Route.extend({
+  setupController: function(controller, model) {
+    this._super(controller, model);
+    controller.set('server', this.modelFor('server'));
   }
 });
 
@@ -62,6 +73,13 @@ App.ServersController = Ember.ArrayController.extend({
       forEach(function(item) {
         // FIXME: very theoretical code
         messages += item.search_log(search_text);
+      });
+  },
+
+  restart: function() {
+    this.selected_servers().
+      forEach(function(item) {
+        item.restart();
       });
   },
 
@@ -119,4 +137,24 @@ App.ServersController = Ember.ArrayController.extend({
     }).append();
   }
 
+});
+
+
+App.ServerController = Ember.ObjectController.extend({
+
+  flush_cache: function() {
+    this.get('content').flush_cache();
+  },
+
+  search_log: function(search_text) {
+    this.get('content').search_log(search_text);
+  },
+
+  restart: function() {
+    this.get('content').restart();
+  },
+
+});
+
+App.ServerStatsController = Ember.ArrayController.extend({
 });

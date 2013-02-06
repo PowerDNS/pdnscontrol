@@ -19,10 +19,25 @@ App.ServerSetting = DS.Model.extend({
   value: DS.attr('value')
 });
 
+App.RRSet = DS.Model.extend({
+  primaryKey: 'name_qtype',
+  name_qtype: DS.attr('name_qtype'),
+  name: DS.attr('name'),
+  qtype: DS.attr('qtype'),
+  rrs: DS.hasMany('App.RR')
+});
+
+App.RR = DS.Model.extend({
+  content: DS.attr('content'),
+  prio: DS.attr('prio'),
+  ttl: DS.attr('ttl')
+});
+
 App.Zone = DS.Model.extend({
   primaryKey: 'name',
   name: DS.attr('name'),
   kind: DS.attr('kind'),
+  rrsets: DS.hasMany('App.RRSet')
 });
 
 App.AuthZone = App.Zone.extend({

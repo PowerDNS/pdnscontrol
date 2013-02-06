@@ -157,6 +157,10 @@ table.dataTable tbody tr:nth-child(even) {
     padding: 0;
 }
 
+.header-cell {
+    font-weight: bold;
+}
+
 /* -----------------------------------------
    Page Name 2
 ----------------------------------------- */

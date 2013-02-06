@@ -17,14 +17,34 @@
       </fieldset>
     </p>
 
-    <dl class="tabs">
-      <dd class="active">{{#linkTo 'server.index'}}Graph{{/linkTo}}</a></dd>
-      <dd>{{#linkTo 'server.stats'}}Statistics{{/linkTo}}</dd>
-      <dd>{{#linkTo 'server.domains'}}Domains{{/linkTo}}</dd>
-      <dd>{{#linkTo 'server.configuration'}}Configuration{{/linkTo}}</dd>
-    </dl>
+    {{#view App.TabsView}}
+      {{#view App.TabView route='server.index'}}
+        {{#linkTo server.index}}
+          Graph
+        {{/linkTo}}
+      {{/view}}
+      {{#view App.TabView route='server.stats'}}
+        {{#linkTo server.stats}}
+          Statistics
+        {{/linkTo}}
+      {{/view}}
+      {{#view App.TabView route='server.domains'}}
+        {{#linkTo server.domains}}
+          Domains
+        {{/linkTo}}
+      {{/view}}
+      {{#view App.TabView route='server.configuration'}}
+        {{#linkTo server.configuration}}
+          Configuration
+        {{/linkTo}}
+      {{/view}}
+    {{/view}}
 
+  </div>
+</div>
+
+<div class="row">
+  <div class="twelve columns">
     {{outlet}}
-
   </div>
 </div>

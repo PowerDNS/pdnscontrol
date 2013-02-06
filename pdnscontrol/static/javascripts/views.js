@@ -54,3 +54,49 @@ App.ModalView = Em.View.extend({
   }
 
 });
+
+
+// App.TabsView and App.TabView provide support for foundation tabs.
+App.TabsView = Em.View.extend({
+  tagName: 'dl',
+  classNames: 'tabs',
+});
+App.TabView = Em.View.extend({
+  tagName: 'dd',
+  route: null,
+
+  init: function() {
+    var that = this;
+    this.get('container').lookup('controller:application').
+      addObserver('currentPath', function() {
+        that.currentPathChanged();
+      });
+    this._super();
+  },
+
+  didInsertElement: function() {
+    // Initial update of classes.
+    this.currentPathChanged();
+  },
+
+  currentPathChanged: function(x) {
+    var container = this.
+      get('container');
+    if (container === undefined) {
+      return;
+    }
+    var currentPath = container.
+      lookup('controller:application').
+      get('currentPath');
+
+    // Unfortunately classNameBindings don't work here, not really sure
+    // why. What usually happens is that the <a> tag gets the class bound
+    // on changes, instead of the <dd>.
+    if (currentPath == this.get('route')) {
+      this.$().addClass('active');
+    } else {
+      this.$().removeClass('active');
+    }
+  },
+
+});

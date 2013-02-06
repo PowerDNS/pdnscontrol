@@ -147,7 +147,6 @@ App.ServersController = Ember.ArrayController.extend({
 
 
 App.ServerController = Ember.ObjectController.extend({
-
   flush_cache: function() {
     this.get('content').flush_cache();
   },

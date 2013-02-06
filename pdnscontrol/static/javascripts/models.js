@@ -19,6 +19,22 @@ App.ServerSetting = DS.Model.extend({
   value: DS.attr('value')
 });
 
+App.Zone = DS.Model.extend({
+  primaryKey: 'name',
+  name: DS.attr('name'),
+  kind: DS.attr('kind'),
+});
+
+App.AuthZone = App.Zone.extend({
+  masters: DS.attr('masters'),
+  serial: DS.attr('serial'),
+});
+
+App.RecursorZone = App.Zone.extend({
+  forwarders: DS.attr('forwarders'),
+  rdbit: DS.attr('rdbit'),
+});
+
 App.Server = DS.Model.extend({
   primaryKey: 'name',
   name: DS.attr('string'),
@@ -27,6 +43,7 @@ App.Server = DS.Model.extend({
   manager_url: DS.attr('string'),
   stats: DS.hasMany('App.ServerStat'),
   config_settings: DS.hasMany('App.ServerSetting'),
+  zones: DS.hasMany('App.Zone'),
 
   // Computed Properties
 
@@ -89,6 +106,23 @@ App.Server = DS.Model.extend({
       if (kind === 'Recursor') {
         that.set('version', data["version-string"].split(" ")[2]);
       }
+    });
+  },
+
+  load_zones: function() {
+    // Sideload zones.
+    var that = this;
+
+    var baseURL = '/api/server/' + this.get('name') + '/';
+    $.getJSON(baseURL + 'domains', function(data) {
+      var zone_type = that.get('kind') === 'Authoritative' ? App.AuthZone : App.RecursorZone;
+
+      var zones = that.get('zones');
+      data["domains"].forEach(function(zone, key) {
+        zone.kind = zone.type;
+        zone.type = undefined;
+        zones.pushObject(App.Zone.createRecord(zone));
+      });
     });
   },
 

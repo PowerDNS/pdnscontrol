@@ -10,7 +10,7 @@ App.Router.map(function() {
   this.resource('server', { path: '/server/:server_id' }, function() {
     this.route('edit'); // TODO
     this.route('stats');
-    this.route('domains');
+    this.route('zones');
     this.route('configuration');
   });
 });
@@ -32,6 +32,20 @@ App.ServersRoute = Ember.Route.extend({
 App.ServerConfigurationRoute = Ember.Route.extend({
   model: function(params) {
     return this.modelFor('server').get('config_settings');
+  },
+  setupController: function(controller, model) {
+    this._super(controller, model);
+    controller.set('server', this.modelFor('server'));
+  }
+});
+
+App.ServerZonesRoute = Ember.Route.extend({
+  model: function(params) {
+    var server = this.modelFor('server');
+    if (Ember.isEmpty(server.get('zones'))) {
+      server.load_zones();
+    }
+    return server.get('zones');
   },
   setupController: function(controller, model) {
     this._super(controller, model);
@@ -210,6 +224,64 @@ App.ServerConfigurationController = App.SortedTableController.extend({
       })
     ];
   }.property(),
+
+});
+
+App.ServerZonesController = App.SortedTableController.extend({
+  hasHeader: true,
+  hasFooter: false,
+  rowHeight: 30,
+  numFixedColumns: 0,
+
+  columns: function() {
+    console.log('columns setup with ', this.get('server'));
+    if (this.get('server') === undefined) {
+      return [];
+    }
+    var cols = [
+      Ember.Table.ColumnDefinition.create({
+        headerCellName: 'Name',
+        columnWidth: 300,
+        getCellContent: function(row) { return row.get('name'); },
+        headerCellViewClass: 'App.TableHeaderCellView'
+      }),
+      Ember.Table.ColumnDefinition.create({
+        headerCellName: 'Kind',
+        columnWidth: 100,
+        getCellContent: function(row) { return row.get('kind'); },
+        headerCellViewClass: 'App.TableHeaderCellView'
+      })
+    ];
+
+    if (this.get('server').get('kind') === 'Authoritative') {
+      cols.addObject(Ember.Table.ColumnDefinition.create({
+        headerCellName: 'Masters',
+        columnWidth: 200,
+        getCellContent: function(row) { return row.get('masters'); },
+        headerCellViewClass: 'App.TableHeaderCellView'
+      }));
+      cols.addObject(Ember.Table.ColumnDefinition.create({
+        headerCellName: 'serial',
+        columnWidth: 100,
+        getCellContent: function(row) { return row.get('serial'); },
+        headerCellViewClass: 'App.TableHeaderCellView'
+      }));
+    } else {
+      cols.addObject(Ember.Table.ColumnDefinition.create({
+        headerCellName: 'Forwarders',
+        columnWidth: 200,
+        getCellContent: function(row) { return row.get('forwarders'); },
+        headerCellViewClass: 'App.TableHeaderCellView'
+      }));
+      cols.addObject(Ember.Table.ColumnDefinition.create({
+        headerCellName: 'Recursion Desired',
+        columnWidth: 200,
+        getCellContent: function(row) { return row.get('rdbit') == 0 ? 'No' : 'Yes'; },
+        headerCellViewClass: 'App.TableHeaderCellView'
+      }));
+    }
+    return cols;
+  }.property('server'),
 
 });
 

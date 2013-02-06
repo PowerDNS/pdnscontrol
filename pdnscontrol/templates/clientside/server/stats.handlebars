@@ -1,8 +1,3 @@
-<table id="statistics">
-{{#each server.stats}}
-<tr>
-  <td>{{name}}</td>
-  <td>{{value}}</td>
-</tr>
-{{/each}}
-</table>
+<div style="height:800px">
+  {{view Ember.Table.TablesContainer controllerBinding="controller"}}
+</div>

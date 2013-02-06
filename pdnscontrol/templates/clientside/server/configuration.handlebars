@@ -1,8 +1,3 @@
-<table id="config_settings">
-{{#each server.config_settings}}
-<tr>
-  <td>{{name}}</td>
-  <td>{{value}}</td>
-</tr>
-{{/each}}
-</table>
+<div style="height:800px">
+  {{view Ember.Table.TablesContainer controllerBinding="controller"}}
+</div>

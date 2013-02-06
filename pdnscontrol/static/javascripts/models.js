@@ -27,12 +27,12 @@ App.Zone = DS.Model.extend({
 
 App.AuthZone = App.Zone.extend({
   masters: DS.attr('masters'),
-  serial: DS.attr('serial'),
+  serial: DS.attr('serial')
 });
 
 App.RecursorZone = App.Zone.extend({
   forwarders: DS.attr('forwarders'),
-  rdbit: DS.attr('rdbit'),
+  rdbit: DS.attr('rdbit')
 });
 
 App.Server = DS.Model.extend({
@@ -78,8 +78,7 @@ App.Server = DS.Model.extend({
     this.get('stats').isLoaded = false;
     this.get('config_settings').isLoaded = false;
 
-    // FIXME: use ember to determine baseURL
-    var baseURL = '/api/server/' + this.get('name') + '/';
+    var baseURL = this.store.adapter.buildURL(this.store.adapter.rootForType(this.constructor), this.get('id')) + '/';
     $.getJSON(baseURL + 'stats', function(data) {
       var stats = that.get('stats');
       for (var name in data) {
@@ -113,7 +112,7 @@ App.Server = DS.Model.extend({
     // Sideload zones.
     var that = this;
 
-    var baseURL = '/api/server/' + this.get('name') + '/';
+    var baseURL = this.store.adapter.buildURL(this.store.adapter.rootForType(this.constructor), this.get('id')) + '/';
     $.getJSON(baseURL + 'domains', function(data) {
       var zone_type = that.get('kind') === 'Authoritative' ? App.AuthZone : App.RecursorZone;
 

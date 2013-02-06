@@ -116,7 +116,7 @@ def server_get(server):
 
 
 
-@mod.route('/server/<server>', methods=['DELETE'])
+@mod.route('/servers/<server>', methods=['DELETE'])
 @requireApiRole('edit')
 def server_delete(server):
     server = db.session.query(Server).filter_by(name=server).first()
@@ -125,7 +125,7 @@ def server_delete(server):
     return ""
 
 
-@mod.route('/server/<server>', methods=['PUT'])
+@mod.route('/servers/<server>', methods=['PUT'])
 @requireApiRole('edit')
 def server_edit(server):
     server = db.session.query(Server).filter_by(name=server).first()
@@ -138,7 +138,7 @@ def server_edit(server):
     return jsonify(server=dict(server))
 
 
-@mod.route('/server/<server>/zones/<path:zone>/names/<path:qname>/types/<qtype>', methods=['GET','PUT','POST','DELETE'])
+@mod.route('/servers/<server>/zones/<path:zone>/names/<path:qname>/types/<qtype>', methods=['GET','PUT','POST','DELETE'])
 @requireApiRole('edit')
 def server_zone_qname_qtype(server, zone, qname, qtype):
     server = db.session.query(Server).filter_by(name=server).first()
@@ -153,7 +153,7 @@ def server_zone_qname_qtype(server, zone, qname, qtype):
     return forward_remote_response(r)
 
 
-@mod.route('/server/<server>/zones/<path:zone>')
+@mod.route('/servers/<server>/zones/<path:zone>')
 @requireApiRole('edit')
 def server_zone(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()
@@ -165,7 +165,7 @@ def server_zone(server, zone):
     return jsonify({'zone': zone, 'content': data})
 
 
-@mod.route('/server/<server>/log-grep')
+@mod.route('/servers/<server>/log-grep')
 @requireApiRole('edit')
 def server_loggrep(server):
     server = db.session.query(Server).filter_by(name=server).first()
@@ -180,7 +180,7 @@ def server_loggrep(server):
     return jsonify({'needle': needle, 'content': data})
 
 
-@mod.route('/server/<server>/flush-cache', methods=['POST'])
+@mod.route('/servers/<server>/flush-cache', methods=['POST'])
 @requireApiRole('edit')
 def server_flushcache(server):
     server = db.session.query(Server).filter_by(name=server).first()
@@ -196,7 +196,7 @@ def server_flushcache(server):
 
 
 # pdns_control protocol tunnel
-@mod.route('/server/<server>/control', methods=['POST'])
+@mod.route('/servers/<server>/control', methods=['POST'])
 @requireApiRole('edit')
 def server_control(server):
     server = db.session.query(Server).filter_by(name=server).first()
@@ -210,7 +210,7 @@ def server_control(server):
     return forward_remote_response(r)
 
 
-@mod.route('/server/<server>/<action>', methods=['GET','POST'])
+@mod.route('/servers/<server>/<action>', methods=['GET','POST'])
 @requireApiRole('stats')
 def server_stats(server, action):
     server = db.session.query(Server).filter_by(name=server).first()

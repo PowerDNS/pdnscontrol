@@ -52,14 +52,10 @@
         </div>
       </div>
     </div>
-    {{#view App.LogSearchView}}
-    <form>
-      <fieldset>
-        <legend>Log Search</legend>
-        {{view Ember.TextField valueBinding="query" placeholder="Standard Input"}}
-      </fieldset>
-    </form>
-    {{/view}}
+    <fieldset>
+      <legend>Log Search</legend>
+      {{view Ember.TextField valueBinding="query" placeholder="Standard Input" action="search_log"}}
+    </fieldset>
 
     <h3>Aggregate statistics</h3>
     <div id="graphDiv">

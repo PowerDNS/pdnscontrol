@@ -1,11 +1,5 @@
 //// Views
 
-App.LogSearchView = Em.View.extend({
-  insertNewline: function() {
-    alert('searching something');
-  }
-});
-
 App.ModalView = Em.View.extend({
   tagName: 'div',
   classNames: ['fixedWidth1000', 'reveal-modal'],

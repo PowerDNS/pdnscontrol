@@ -43,11 +43,25 @@ App.ServersController = Ember.ArrayController.extend({
     this.get('content').setEach('isSelected', this.get('allSelected'));
   }.observes('allSelected'),
 
+  selected_servers: function() {
+    return this.get('content').
+      filterProperty('isSelected', true);
+  },
+
   flush_cache: function() {
-    var servers = this.get('content').
-      filterProperty('isSelected', true).
+    this.selected_servers().
       forEach(function(item) {
         item.flush_cache();
+      });
+  },
+
+  search_log: function(search_text) {
+    console.log(this.selected_servers());
+    var messages = [];
+    this.selected_servers().
+      forEach(function(item) {
+        // FIXME: very theoretical code
+        messages += item.search_log(search_text);
       });
   },
 

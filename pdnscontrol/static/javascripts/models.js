@@ -64,19 +64,19 @@ App.Server = DS.Model.extend({
 
   uptime: function() {
     var uptime = this.get('stats').findProperty('name', 'uptime');
-    if (uptime === undefined) {
-      return '';
-    }
-    return uptime.get('value');
-  }.property('stats.@each'),
+    return uptime.get('value') || '';
+  }.property('stats.@each'), // FIXME: @each is a lie
 
   listen_address: function() {
     // Can be simplified once sideloading is gone.
+    var config_settings = this.get('config_settings');
+    var local_address = config_settings.findProperty('name', 'local-address');
+    var local_ipv6 = config_settings.findProperty('name', 'local-ipv6');
     return '' +
-      (this.get('configuration.local-address')||'') +
+      (local_address && local_address.get('value') || '') +
       ' ' +
-      (this.get('configuration.local-ipv6')||'');
-  }.property('configuration.local-address', 'configuration.local-ipv6'),
+      (local_ipv6 && local_ipv6.get('value') || '');
+  }.property('config_settings.@each'), // FIXME: @each is a lie
 
   // Methods
 
@@ -110,11 +110,21 @@ App.Server = DS.Model.extend({
 
     $.getJSON(baseURL + 'config', function(data) {
       var config_settings = that.get('config_settings');
-      for (var name in data) {
-        config_settings.pushObject(App.ServerSetting.createRecord({
-          name: name,
-          value: data[name]
-        }));
+      if (kind === 'Recursor') {
+        for (var name in data) {
+          config_settings.pushObject(App.ServerSetting.createRecord({
+            name: name,
+            value: data[name]
+          }));
+        }
+      } else {
+        var i;
+        for (i=0; i < data.config.length; i++) {
+          config_settings.pushObject(App.ServerSetting.createRecord({
+            name: data.config[i][0],
+            value: data.config[i][1]
+          }));
+        }
       }
 
       if (kind === 'Recursor') {

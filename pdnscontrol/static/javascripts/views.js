@@ -104,3 +104,24 @@ App.TabView = Em.View.extend({
 App.TableHeaderCellView = Ember.Table.HeaderCell.extend({
   classNameBindings: ['content.isSortedBy:sorted-by','content.sortAscending:sort-ascending:sort-descending']
 });
+
+
+// View Helpers
+Ember.Handlebars.registerBoundHelper('absolute_time', function(value) {
+  if (value == '') {
+    return '';
+  }
+
+  moment.lang('en');
+  var m = moment().subtract('seconds', value);
+  return m.format('LLLL') + " ("+m.fromNow()+")";
+});
+
+Ember.Handlebars.registerBoundHelper('relative_time', function(value) {
+  if (value == '') {
+    return '';
+  }
+
+  moment.lang('en');
+  return moment.duration(1.0 * value, "seconds").humanize();
+});

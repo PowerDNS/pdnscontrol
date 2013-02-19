@@ -64,7 +64,7 @@ App.Server = DS.Model.extend({
 
   uptime: function() {
     var uptime = this.get('stats').findProperty('name', 'uptime');
-    return uptime.get('value') || '';
+    return (uptime && uptime.get('value') || '');
   }.property('stats.@each'), // FIXME: @each is a lie
 
   listen_address: function() {

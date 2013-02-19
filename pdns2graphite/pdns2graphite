@@ -107,8 +107,9 @@ def nowtics():
 
 def getserverlist(serverlist_url):
     global config
+    url = urlparse.urljoin(serverlist_url, 'servers.json')
     try:
-        r = requests.get(serverlist_url, auth=(config['pdnscontrol_user'],config['pdnscontrol_pass']))
+        r = requests.get(url, auth=(config['pdnscontrol_user'],config['pdnscontrol_pass']))
     except requests.exceptions.RequestException:
         logger.error('error fetching server list', exc_info=True)
         return []

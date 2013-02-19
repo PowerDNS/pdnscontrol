@@ -98,7 +98,7 @@ class Server(db.Model, IterableModel):
         servers = []
         for server in Server.query.all():
             server = {
-                'url': request.url_root + 'api/server/'+server.name+'/',
+                'url': request.url_root + 'api/servers/'+server.name+'/',
                 'name': server.name,
                 'kind': server.daemon_type
                 }

@@ -78,6 +78,16 @@ App.Server = DS.Model.extend({
       (local_ipv6 && local_ipv6.get('value') || '');
   }.property('config_settings.@each'), // FIXME: @each is a lie
 
+  graphite_name: function() {
+    var name = 'pdns.'+this.get('name').replace(/\./gm,'-');
+    if (this.get('kind') == 'Authoritative') {
+      name = name + '.auth';
+    } else {
+      name = name + '.recursor';
+    }
+    return name;
+  }.property('kind', 'name'),
+
   // Methods
 
   init: function() {
@@ -163,3 +173,20 @@ App.Server = DS.Model.extend({
   }
 
 });
+
+App.Graphite = Em.Object.extend({});
+App.Graphite.url_for = function(source, targets, opts) {
+//  console.log(
+  var url = ServerData.Config.graphite_server + '?_salt=' + Math.random()*10000000;
+  opts = _.defaults(opts || {}, ServerData.Config.graphite_default_opts);
+
+  url = _.reduce(_.pairs(opts), function(memo, pair) {
+    return memo + '&' + pair[0] + '=' + encodeURIComponent(pair[1]);
+  }, url);
+
+  url = _.reduce(targets, function(memo, target) {
+    return memo + '&target=' + encodeURIComponent(target.replace(/%SOURCE%/g, source));
+  }, url);
+
+  return url;
+};

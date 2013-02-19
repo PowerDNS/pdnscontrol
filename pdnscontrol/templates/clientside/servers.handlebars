@@ -64,6 +64,22 @@
   </div>  
 </div>
 
-<div style="border: 1px solid green;">
-{{outlet}}
+<div class="row">
+  <div class="twelve columns">
+
+{{#if authoritative_graph_urls}}
+<h4>Authoritative Servers</h4>
+{{#each authoritative_graph_urls}}
+<img {{bindAttr src="this"}}>
+{{/each}}
+{{/if}}
+
+{{#if recursor_graph_urls}}
+<h4>Recursor Servers</h4>
+{{#each recursor_graph_urls}}
+<img {{bindAttr src="this"}}>
+{{/each}}
+{{/if}}
+
+  </div>
 </div>

@@ -113,6 +113,10 @@ def getserverlist(serverlist_url):
         logger.error('error fetching server list', exc_info=True)
         return []
 
+    if r.status_code != 200:
+        logger.error('error fetching server list: server replied with status code: %d' % (r.status_code,))
+        return []
+
     try:
         s = json.loads(r.text)
     except ValueError:

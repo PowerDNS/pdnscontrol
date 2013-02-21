@@ -18,22 +18,22 @@
     </p>
 
     {{#view App.TabsView id='tabsView'}}
-      {{#view App.TabView route='server.index'}}
+      {{#view App.TabView route='servers.server.index'}}
         {{#linkTo server.index}}
-          Graph
+          Graph 
         {{/linkTo}}
       {{/view}}
-      {{#view App.TabView route='server.stats'}}
+      {{#view App.TabView route='servers.server.stats'}}
         {{#linkTo server.stats}}
           Statistics
         {{/linkTo}}
       {{/view}}
-      {{#view App.TabView route='server.zones.index'}}
+      {{#view App.TabView route='servers.server.zones.index'}}
         {{#linkTo zones}}
           Domains
         {{/linkTo}}
       {{/view}}
-      {{#view App.TabView route='server.configuration'}}
+      {{#view App.TabView route='servers.server.configuration'}}
         {{#linkTo server.configuration}}
           Configuration
         {{/linkTo}}

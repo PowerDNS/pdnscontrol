@@ -34,6 +34,7 @@ App.RR = DS.Model.extend({
 });
 
 App.Zone = DS.Model.extend({
+  server: DS.belongsTo('App.Server'),
   primaryKey: 'name',
   name: DS.attr('name'),
   kind: DS.attr('kind'),

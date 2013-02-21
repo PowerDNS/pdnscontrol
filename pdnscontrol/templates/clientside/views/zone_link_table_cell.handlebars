@@ -1,5 +1,7 @@
 <span class='content'>
-{{#linkTo zones.zone server view.rowContent}}
+{{#if view.rowContent}}
+{{#linkTo zones.zone view.rowContent}}
 {{view.cellContent}}
 {{/linkTo}}
+{{/if}}
 </span>

@@ -114,6 +114,10 @@ App.TableHeaderCellView = Ember.Table.HeaderCell.extend({
   classNameBindings: ['content.isSortedBy:sorted-by','content.sortAscending:sort-ascending:sort-descending']
 });
 
+App.ZonesIndexZoneLinkTableCellView = Ember.Table.TableCell.extend({
+  templateName: 'views/zone_link_table_cell'
+});
+
 
 // View Helpers
 Ember.Handlebars.registerBoundHelper('absolute_time', function(value) {

@@ -6,18 +6,26 @@ App.Router.reopen({
 });
 
 App.Router.map(function() {
-  this.resource('servers');
-  this.resource('server', { path: '/server/:server_id' }, function() {
-    this.route('edit'); // TODO
-    this.route('stats');
-    this.resource('zones', function () {
-      this.route('zone', { path: ':zone_id' });
+  this.resource('servers', function() {
+    this.resource('server', { path: ':server_id' }, function() {
+      this.route('edit'); // TODO
+      this.route('stats');
+      this.resource('zones', function () {
+        this.route('zone', { path: ':zone_id' });
+      });
+      this.route('configuration');
     });
-    this.route('configuration');
   });
 });
 
 //// Routes
+
+var approute;
+App.ApplicationRoute = Ember.Route.extend({
+  setupController: function(controller, model) {
+    approute = this;
+  }
+});
 
 App.IndexRoute = Ember.Route.extend({
   redirect: function() {
@@ -31,13 +39,18 @@ App.ServersRoute = Ember.Route.extend({
   }
 });
 
+App.ServersController = Ember.ArrayController.extend({});
+
+App.ServersIndexRoute = Ember.Route.extend({
+  model: function(params) {
+    return this.modelFor('servers');
+  }
+});
+
+// shadow of ServerRoute
 App.ServerIndexRoute = Ember.Route.extend({
   model: function(params) {
-    return {}; // don't really have a model here
-  },
-  setupController: function(controller, model) {
-    this._super(controller, model);
-    controller.set('server', this.modelFor('server'));
+    return this.modelFor('server');
   }
 });
 
@@ -54,7 +67,9 @@ App.ServerConfigurationRoute = Ember.Route.extend({
 App.ZonesIndexRoute = Ember.Route.extend({
   model: function(params) {
     var server = this.modelFor('server');
-    server.load_zones();
+    if (Ember.isEmpty(server.get('zones'))) {
+      server.load_zones();
+    }
     return server.get('zones');
   },
   setupController: function(controller, model) {
@@ -73,8 +88,9 @@ App.ServerStatsRoute = Ember.Route.extend({
   }
 });
 
-App.ServersController = Ember.ArrayController.extend({
+App.ServersIndexController = Ember.ArrayController.extend({
   sortProperties: ['name'],
+  needs: ['servers'],
 
   allSelected: false,
   _allSelectedChanged: function() {
@@ -82,8 +98,7 @@ App.ServersController = Ember.ArrayController.extend({
   }.observes('allSelected'),
 
   selected_servers: function() {
-    return this.get('content').
-      filterProperty('isSelected', true);
+    return this.get('content').filterProperty('isSelected', true);
   }.property('content.@each.isSelected'),
 
   authoritative_graph_urls: function() {
@@ -268,12 +283,11 @@ App.ServerController = Ember.ObjectController.extend({
 });
 
 App.ServerIndexController = Ember.ObjectController.extend({
-
   graph_urls: function() {
-    var name = this.get('server.graphite_name');
+    var name = this.get('graphite_name');
     var urls = [];
     var answers;
-    if (this.get('server.kind') == 'Authoritative') {
+    if (this.get('kind') == 'Authoritative') {
       urls.addObject(App.Graphite.url_for(name, [
         "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.udp-answers), 'UDP answers'))",
         "cactiStyle(alias(nonNegativeDerivative(%SOURCE%.udp-queries), 'UDP queries'))",
@@ -391,9 +405,7 @@ App.ServerConfigurationController = App.SortedTableController.extend({
 
 });
 
-App.ServerZoneZoneLinkTableCellView = Ember.Table.TableCell.extend({
-  templateName: 'views/zone_link_table_cell'
-});
+App.ZonesController = Ember.ArrayController.extend({});
 
 App.ZonesIndexController = App.SortedTableController.extend({
   hasHeader: true,
@@ -412,7 +424,7 @@ App.ZonesIndexController = App.SortedTableController.extend({
         headerCellName: 'Name',
         columnWidth: 300,
         getCellContent: function(row) { return row.get('name'); },
-        tableCellViewClass: 'App.ServerZoneZoneLinkTableCellView',
+        tableCellViewClass: 'App.ZonesIndexZoneLinkTableCellView',
         headerCellViewClass: 'App.TableHeaderCellView'
       }),
       Ember.Table.ColumnDefinition.create({

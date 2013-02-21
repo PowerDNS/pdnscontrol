@@ -10,7 +10,9 @@ App.Router.map(function() {
   this.resource('server', { path: '/server/:server_id' }, function() {
     this.route('edit'); // TODO
     this.route('stats');
-    this.route('zones');
+    this.resource('zones', function () {
+      this.route('zone', { path: ':zone_id' });
+    });
     this.route('configuration');
   });
 });
@@ -49,12 +51,10 @@ App.ServerConfigurationRoute = Ember.Route.extend({
   }
 });
 
-App.ServerZonesRoute = Ember.Route.extend({
+App.ZonesIndexRoute = Ember.Route.extend({
   model: function(params) {
     var server = this.modelFor('server');
-    if (Ember.isEmpty(server.get('zones'))) {
-      server.load_zones();
-    }
+    server.load_zones();
     return server.get('zones');
   },
   setupController: function(controller, model) {
@@ -391,7 +391,11 @@ App.ServerConfigurationController = App.SortedTableController.extend({
 
 });
 
-App.ServerZonesController = App.SortedTableController.extend({
+App.ServerZoneZoneLinkTableCellView = Ember.Table.TableCell.extend({
+  templateName: 'views/zone_link_table_cell'
+});
+
+App.ZonesIndexController = App.SortedTableController.extend({
   hasHeader: true,
   hasFooter: false,
   rowHeight: 30,
@@ -408,6 +412,7 @@ App.ServerZonesController = App.SortedTableController.extend({
         headerCellName: 'Name',
         columnWidth: 300,
         getCellContent: function(row) { return row.get('name'); },
+        tableCellViewClass: 'App.ServerZoneZoneLinkTableCellView',
         headerCellViewClass: 'App.TableHeaderCellView'
       }),
       Ember.Table.ColumnDefinition.create({

@@ -17,7 +17,7 @@
       </fieldset>
     </p>
 
-    {{#view App.TabsView}}
+    {{#view App.TabsView id='tabsView'}}
       {{#view App.TabView route='server.index'}}
         {{#linkTo server.index}}
           Graph
@@ -28,8 +28,8 @@
           Statistics
         {{/linkTo}}
       {{/view}}
-      {{#view App.TabView route='server.zones'}}
-        {{#linkTo server.zones}}
+      {{#view App.TabView route='server.zones.index'}}
+        {{#linkTo zones}}
           Domains
         {{/linkTo}}
       {{/view}}

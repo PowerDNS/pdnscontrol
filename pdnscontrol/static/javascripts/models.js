@@ -37,7 +37,10 @@ App.Zone = DS.Model.extend({
   primaryKey: 'name',
   name: DS.attr('name'),
   kind: DS.attr('kind'),
-  rrsets: DS.hasMany('App.RRSet')
+  rrsets: DS.hasMany('App.RRSet'),
+  zone_id: function() {
+    return this.get('name');
+  }.property('name')
 });
 
 App.AuthZone = App.Zone.extend({
@@ -155,6 +158,7 @@ App.Server = DS.Model.extend({
       data["domains"].forEach(function(zone, key) {
         zone.kind = zone.type;
         zone.type = undefined;
+        zone.id = zone.name;
         zones.pushObject(App.Zone.createRecord(zone));
       });
     });

@@ -100,6 +100,7 @@ App.TabView = Em.View.extend({
     // Unfortunately classNameBindings don't work here, not really sure
     // why. What usually happens is that the <a> tag gets the class bound
     // on changes, instead of the <dd>.
+    console.log(currentPath, this.get('route'));
     if (currentPath == this.get('route')) {
       this.$().addClass('active');
     } else {

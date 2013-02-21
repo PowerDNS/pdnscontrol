@@ -14,9 +14,6 @@
           </tr>
         </thead>
         <tbody>
-          {{#unless controller.content }}
-          You don't seem to have any servers defined yet. Add some!
-          {{/unless}}
           {{#each controller.arrangedContent}}
           <tr>
             <td><label>{{view Ember.Checkbox checkedBinding="isSelected" }}</label></td>
@@ -27,6 +24,8 @@
             <td>{{relative_time uptime}}</td>
             <td>{{load}}</td>
           </tr>
+          {{else}}
+          You don't seem to have any servers defined yet. Add some!
           {{/each}}
         </tbody>
       </table>
@@ -56,16 +55,12 @@
       <legend>Log Search</legend>
       {{view Ember.TextField valueBinding="query" placeholder="Standard Input" action="search_log"}}
     </fieldset>
-
-    <h3>Aggregate statistics</h3>
-    <div id="graphDiv">
-
-    </div>
   </div>  
 </div>
 
 <div class="row">
   <div class="twelve columns">
+    <h3>Aggregate statistics</h3>
 
 {{#if authoritative_graph_urls}}
 <h4>Authoritative Servers</h4>

@@ -13,7 +13,7 @@
 
       <fieldset>
         <legend>Log Search</legend>
-        {{view Ember.TextField valueBinding="query" placeholder="Standard Input" action="search_log"}}
+        {{view Ember.TextField valueBinding="query" placeholder="Search Text" action="search_log"}}
       </fieldset>
     </p>
 
@@ -48,3 +48,5 @@
     {{outlet}}
   </div>
 </div>
+
+{{render "search_log"}}

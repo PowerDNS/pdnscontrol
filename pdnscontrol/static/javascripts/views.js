@@ -23,9 +23,17 @@ App.ModalView = Em.View.extend({
   },
 
   didInsertElement: function() {
+    this.open();
+  },
+
+  open: function() {
     var that = this;
     this.$().reveal({
-      open: function() { that._internalOpenCallback() },
+      open: function() {
+        // hack to trigger ember-table sizing calculation
+        $(window).trigger('resize');
+        that._internalOpenCallback()
+      },
       close: function() { that._internalCloseCallback() }
     });
   },

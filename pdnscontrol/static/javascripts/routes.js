@@ -224,6 +224,30 @@ App.ServersController = Ember.ArrayController.extend({
 
 });
 
+App.SearchLogController = Ember.Table.TableController.extend({
+  hasHeader: true,
+  hasFooter: false,
+  numFixedColumns: 0,
+
+  columns: function() {
+    return [
+      Ember.Table.ColumnDefinition.create({
+        headerCellName: 'Log Entry',
+        columnWidth: 1000,
+        getCellContent: function(row) { return row; },
+      })
+    ];
+  }.property(),
+
+  show: function() {
+    $('#search_log_modal').reveal({
+      open: function() {
+        // hack to trigger ember-table sizing calculation
+        $(window).trigger('resize');
+      }
+    });
+  },
+});
 
 App.ServerController = Ember.ObjectController.extend({
   flush_cache: function() {
@@ -231,7 +255,10 @@ App.ServerController = Ember.ObjectController.extend({
   },
 
   search_log: function(search_text) {
-    this.get('content').search_log(search_text);
+    var c = this.controllerFor('search_log');
+    c.set('content', this.get('content').search_log(search_text));
+    c.set('search_text', search_text);
+    c.show();
   },
 
   restart: function() {

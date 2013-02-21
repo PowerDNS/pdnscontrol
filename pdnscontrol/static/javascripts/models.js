@@ -164,8 +164,15 @@ App.Server = DS.Model.extend({
     console.log('flushing cache of', this.get('name'));
   },
 
-  search_log: function(search_text) {
-    console.log('searching log of', this.get('name'), 'for', search_text);
+  search_log: function(search_text, logdata) {
+    var baseURL = this.store.adapter.buildURL(this.store.adapter.rootForType(this.constructor), this.get('id')) + '/';
+    logdata = logdata || [];
+    $.getJSON(baseURL + 'log-grep?needle=' + search_text, function(data) {
+      data.content.forEach(function(el,idx) {
+        logdata.pushObject(el);
+      });
+    });
+    return logdata;
   },
 
   restart: function() {

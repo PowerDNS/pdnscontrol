@@ -10,7 +10,6 @@
   <title>PowerDNS Control Server</title>
 
   {% assets output="gen/styles-%(version)s.css",
-    "dataTables/media/css/jquery.dataTables.css",
     "stylesheets/foundation.min.css",
     "stylesheets/general_foundicons.css",
     "stylesheets/dataTables.css",
@@ -54,15 +53,13 @@ ServerData.Config = {
 </script>
 
   {% assets output="gen/js-body-%(version)s.js",
-    "javascripts/foundation.min.js",
+    "javascripts/jquery.min.js",
+    "javascripts/jquery-migrate.min.js",
     "javascripts/moment.min.js",
-    "javascripts/jquery.dataTables.min.js",
-    "javascripts/jquery.sparkline.min.js",
     "javascripts/underscore-min.js",
     "javascripts/purl.js",
     "javascripts/spin.min.js",
-    "javascripts/jquery.spin.js",
-    "javascripts/foundation-init.js"
+    "javascripts/jquery.spin.js"
   %}
   <script src="{{ ASSET_URL }}"></script>
   {% endassets %}

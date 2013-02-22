@@ -35,7 +35,7 @@ App.IndexRoute = Ember.Route.extend({
 
 App.ServersRoute = Ember.Route.extend({
   model: function(params) {
-    return App.Server.find();
+    return App.Server.findAll();
   }
 });
 
@@ -67,10 +67,20 @@ App.ServerConfigurationRoute = Ember.Route.extend({
 App.ZonesIndexRoute = Ember.Route.extend({
   model: function(params) {
     var server = this.modelFor('server');
-    if (Ember.isEmpty(server.get('zones'))) {
-      server.load_zones();
-    }
-    return server.get('zones');
+    console.log('ZonesIndexRoute', server);
+    return App.Zone.findAll(server);
+  },
+  setupController: function(controller, model) {
+    this._super(controller, model);
+    controller.set('server', this.modelFor('server'));
+  }
+});
+
+App.ZonesZoneRoute = Ember.Route.extend({
+  model: function(params) {
+    console.log('zoneroute', params);
+    var server = this.modelFor('server');
+    return App.Zone.find(params.zone_id, server);
   },
   setupController: function(controller, model) {
     this._super(controller, model);
@@ -285,6 +295,9 @@ App.ServerController = Ember.ObjectController.extend({
 App.ServerIndexController = Ember.ObjectController.extend({
   graph_urls: function() {
     var name = this.get('graphite_name');
+    if (!name) {
+      return [];
+    }
     var urls = [];
     var answers;
     if (this.get('kind') == 'Authoritative') {
@@ -346,7 +359,7 @@ App.ServerIndexController = Ember.ObjectController.extend({
 
     }
     return urls;
-  }.property('server.kind', 'server.graphite_name')
+  }.property('kind', 'graphite_name')
 
 });
 

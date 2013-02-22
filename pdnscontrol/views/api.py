@@ -72,6 +72,8 @@ def forward_remote_response(response):
 
 def build_pdns_url(server):
     remote_url = server.stats_url
+    if remote_url is None:
+        return None
     if server.daemon_type == 'Authoritative':
         if remote_url[-1] != '/':
             remote_url = remote_url + '/'
@@ -153,16 +155,36 @@ def server_zone_qname_qtype(server, zone, qname, qtype):
     return forward_remote_response(r)
 
 
+@mod.route('/servers/<server>/zones')
+@requireApiRole('view')
+def zone_index(server):
+    server = db.session.query(Server).filter_by(name=server).first()
+
+    remote_url = urlparse.urljoin(build_pdns_url(server), '?command=domains')
+    data = fetch_json(remote_url)
+    for zone in data:
+        zone['kind'] = zone['type']
+        del zone['type']
+        if 'servers' in zone:
+            zone['forwarders'] = zone['servers']
+            del zone['servers']
+        zone['id'] = zone['name']
+        zone['server'] = server.name
+
+    return jsonify(zones=data)
+
+
 @mod.route('/servers/<server>/zones/<path:zone>')
-@requireApiRole('edit')
-def server_zone(server, zone):
+@requireApiRole('view')
+def zone_get(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()
 
     remote_url = build_pdns_url(server)
     remote_url += '?command=get-zone&zone=' + zone
     data = fetch_json(remote_url)
+    print remote_url
 
-    return jsonify({'zone': zone, 'content': data})
+    return jsonify({'name': zone, 'rrsets': data})
 
 
 @mod.route('/servers/<server>/log-grep')
@@ -215,7 +237,7 @@ def server_control(server):
 def server_stats(server, action):
     server = db.session.query(Server).filter_by(name=server).first()
 
-    pdns_actions = ['stats', 'domains', 'config']
+    pdns_actions = ['stats', 'config']
     manager_actions = ['start', 'stop', 'restart', 'update', 'install']
     generic_actions = pdns_actions + manager_actions
     if action not in generic_actions:

@@ -1,7 +1,11 @@
 <span class='content'>
 {{#if view.rowContent}}
-{{#linkTo zones.zone view.rowContent}}
-{{view.cellContent}}
-{{/linkTo}}
+      {{#if zones_editable}}
+            {{#linkTo zones.zone view.rowContent}}
+                  {{view.cellContent}}
+            {{/linkTo}}
+      {{else}}
+            {{view.cellContent}}
+      {{/if}}
 {{/if}}
 </span>

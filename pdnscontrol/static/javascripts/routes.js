@@ -551,6 +551,10 @@ App.ZonesIndexController = App.SortedTableController.extend({
   rowHeight: 30,
   numFixedColumns: 0,
 
+  zones_editable: function() {
+    return this.get('server.kind') === 'Authoritative';
+  }.property('server.kind'),
+
   columns: function() {
     if (this.get('server') === undefined) {
       // While initializing we don't have a server yet.

@@ -14,6 +14,10 @@ App.Router.map(function() {
         this.route('zone', { path: ':zone_id' });
       });
       this.route('configuration');
+      this.route('restart');
+      this.route('flush_cache');
+      this.route('shutdown');
+      this.route('deploy');
     });
   });
 });
@@ -279,9 +283,123 @@ App.SearchLogController = Ember.Table.TableController.extend({
   },
 });
 
+App.ServerActionController = Ember.ObjectController.extend({
+  started: false,
+  progress: null,
+  title: '',
+  action: '',
+  layoutName: null,
+  modalView: null,
+
+  progress_text: function() {
+    var state = this.get('progress.state');
+    var texts = {'success': 'Success', 'error': 'Failed'};
+    var text = texts[state];
+    if (text) {
+      return text;
+    }
+    return state;
+  }.property('progress.state'),
+
+  show: function() {
+    var controller = this;
+    // reset self
+    this.set('started', false);
+    this.set('progress', null);
+
+    var modalview = App.ModalView.create({
+      templateName: 'server/action',
+      controller: controller,
+      title: controller.get('title'),
+      success: controller.get('title'),
+      successCallback: function() {
+        if (controller.get('started')) {
+          return true;
+        }
+        this.spin();
+        controller.dispatch();
+        return false; // wait for completion
+      }
+    });
+    this.set('modalView', modalview);
+    modalview.append();
+  },
+
+  progressChanged: function() {
+    var state = this.get('progress.state');
+    console.log('progress.state observer, state=', state);
+    if (state == 'success' || state == 'error') {
+      this.get('modalView').stopSpin();
+      this.get('modalView').set('success', 'Close');
+    }
+  },
+
+  dispatch: function() {
+    var that = this,
+      server = this.get('content');
+    this.set('started', true);
+    this.addObserver('progress.state', function() {
+      that.progressChanged();
+    });
+    this.set('progress', this.trigger_action(server));
+  },
+
+  /* Override this one if you don't want the default behavior. */
+  trigger_action: function(server) {
+    var action = this.get('action');
+    return server[action]();
+  }
+});
+
+App.ServerRestartController = App.ServerActionController.extend({
+  action: 'restart',
+  title: 'Restart',
+  layoutName: 'server/_restart'
+});
+
+App.ServerShutdownController = App.ServerActionController.extend({
+  action: 'shutdown',
+  title: 'Shutdown',
+  layoutName: 'server/_shutdown'
+});
+
+App.ServerDeployController = Ember.ObjectController.extend({
+  show: function() {
+    // this is even more fake
+    alert('This server is up to date.');
+  }
+});
+
+App.ServerFlushCacheController = App.ServerActionController.extend({
+  action: 'flush_cache',
+  title: 'Flush Cache',
+  layoutName: 'server/_flush_cache',
+  domain: '',
+  trigger_action: function(server) {
+    var domain = this.get('domain');
+    return server.flush_cache(domain);
+  }
+});
+
 App.ServerController = Ember.ObjectController.extend({
+  needs: ['ServerDeploy', 'ServerFlushCache', 'ServerRestart', 'search_log', 'ServerShutdown'],
+
+  deploy: function() {
+    var c = this.get('controllers.ServerDeploy');
+    c.set('content', this.get('content'));
+    c.show();
+  },
+
   flush_cache: function() {
-    this.get('content').flush_cache();
+    var c = this.get('controllers.ServerFlushCache');
+    c.set('content', this.get('content'));
+    c.show();
+  },
+
+  restart: function() {
+    var c = this.get('controllers.ServerRestart');
+    c.set('content', this.get('content'));
+    c.show();
   },
 
   search_log: function(search_text) {
@@ -291,9 +409,11 @@ App.ServerController = Ember.ObjectController.extend({
     c.show();
   },
 
-  restart: function() {
-    this.get('content').restart();
-  },
+  shutdown: function() {
+    var c = this.get('controllers.ServerShutdown');
+    c.set('content', this.get('content'));
+    c.show();
+  }
 
 });
 

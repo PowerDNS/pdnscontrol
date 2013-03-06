@@ -36,6 +36,18 @@ Control.Model.reopenClass({
     $.getJSON(url, cb);
   },
 
+  doPOST: function(params, data, success_cb, error_cb) {
+    var url = this.urlFor(params);
+    $.ajax(url, {
+      dataType: 'json',
+      data: JSON.stringify(data),
+      contentType: "application/json; charset=UTF-8",
+      type: 'POST',
+      success: success_cb,
+      error: error_cb
+    });
+  },
+
   save: function(obj) {
     var prop, payload, data, req_type, url;
     payload = {}
@@ -57,7 +69,7 @@ Control.Model.reopenClass({
     }
 
     $.ajax(url, {
-      dataType: json,
+      dataType: 'json',
       data: JSON.stringify(data),
       contentType: "application/json; charset=UTF-8",
       type: req_type,
@@ -65,7 +77,7 @@ Control.Model.reopenClass({
         console.log('success', data);
       },
       error: function(data) {
-        console.log('success', data);
+        console.log('error', data);
       }
     });
   },
@@ -338,14 +350,31 @@ App.Server = Control.Model.extend({
     });
   },
 
-  flush_cache: function() {
-    console.log('flushing cache of', this.get('name'));
+  flush_cache: function(domain) {
+    var progress = App.ActionProgress.create();
+    var payload = {};
+    if (domain) {
+      payload.domain = domain;
+    }
+    this.constructor.doPOST(
+      [this, 'flush-cache?domain='+domain],
+      payload,
+      function(data) {
+        progress.set('state', 'success');
+        progress.set('messages', '' + data.content.number + ' domains flushed.');
+      },
+      function(data) {
+        progress.set('state', 'error');
+        progress.set('messages', data.errors);
+      }
+    );
+    return progress;
   },
 
   search_log: function(search_text, logdata) {
     logdata = logdata || [];
     this.constructor.getJSON([this, 'log-grep?needle='+search_text], function(data) {
-      data.content.forEach(function(el,idx) {
+      data.content.forEach(function(el, idx) {
         logdata.pushObject(el);
       });
     });
@@ -353,9 +382,47 @@ App.Server = Control.Model.extend({
   },
 
   restart: function() {
-    console.log('restarting', this.get('name'));
+    var progress = App.ActionProgress.create();
+    this.constructor.doPOST(
+      [this, 'restart'],
+      {},
+      function(data) {
+        progress.set('state', 'success');
+        progress.set('messages', data.messages);
+      },
+      function(data) {
+        progress.set('state', 'error');
+        progress.set('messages', data.errors);
+      }
+    );
+    return progress;
+  },
+
+  shutdown: function() {
+    var progress = App.ActionProgress.create();
+    this.constructor.doPOST(
+      [this, 'stop'],
+      {},
+      function(data) {
+        progress.set('state', 'success');
+        progress.set('messages', data.messages);
+      },
+      function(data) {
+        progress.set('state', 'error');
+        progress.set('messages', data.errors);
+      }
+    );
+    return progress;
   }
 
+});
+
+App.ActionProgress = Em.Object.extend({
+  state: 'pending',
+  messages: [],
+  succeeded: function() {
+    return (this.get('state') === 'success');
+  }.property('state')
 });
 
 App.Graphite = Em.Object.extend({});

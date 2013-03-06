@@ -184,6 +184,11 @@ App.ServersIndexController = Ember.ArrayController.extend({
         // FIXME: very theoretical code
         messages += item.search_log(search_text);
       });
+
+    var c = this.controllerFor('search_log');
+    c.set('content', messages);
+    c.set('search_text', search_text);
+    c.show();
   },
 
   restart: function() {

@@ -325,8 +325,7 @@ App.Server = Control.Model.extend({
     // Sideload zones.
     var that = this;
 
-    var baseURL = this.store.adapter.buildURL(this.store.adapter.rootForType(this.constructor), this.get('id')) + '/';
-    $.getJSON(baseURL + 'domains', function(data) {
+    this.constructor.getJSON([this, 'domains'], function(data) {
       var zone_type = that.get('kind') === 'Authoritative' ? App.AuthZone : App.RecursorZone;
 
       var zones = that.get('zones');
@@ -344,9 +343,8 @@ App.Server = Control.Model.extend({
   },
 
   search_log: function(search_text, logdata) {
-    var baseURL = this.store.adapter.buildURL(this.store.adapter.rootForType(this.constructor), this.get('id')) + '/';
     logdata = logdata || [];
-    $.getJSON(baseURL + 'log-grep?needle=' + search_text, function(data) {
+    this.constructor.getJSON([this, 'log-grep?needle='+search_text], function(data) {
       data.content.forEach(function(el,idx) {
         logdata.pushObject(el);
       });

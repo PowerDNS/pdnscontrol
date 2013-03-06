@@ -25,12 +25,12 @@ Control.Model = Em.Object.extend(Ember.Evented, {
   },
 
   save: function() {
-
+    this.constructor._save(this);
   }
-
 });
 
 Control.Model.reopenClass({
+
   getJSON: function(params, cb) {
     var url = this.urlFor(params);
     $.getJSON(url, cb);
@@ -48,24 +48,24 @@ Control.Model.reopenClass({
     });
   },
 
-  save: function(obj) {
+  _save: function(obj) {
     var prop, payload, data, req_type, url;
     payload = {}
     for (prop in obj) {
-      obj.hasOwnProperty(prop) && payload[prop] = obj[prop];
+      if (obj.hasOwnProperty(prop)) {
+        payload[prop] = obj[prop];
+      }
     }
     data = {}
-    data[this._name] = payload;
+    data[obj._name] = payload;
     if (obj.isLoaded) {
       // update
-      req_type = 'POST';
+      req_type = 'PUT';
       url = obj._url;
     } else {
       // create
-      req_type = 'PUT';
-      url = obj._url.split('/');
-      url = url.slice(0, url.length-1);
-      url = '/'.join(url);
+      req_type = 'POST';
+      obj._url = this.urlFor([obj]);
     }
 
     $.ajax(url, {
@@ -75,9 +75,18 @@ Control.Model.reopenClass({
       type: req_type,
       success: function(data) {
         console.log('success', data);
+        // TODO: update with server-data?
+        if (obj.isLoaded) {
+          obj.trigger('didSave');
+        } else {
+          obj.trigger('didCreate');
+          obj.set('isLoaded', true);
+        }
       },
       error: function(data) {
         console.log('error', data);
+        obj.set('errors', data.errors);
+        obj.trigger('becameInvalid');
       }
     });
   },
@@ -148,6 +157,9 @@ Control.Model.reopenClass({
   },
 
   urlFor: function(params) {
+    // TODO: probably need a setContext() call or something, for nested
+    // resources.
+
     if (params.length == 1 && params[0]._url) {
       return params[0]._url;
     }

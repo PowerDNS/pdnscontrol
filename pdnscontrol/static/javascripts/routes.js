@@ -82,9 +82,10 @@ App.ZonesIndexRoute = Ember.Route.extend({
 
 App.ZonesZoneRoute = Ember.Route.extend({
   model: function(params) {
-    console.log('zoneroute', params);
-    var server = this.modelFor('server');
-    return App.Zone.find(params.zone_id, server);
+    var server = this.modelFor('server'),
+      model = App.Zone.find(params.zone_id, server);
+    model.load_rrsets();
+    return model;
   },
   setupController: function(controller, model) {
     this._super(controller, model);
@@ -232,7 +233,7 @@ App.ServersIndexController = Ember.ArrayController.extend({
         this.kind = this.$('input[name=kind]')[0].checked ? 'Authoritative' : 'Recursor';
         this.spin();
 
-        var record = App.Server.createRecord({
+        var record = App.Server.create({
           name: this.name,
           stats_url: this.stats_url,
           manager_url: this.manager_url,
@@ -248,7 +249,7 @@ App.ServersIndexController = Ember.ArrayController.extend({
           alert(this.errors);
         });
 
-        record.store.commit();
+        record.save();
 
         return false; // wait until completion
       }

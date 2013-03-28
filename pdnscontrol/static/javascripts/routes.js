@@ -242,7 +242,7 @@ App.ServersIndexController = Ember.ArrayController.extend({
 
         record.on('didCreate', function() {
           that.close();
-          // TODO: what now?
+          that.controller.pushObject(record);
         });
         record.on('becameInvalid', function() {
           that.stopSpin();

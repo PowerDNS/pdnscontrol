@@ -66,6 +66,9 @@ Control.Model.reopenClass({
       // create
       req_type = 'POST';
       obj._url = this.urlFor([obj]);
+      // pass in the class itself, so we get the 'index' URL,
+      // which is where we need to POST to.
+      url = this.urlFor([this]);
     }
 
     $.ajax(url, {

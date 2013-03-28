@@ -77,8 +77,11 @@ Control.Model.reopenClass({
       contentType: "application/json; charset=UTF-8",
       type: req_type,
       success: function(data) {
-        console.log('success', data);
-        // TODO: update with server-data?
+        var prop;
+        data = data[obj._name];
+        for (prop in data) {
+          data.hasOwnProperty(prop) && obj.set(prop, data[prop]);
+        }
         if (obj.isLoaded) {
           obj.trigger('didSave');
         } else {

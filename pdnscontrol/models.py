@@ -97,18 +97,17 @@ class Server(db.Model, IterableModel):
         return {
             'id': self.name,
             'name': self.name,
-            'kind': self.daemon_type
+            'kind': self.daemon_type,
+            'stats_url': self.stats_url,
+            'manager_url': self.manager_url
             }
 
     @staticmethod
     def all():
         servers = []
         for server in Server.query.all():
-            server = {
-                'url': request.url_root + 'api/servers/'+server.name+'/',
-                'name': server.name,
-                'kind': server.daemon_type
-                }
+            server = server.to_dict()
+            server['url'] = request.url_root + 'api/servers/' + server['name'] + '/'
             servers.append(server)
         return servers
 

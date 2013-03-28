@@ -1,0 +1,30 @@
+<form class=custom>
+
+  <label>Server Name:
+  {{view Ember.TextField placeholder="host.company.corp" valueBinding="view.record.name" class="name" }}
+  </label>
+
+  <div class="row">
+    <div class="four columns">
+      <label for="type1">
+        <input name="kind" type="radio" id="type1" style="display:none;">
+        <span class="custom radio"></span> Authoritative
+      </label>
+
+      <label for="type2">
+        <input name="kind" type="radio" id="type2" style="display:none;">
+        <span class="custom radio"></span> Recursor
+      </label>
+
+    </div>
+  </div>
+
+  <label>Statistics URL:
+  {{view Ember.TextField valueBinding="view.record.stats_url" }}
+  </label>
+
+  <label>Manager URL:
+  {{view Ember.TextField valueBinding="view.record.manager_url" }}
+  </label>
+
+</form>

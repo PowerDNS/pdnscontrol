@@ -1,7 +1,7 @@
 <div class="row">
   <div class="twelve columns">
     <h2>{{name}}</h2>
-    <p>Running version <strong>{{version}}</strong>, up since {{absolute_time uptime}}.</p>
+    <p>Running version <strong>{{version}}</strong>, up since {{absolute_time uptime}}. <span class="right"><button {{action "edit"}}>Edit</button> <button {{action "delete"}}>Delete</button></span></p>
     <p>
       <ul class="button-group four-up even">
         <li><button class="alert button" {{action "shutdown"}}>Shutdown</button></li>

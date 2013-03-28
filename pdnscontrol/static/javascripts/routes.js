@@ -414,6 +414,51 @@ App.ServerController = Ember.ObjectController.extend({
     var c = this.get('controllers.ServerShutdown');
     c.set('content', this.get('content'));
     c.show();
+  },
+
+  edit: function() {
+    App.ModalView.create({
+      templateName: 'servers/_edit',
+      controller: this,
+      title: 'Edit Server',
+      success: 'Save',
+
+      record: this.get('content'),
+
+      openCallback: function() {
+        this.$('.name').focus();
+        this.$('input[name=kind]')[0].click();
+        if (this.record.kind == 'Recursor') {
+          this.$('input[name=kind]')[1].click();
+        }
+      },
+
+      closeCallback: function() {
+        return true;
+      },
+
+      successCallback: function() {
+        var that = this;
+
+        // Ember doesn't have a RadioButtonGroupView at this point, so
+        // let's take the foot path.
+        this.set('record.kind', this.$('input[name=kind]')[0].checked ? 'Authoritative' : 'Recursor');
+        this.spin();
+
+        this.record.on('didSave', function() {
+          that.close();
+        });
+        this.record.on('becameInvalid', function() {
+          that.stopSpin();
+          alert(this.errors);
+        });
+
+        this.record.save();
+
+        return false; // wait until completion
+      }
+
+    }).append();
   }
 
 });

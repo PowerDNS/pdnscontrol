@@ -39,7 +39,10 @@ App.ModalView = Em.View.extend({
   },
 
   close: function() {
-    this.$().trigger('reveal:close');
+    var el = this.$();
+    if (el) {
+      el.trigger('reveal:close');
+    }
   },
 
   click: function(e) {

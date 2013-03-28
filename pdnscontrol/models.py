@@ -93,6 +93,13 @@ class Server(db.Model, IterableModel):
         self.stats_url = stats_url
         self.manager_url = manager_url
 
+    def to_dict(self):
+        return {
+            'id': self.name,
+            'name': self.name,
+            'kind': self.daemon_type
+            }
+
     @staticmethod
     def all():
         servers = []

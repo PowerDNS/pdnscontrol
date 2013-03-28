@@ -84,45 +84,40 @@ def build_pdns_url(server):
 @mod.route('/servers', methods=['GET'])
 @requireApiRole('view')
 def server_index():
-    s = Server.all()
-    for server in s:
+    ary = Server.all()
+    for server in ary:
         server['id'] = server['name']
-    return jsonify(servers=s)
+    return jsonify(servers=ary)
 
 
 @mod.route('/servers', methods=['POST'])
 @requireApiRole('edit')
 def server_create():
-    obj = request.json['server']
-    if obj['name'] == '':
+    data = request.json['server']
+    if data['name'] == '':
         return jsonify(errors=['Server name must be set']), 422
-    server = Server(obj['name'], obj['kind'], obj['stats_url'], obj['manager_url'])
-    db.session.add(server)
+    obj = Server(data['name'], data['kind'], data['stats_url'], data['manager_url'])
+    db.session.add(obj)
     db.session.commit()
-    return jsonify(server=dict(server))
+    return jsonify(server=obj.to_dict())
 
 
 @mod.route('/servers/<string:server>', methods=['GET'])
 @requireApiRole('view')
 def server_get(server):
-    s = Server.query.filter_by(name=server).first()
-    if not s:
+    obj = Server.query.filter_by(name=server).first()
+    if not obj:
         return "Not found", 404
-
-    s = {
-        'id': s.name,
-        'name': s.name,
-        'kind': s.daemon_type
-        }
-    return jsonify(server=s)
-
+    return jsonify(server=obj.to_dict())
 
 
 @mod.route('/servers/<server>', methods=['DELETE'])
 @requireApiRole('edit')
 def server_delete(server):
-    server = db.session.query(Server).filter_by(name=server).first()
-    db.session.delete(server)
+    obj = Server.query.filter_by(name=server).first()
+    if not obj:
+        return "Not found", 404
+    db.session.delete(obj)
     db.session.commit()
     return ""
 
@@ -130,14 +125,19 @@ def server_delete(server):
 @mod.route('/servers/<server>', methods=['PUT'])
 @requireApiRole('edit')
 def server_edit(server):
-    server = db.session.query(Server).filter_by(name=server).first()
-    server.name = obj['name']
-    server.daemon_type = obj['kind']
-    server.stats_url = obj['stats_url']
-    server.manager_url = obj['manager_url']
-    db.session.add(server)
+    data = request.json['server']
+    if data['name'] == '':
+        return jsonify(errors=['Server name must be set']), 422
+    obj = Server.query.filter_by(name=server).first()
+    if not obj:
+        return "Not found", 404
+    obj.name = data['name']
+    obj.daemon_type = data['kind']
+    obj.stats_url = data['stats_url']
+    obj.manager_url = data['manager_url']
+    db.session.add(obj)
     db.session.commit()
-    return jsonify(server=dict(server))
+    return jsonify(server=obj.to_dict())
 
 
 @mod.route('/servers/<server>/zones/<path:zone>/names/<path:qname>/types/<qtype>', methods=['GET','PUT','POST','DELETE'])

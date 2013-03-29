@@ -425,6 +425,7 @@ App.ServerController = Ember.ObjectController.extend({
       },
 
       closeCallback: function() {
+        this.record.reload();
         return true;
       },
 

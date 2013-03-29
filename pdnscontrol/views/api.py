@@ -94,9 +94,10 @@ def server_index():
 @requireApiRole('edit')
 def server_create():
     data = request.json['server']
-    if data['name'] == '':
-        return jsonify(errors=['Server name must be set']), 422
-    obj = Server(data['name'], data['kind'], data['stats_url'], data['manager_url'])
+    obj = Server()
+    obj.mass_assign(data)
+    if not obj.is_valid:
+        return jsonify(errors=obj.validation_errors), 422
     db.session.add(obj)
     db.session.commit()
     return jsonify(server=obj.to_dict())
@@ -126,15 +127,12 @@ def server_delete(server):
 @requireApiRole('edit')
 def server_edit(server):
     data = request.json['server']
-    if data['name'] == '':
-        return jsonify(errors=['Server name must be set']), 422
     obj = Server.query.filter_by(name=server).first()
     if not obj:
-        return "Not found", 404
-    obj.name = data['name']
-    obj.daemon_type = data['kind']
-    obj.stats_url = data['stats_url']
-    obj.manager_url = data['manager_url']
+        return jsonify(errors={'name':"Not found"}), 404
+    obj.mass_assign(data)
+    if not obj.is_valid:
+        return jsonify(errors=obj.validation_errors), 422
     db.session.add(obj)
     db.session.commit()
     return jsonify(server=obj.to_dict())

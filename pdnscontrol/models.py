@@ -23,6 +23,37 @@ class IterableModel(object):
             yield (k,v)
 
 
+class RestModel(object):
+    def to_dict(self):
+        d = {'id': self.id}
+        for fn in self.__readonly_fields__:
+            d[fn] = getattr(self, fn)
+        for fn in self.__public_fields__:
+            d[fn] = getattr(self, fn)
+        return d
+
+    def mass_assign(self, data):
+        for fn in self.__public_fields__:
+            if data.has_key(fn):
+                setattr(self, fn, data[fn])
+        if getattr(self, '__id_mapped_to__', None) is not None:
+            self.id = getattr(self, self.__id_mapped_to__)
+        self.mark_validation_dirty()
+
+    @property
+    def is_valid(self):
+        return (len(self.validation_errors) == 0)
+
+    @property
+    def validation_errors(self):
+        if getattr(self, '_validation_errors', None) is None:
+            self._validation_errors = self.validate()
+        return self._validation_errors
+
+    def mark_validation_dirty(self):
+        self._validation_errors = None
+
+
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
@@ -79,28 +110,28 @@ users_userroles = db.Table(
 )
 
 
-class Server(db.Model, IterableModel):
+class Server(db.Model, IterableModel, RestModel):
     __tablename__ = 'servers'
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.UnicodeText, nullable=False, unique=True)
     daemon_type = db.Column(db.UnicodeText)
     stats_url = db.Column(db.UnicodeText)
     manager_url = db.Column(db.UnicodeText)
+    __public_fields__ = ['name', 'daemon_type', 'stats_url', 'manager_url']
+    __readonly_fields__ = []
+    __id_mapped_to__ = 'name'
 
-    def __init__(self, name, daemon_type, stats_url, manager_url):
-        self.name = name
-        self.daemon_type = daemon_type
-        self.stats_url = stats_url
-        self.manager_url = manager_url
-
-    def to_dict(self):
-        return {
-            'id': self.name,
-            'name': self.name,
-            'kind': self.daemon_type,
-            'stats_url': self.stats_url,
-            'manager_url': self.manager_url
-            }
+    def validate(self):
+        errors = {}
+        for fn in ['name', 'daemon_type', 'stats_url', 'manager_url']:
+            if getattr(self, fn) in ['', None]:
+                errors[fn] = '%s must be set'
+        for fn in ['stats_url', 'manager_url']:
+            if errors.get(fn):
+                continue
+            if not getattr(self, fn).startswith('http'):
+                errors[fn] = '%s must be a valid URL'
+        return errors
 
     @staticmethod
     def all():

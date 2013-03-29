@@ -51,7 +51,11 @@ Control.Model.reopenClass({
   _save: function(obj) {
     var prop, payload, data, req_type, url;
     payload = {}
+    obj.set('errors', {});
     for (prop in obj) {
+      if (prop == 'errors' || prop == '_url') {
+        continue;
+      }
       if (obj.hasOwnProperty(prop)) {
         payload[prop] = obj[prop];
       }
@@ -89,9 +93,9 @@ Control.Model.reopenClass({
           obj.set('isLoaded', true);
         }
       },
-      error: function(data) {
-        console.log('error', data);
-        obj.set('errors', data.errors);
+      error: function(jqXHR) {
+        var response = JSON.parse(jqXHR.responseText);
+        obj.set('errors', response.errors);
         obj.trigger('becameInvalid');
       }
     });

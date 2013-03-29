@@ -217,6 +217,7 @@ App.ServersIndexController = Ember.ArrayController.extend({
       manager_url: null,
 
       openCallback: function() {
+        Foundation.RadioSelect(this.$('input[name=kind]')[0]);
         this.$('.name').focus();
       },
 
@@ -426,11 +427,11 @@ App.ServerController = Ember.ObjectController.extend({
       record: this.get('content'),
 
       openCallback: function() {
-        this.$('.name').focus();
-        this.$('input[name=kind]')[0].click();
+        Foundation.RadioSelect(this.$('input[name=kind]')[0]);
         if (this.record.kind == 'Recursor') {
-          this.$('input[name=kind]')[1].click();
+          Foundation.RadioSelect(this.$('input[name=kind]')[1]);
         }
+        this.$('.name').focus();
       },
 
       closeCallback: function() {

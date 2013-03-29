@@ -141,3 +141,9 @@ Ember.Handlebars.registerBoundHelper('relative_time', function(value) {
   moment.lang('en');
   return moment.duration(1.0 * value, "seconds").humanize();
 });
+
+// JS Helpers for Foundation
+Foundation = Em.Namespace.create();
+Foundation.RadioSelect = function(el) {
+  $(el.parentNode).find('span.custom.radio').click();
+}

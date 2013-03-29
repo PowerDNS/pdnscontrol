@@ -57,7 +57,7 @@ App.ModalView = Em.View.extend({
   },
 
   spin: function() {
-    this.$('.spinner').html('').spin('small');
+    this.$('.spinner').spin('small');
   },
 
   stopSpin: function() {
@@ -121,6 +121,18 @@ App.ZonesIndexZoneLinkTableCellView = Ember.Table.TableCell.extend({
   templateName: 'views/zone_link_table_cell'
 });
 
+App.ErrorView = Em.View.extend({
+  tagName: 'small',
+  classNameBindings: ['value:error:'],
+  template: Ember.Handlebars.compile('{{view.message}}'),
+  message: function() {
+    var value = this.get('value');
+    if (!!value) {
+      return value.replace('%s', this.get('name'))+'.';
+    }
+    return '';
+  }.property('value', 'name')
+});
 
 // View Helpers
 Ember.Handlebars.registerBoundHelper('absolute_time', function(value) {

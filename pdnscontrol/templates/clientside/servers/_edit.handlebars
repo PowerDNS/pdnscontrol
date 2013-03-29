@@ -1,7 +1,8 @@
 <form class=custom>
 
-  <label>Server Name:
+  <label {{bindAttr class="view.record.errors.name:error:"}}>Server Name:
   {{view Ember.TextField placeholder="host.company.corp" valueBinding="view.record.name" class="name" }}
+  {{view App.ErrorView name="Server Name" valueBinding="view.record.errors.name"}}
   </label>
 
   <div class="row">
@@ -16,15 +17,18 @@
         <span class="custom radio"></span> Recursor
       </label>
 
+      {{view App.ErrorView name="Daemon Type" valueBinding="view.record.errors.kind"}}
     </div>
   </div>
 
-  <label>Statistics URL:
-  {{view Ember.TextField valueBinding="view.record.stats_url" }}
+  <label {{bindAttr class="view.record.errors.stats_url:error:"}}>Statistics URL:
+  {{view Ember.TextField valueBinding="view.record.stats_url" classBinding="view.record.errors.stats_url:error:" }}
+  {{view App.ErrorView name="Statistics URL" valueBinding="view.record.errors.stats_url"}}
   </label>
 
-  <label>Manager URL:
+  <label {{bindAttr class="view.record.errors.manager_url:error:"}}>Manager URL:
   {{view Ember.TextField valueBinding="view.record.manager_url" }}
+  {{view App.ErrorView name="Manager URL" valueBinding="view.record.errors.manager_url"}}
   </label>
 
 </form>

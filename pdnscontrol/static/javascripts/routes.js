@@ -211,10 +211,7 @@ App.ServersIndexController = Ember.ArrayController.extend({
       title: 'Add Server',
       success: 'Save',
 
-      name: null,
-      kind: null,
-      stats_url: null,
-      manager_url: null,
+      record: App.Server.create(),
 
       openCallback: function() {
         Foundation.RadioSelect(this.$('input[name=kind]')[0]);
@@ -228,29 +225,22 @@ App.ServersIndexController = Ember.ArrayController.extend({
 
       successCallback: function() {
         var that = this;
+        this.spin();
 
         // Ember doesn't have a RadioButtonGroupView at this point, so
         // let's take the foot path.
-        this.kind = this.$('input[name=kind]')[0].checked ? 'Authoritative' : 'Recursor';
-        this.spin();
+        this.set('record.kind', this.$('input[name=kind]')[0].checked ? 'Authoritative' : 'Recursor');
 
-        var record = App.Server.create({
-          name: this.name,
-          stats_url: this.stats_url,
-          manager_url: this.manager_url,
-          kind: this.kind
-        });
-
-        record.on('didCreate', function() {
+        this.record.on('didCreate', function() {
           that.close();
-          that.controller.pushObject(record);
+          that.controller.pushObject(this);
         });
-        record.on('becameInvalid', function() {
+        this.record.on('becameInvalid', function() {
           that.stopSpin();
-          alert(this.errors);
+          that.set('errors', this.errors);
         });
 
-        record.save();
+        this.record.save();
 
         return false; // wait until completion
       }
@@ -440,18 +430,18 @@ App.ServerController = Ember.ObjectController.extend({
 
       successCallback: function() {
         var that = this;
+        this.spin();
 
         // Ember doesn't have a RadioButtonGroupView at this point, so
         // let's take the foot path.
         this.set('record.kind', this.$('input[name=kind]')[0].checked ? 'Authoritative' : 'Recursor');
-        this.spin();
 
         this.record.on('didSave', function() {
           that.close();
         });
         this.record.on('becameInvalid', function() {
           that.stopSpin();
-          alert(this.errors);
+          that.set('errors', this.errors);
         });
 
         this.record.save();

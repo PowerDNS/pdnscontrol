@@ -26,6 +26,10 @@ Control.Model = Em.Object.extend(Ember.Evented, {
 
   save: function() {
     this.constructor._save(this);
+  },
+
+  delete: function() {
+    this.constructor._delete(this);
   }
 });
 
@@ -92,6 +96,20 @@ Control.Model.reopenClass({
           obj.trigger('didCreate');
           obj.set('isLoaded', true);
         }
+      },
+      error: function(jqXHR) {
+        var response = JSON.parse(jqXHR.responseText);
+        obj.set('errors', response.errors);
+        obj.trigger('becameInvalid');
+      }
+    });
+  },
+
+  _delete: function(obj) {
+    $.ajax(obj._url, {
+      type: 'DELETE',
+      success: function(data) {
+        obj.trigger('didDelete');
       },
       error: function(jqXHR) {
         var response = JSON.parse(jqXHR.responseText);

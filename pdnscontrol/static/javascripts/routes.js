@@ -39,6 +39,7 @@ App.IndexRoute = Ember.Route.extend({
 
 App.ServersRoute = Ember.Route.extend({
   model: function(params) {
+    console.log('RUNNING FINDALL FOR SERVERS');
     return App.Server.findAll();
   }
 });
@@ -446,6 +447,43 @@ App.ServerController = Ember.ObjectController.extend({
         });
 
         this.record.save();
+
+        return false; // wait until completion
+      }
+
+    }).append();
+  },
+
+  delete: function() {
+    App.ModalView.create({
+      templateName: 'servers/_delete',
+      controller: this,
+      title: 'Delete Server',
+      success: 'Delete',
+
+      record: this.get('content'),
+
+      openCallback: function() {
+      },
+
+      closeCallback: function() {
+        return true;
+      },
+
+      successCallback: function() {
+        var that = this;
+        this.spin();
+
+        this.record.on('didDelete', function() {
+          that.close();
+          App.Router.router.transitionTo('servers.index');
+        });
+        this.record.on('becameInvalid', function() {
+          that.stopSpin();
+          that.set('errors', this.errors);
+        });
+
+        this.record.delete();
 
         return false; // wait until completion
       }

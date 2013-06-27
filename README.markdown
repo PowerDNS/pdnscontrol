@@ -46,6 +46,14 @@ Flask-based web app.
     python debug.py
 
 
+#### Developing
+
+To update built templates, you also need to have a few gems installed.
+
+    cd pdnscontrol && bundle
+    make
+
+
 ### Graphite data feeder
 
 Feeds PowerDNS stats into your Graphite installation.

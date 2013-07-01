@@ -2,8 +2,10 @@ from flask import Flask, request
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from pdnscontrol import app
+from pdnscontrol.utils import fetch_json
 
 import datetime
+import urlparse
 
 __all__ = ['db', 'User', 'UserRole', 'Server']
 
@@ -25,7 +27,7 @@ class IterableModel(object):
 
 class RestModel(object):
     def to_dict(self):
-        d = {'id': self.id}
+        d = {'_id': getattr(self, getattr(self, '__id_mapped_to__', 'id'))}
         for fn in self.__readonly_fields__:
             d[fn] = getattr(self, fn)
         for fn in self.__public_fields__:
@@ -36,8 +38,7 @@ class RestModel(object):
         for fn in self.__public_fields__:
             if data.has_key(fn):
                 setattr(self, fn, data[fn])
-        if getattr(self, '__id_mapped_to__', None) is not None:
-            self.id = getattr(self, self.__id_mapped_to__)
+        self._id = getattr(self, getattr(self, '__id_mapped_to__', 'id'))
         self.mark_validation_dirty()
 
     @property
@@ -136,9 +137,40 @@ class Server(db.Model, IterableModel, RestModel):
     @staticmethod
     def all():
         servers = []
-        for server in Server.query.all():
-            server = server.to_dict()
-            server['url'] = request.url_root + 'api/servers/' + server['name'] + '/'
+        for obj in Server.query.all():
+            server = obj.to_dict()
             servers.append(server)
         return servers
 
+    def to_dict(self):
+        d = super(Server, self).to_dict()
+        d['stats'] = self.sideload('stats')
+        d['config'] = self.sideload('config')
+        d['url'] = request.url_root + 'api/servers/' + self.name + '/'
+        return d
+
+    def sideload(self, what):
+        remote_action = what
+        if self.daemon_type == 'Authoritative':
+            if what == 'stats':
+                remote_action = 'get'
+            elif what == 'config':
+                remote_action = 'config'
+        remote_url = urlparse.urljoin(self.pdns_url, '?command=' + remote_action)
+
+        try:
+            data = fetch_json(remote_url)
+            return data
+        except:
+            return None
+
+    @property
+    def pdns_url(self):
+        remote_url = self.stats_url
+        if remote_url is None or remote_url == '':
+            return None
+        if self.daemon_type == 'Authoritative':
+            if remote_url[-1] != '/':
+                remote_url = remote_url + '/'
+            remote_url = remote_url + 'jsonstat'
+        return remote_url

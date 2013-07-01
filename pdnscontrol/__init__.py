@@ -12,7 +12,12 @@ import flask.ext.sqlalchemy
 import json
 import os.path
 
-app = Flask(__name__, instance_relative_config=True)
+class Control(Flask):
+    jinja_options = dict(Flask.jinja_options,
+                         variable_start_string='{[',
+                         variable_end_string=']}')
+
+app = Control(__name__, instance_relative_config=True)
 app.config.from_object('pdnscontrol.default_settings')
 app.config.from_pyfile('pdnscontrol.conf')
 app.config['SQLALCHEMY_DATABASE_URI'] = app.config['DATABASE_URI']

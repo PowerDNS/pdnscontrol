@@ -1,0 +1,29 @@
+<form name="flushForm" ng-submit="doIt()">
+
+  <h3>Flush Cache</h3>
+  <div class="row">
+    On servers: <span ng-repeat="server in affected_servers">{{server.name}} </span>
+    <br>
+  </div>
+  <div class="row">
+    Flush cache for:<br>
+    <br>
+    <input type="text" required ng-model="flush_domain" placeholder="Domain match" id="flush_domain">
+  </div>
+  <div class="row">
+    <ul>
+      <li ng-repeat="result in results">
+        {{result.server.name}}: {{result.output}}
+      </li>
+    </ul>
+  </div>
+  <div class="row">
+    <div class="right">
+      <spinner spin="{{loading}}"></spinner>
+      <div class="inline-block">
+        <button class="small button success" type="submit">Flush cache</button> <button class="small button cancel" ng-click="close()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</form>

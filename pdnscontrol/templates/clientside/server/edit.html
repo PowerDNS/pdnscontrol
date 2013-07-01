@@ -1,0 +1,42 @@
+<div class="row">
+<div class="twelve columns">
+<form class=custom name="serverForm">
+
+  <h3 ng-show="server._url">Edit {{master.name}}</h3>
+  <h3 ng-show="!server._url">Add Server</h3>
+
+  <label ng-class="{error: serverForm.name.$invalid}">Server Name:
+    <input type="text" name="name" ng-model="server.name" required>
+  </label>
+
+  <label ng-class="{error: serverForm.daemon_type.$invalid}">Daemon Type:
+      <label>
+        <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Authoritative" required>
+        Authoritative
+      </label>
+
+      <label>
+        <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Recursor">
+        Recursor
+      </label>
+  </label>
+
+  <label ng-class="{error: serverForm.stats_url.$invalid}">API URL:
+    <input type="url" name="stats_url" ng-model="server.stats_url" required>
+  </label>
+
+  <label ng-class="{error: serverForm.manager_url.$invalid}">Manager URL:
+    <input type="url" name="manager_url" ng-model="server.manager_url" required>
+  </label>
+
+
+  <br>
+
+  <a href="/server/{{master.name}}" class="button" ng-show="server._url">Cancel</a>
+  <a href="/" class="button" ng-show="!server._url">Cancel</a>
+  <button ng-click="save()" ng-disabled="isClean() || serverForm.$invalid" class="button">Save</button>
+  <button ng-click="destroy()" ng-show="server._url" class="button alert">Delete</button>
+
+</form>
+</div>
+</div>

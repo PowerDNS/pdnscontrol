@@ -1,0 +1,28 @@
+<form ng-submit="doIt()">
+
+  <h3>Shut Down</h3>
+  <div class="row">
+    Servers: <span ng-repeat="server in affected_servers">{{server.name}} </span>
+    <br>
+  </div>
+  <div class="row">
+    <div ng-repeat="result in results" class="output">
+      <b>{{result.server.name}}:</b>
+      <pre>{{result.output}}</pre>
+    </div>
+  </div>
+  <div class="row">
+    <div class="right">
+      <spinner spin="{{loading}}"></spinner>
+      <div class="inline-block">
+        <span ng-show="!results">
+          <button class="small button success alert" type="submit">Shut down</button> <button class="small button cancel" ng-click="close()">Cancel</button>
+        </span>
+        <span ng-show="results.length>0">
+          <button class="small button cancel" ng-click="close()">Close</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+</form>

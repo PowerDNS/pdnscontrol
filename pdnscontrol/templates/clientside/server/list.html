@@ -1,0 +1,77 @@
+<div class="row">
+  <div class="twelve columns">
+    <div class="panel server-list">
+      <table id="servers" class="twelve" ng-init="selected_all=true">
+        <input ng-show="servers.length" type="text" ng-model="filter" class="search-query" placeholder="Filter">
+        <thead>
+          <tr>
+            <th><input type="checkbox" ng-model="selected_all" ng-change="toggleSelectedAll()"></th>
+            <th ng-click="orderProp = 'daemon_type'">Type</th>
+            <th ng-click="orderProp = 'name'">Name</th>
+            <th ng-click="orderProp = 'listen_address'">Main IP</th>
+            <th ng-click="orderProp = 'version'">Version</th>
+            <th ng-click="orderProp = 'uptime'">Uptime</th>
+            <th>Load</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="server in servers | filter:filter | orderBy:orderProp">
+            <td><input type="checkbox" ng-model="server.selected" ng-change="refreshSelectedAll()"></td>
+            <td>{{server.daemon_type}}</td>
+            <td><a href="/server/{{server.name}}">{{server.name}}</a></td>
+            <td>{{server.listen_address}}</td>
+            <td>{{server.version}}</td>
+            <td>{{server.uptime | relative_time}}</td>
+            <td>{{server.load}}</td>
+          </tr>
+          <span ng-show="!servers.length">
+          You don't seem to have any servers defined yet. Add some!
+          </span>
+        </tbody>
+      </table>
+      <div class="row">
+        <div class="seven columns">
+          <div class="button-bar" ng-show="servers.length">
+            <ul class="button-group">
+              <li><button ng-click="popup_flush_cache()" class="button">Flush cache</button></li>
+            </ul>
+            <ul class="button-group">
+              <li><button ng-click="popup_deploy()" class="button">Deploy</button></li>
+              <li><button ng-click="popup_restart()" class="button">Restart</button></li>
+              <li><button ng-click="popup_shutdown()" class="alert button">Shutdown</button></li>
+            </ul>
+          </div>
+        </div>
+        <div class="five columns">
+          <ul class="button-group right">
+            <li>
+              <a class="button" href="/servers/new"><span class="foundicon-plus"></span></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <searchlog servers="selected_servers"></searchlog>
+  </div>  
+</div>
+
+<div class="row">
+  <div class="twelve columns">
+    <h3>Aggregate statistics</h3>
+<!--
+
+    <h4>Authoritative Servers</h4>
+    <graphite g-source="" g-title"Recursors" g-area-mode="first">
+      <graph target="{{auth_queries()}}" title="Queries" />
+      <graph target="{{auth_answers()}}" title="Answers" />
+    </graphite>
+    -->  
+
+    <h4>Recursor Servers</h4>
+    <graphite g-source="" g-title="Recursors" g-area-mode="first">
+      <graph target="{{recursor_queries()}}" title="Queries" />
+      <graph target="{{recursor_answers()}}" title="Answers" />
+    </graphite>
+
+  </div>
+</div>

@@ -23,6 +23,11 @@ def servers_json():
 def index():
     return render_template('/pages/clientjs.html')
 
+@mod.route('/tpl/<path:path>.html')
+@requireLoggedIn
+def tpl(path):
+    return render_template('/clientside/'+path+'.html')
+
 @mod.route('/<path:path>')
 @requireLoggedIn
 def catchall(path):

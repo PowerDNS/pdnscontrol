@@ -1,9 +1,5 @@
-<!DOCTYPE html>
-{# paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ #}
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
-<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<!doctype html>
+<html ng-app="control" class="no-js" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width" />
@@ -12,11 +8,10 @@
   {% assets output="gen/styles-%(version)s.css",
     "stylesheets/foundation.min.css",
     "stylesheets/general_foundicons.css",
-    "stylesheets/dataTables.css",
-    "stylesheets/table-base.css",
+    "stylesheets/ng-grid.css",
     "stylesheets/app.css"
   %}
-  <link rel="stylesheet" href="{{ ASSET_URL }}">
+  <link rel="stylesheet" href="{[ ASSET_URL ]}">
   {% endassets %}
 
   <!-- IE Fix for HTML5 Tags -->
@@ -30,13 +25,13 @@
 <script>
 var ServerData = {};
 ServerData.User = {
-  name: "{{ user.name }}",
-  roles: {{ user_roles|tojson|safe }}
+  name: "{[ user.name ]}",
+  roles: {[ user_roles|tojson|safe ]}
 };
 {# FIXME: move this into its own route and make it cacheable #}
 ServerData.Config = {
-  url_root: "{{ request.url_root }}",
-  graphite_server: "{{ config['GRAPHITE_SERVER'] }}",
+  url_root: "{[ request.url_root ]}",
+  graphite_server: "{[ config['GRAPHITE_SERVER'] ]}",
   graphite_default_opts: {
     bgcolor: "FFFFFF",
     majorGridLineColor: "darkgray",
@@ -51,7 +46,6 @@ ServerData.Config = {
   }
 };
 </script>
-
   {% assets output="gen/js-body-%(version)s.js",
     "javascripts/jquery.min.js",
     "javascripts/jquery-migrate.min.js",
@@ -63,14 +57,13 @@ ServerData.Config = {
     "javascripts/jquery.foundation.reveal.js",
     "javascripts/jquery.foundation.forms.js"
   %}
-  <script src="{{ ASSET_URL }}"></script>
+  <script src="{[ ASSET_URL ]}"></script>
   {% endassets %}
 
 {% block header %}
-  {# On Client-Side pages this block is overriden to be empty. #}
   <div class="row" id="header">
     <div class="seven columns">
-      <a href="{{ request.url_root }}" id="appname">PowerDNS Control Server</a>
+      <a href="{[ request.url_root ]}" id="appname">PowerDNS Control Server</a>
     </div>
     <div class="five columns">
       <a target="_blank" href="http://www.powerdns.com/"><div class="logo"></div></a>
@@ -79,6 +72,16 @@ ServerData.Config = {
 {% endblock %}
 
 {%- block body %}{% endblock -%}
+
+{% block footer %}
+<footer>
+  <div class="row">
+    <div class="twelve columns">
+      &copy; Copyright 2013 PowerDNS B.V.
+    </div>
+  </div>
+</footer>
+{% endblock %}
 
 </body>
 </html>

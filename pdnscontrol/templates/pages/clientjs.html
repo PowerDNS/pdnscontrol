@@ -1,33 +1,22 @@
 {% extends "/layout.html" -%}
-{% block header %}{% endblock %}
 {% block body %}
 
-{# ember and ember-data #}
-  {% assets output="gen/js-ember-%(version)s.js",
-    "javascripts/handlebars.js",
-    "javascripts/ember.js",
-    "javascripts/ember-data.js"
-  %}
-  <script src="{{ ASSET_URL }}"></script>
-  {% endassets %}
+{% assets output="gen/js-angular-%(version)s.js",
+  "javascripts/angular.js",
+  "javascripts/restangular.js",
+  "javascripts/ng-grid.js"
+%}
+<script src="{[ ASSET_URL ]}"></script>
+{% endassets %}
 
-{# ember-table and dependencies #}
-  {% assets output="gen/js-table-%(version)s.js",
-    "javascripts/jquery-ui-1.9.0.custom.min.js",
-    "javascripts/jquery.mousewheel.js",
-    "javascripts/ember-table.js"
-  %}
-  <script src="{{ ASSET_URL }}"></script>
-  {% endassets %}
+<script src="{[ url_for('static', filename='javascripts/util.js') ]}"></script>
+<script src="{[ url_for('static', filename='javascripts/components.js') ]}"></script>
+<script src="{[ url_for('static', filename='javascripts/popup.js') ]}"></script>
+<script src="{[ url_for('static', filename='javascripts/graphite.js') ]}"></script>
+<script src="{[ url_for('static', filename='javascripts/models.js') ]}"></script>
+<script src="{[ url_for('static', filename='javascripts/control.js') ]}"></script>
 
-
-{# pre-compiled handlebars templates #}
-<script src="{{ url_for('static', filename='javascripts/gen/templates.js') }}"></script>
-
-{# our ember-based app #}
-<script src="{{ url_for('static', filename='javascripts/app.js') }}"></script>
-<script src="{{ url_for('static', filename='javascripts/routes.js') }}"></script>
-<script src="{{ url_for('static', filename='javascripts/models.js') }}"></script>
-<script src="{{ url_for('static', filename='javascripts/views.js') }}"></script>
+<div ng-view>Loading...</div>
 
 {% endblock %}
+

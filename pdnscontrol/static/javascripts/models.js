@@ -1,482 +1,83 @@
-/// REST API Interface
+ServerData.Config.api_base = ServerData.Config.url_root + 'api';
 
-Control = Em.Namespace.create();
-
-Control.IdentityMap = Em.Object.create();
-
-Control.Model = Em.Object.extend(Ember.Evented, {
-  _primaryKey: 'id',
-  _lazyFind: true,
-  isLoaded: false,
-
-  reload: function() {
-    var that = this;
-    console.log('...reload', this);
-    this.constructor.getJSON([this], function(data) {
-      var prop;
-      data = data[that._name];
-      for (prop in data) {
-        data.hasOwnProperty(prop) && that.set(prop, data[prop]);
-      }
-      that.set('isLoaded', true);
-      console.log('reloaded:', that);
-      that.trigger('didLoad');
+angular.module('models', ['restangular']).
+  config(function(RestangularProvider) {
+    RestangularProvider.setBaseUrl(ServerData.Config.api_base);
+    RestangularProvider.setRestangularFields({
+      id: "_id"
     });
-  },
-
-  save: function() {
-    this.constructor._save(this);
-  },
-
-  delete: function() {
-    this.constructor._delete(this);
-  }
-});
-
-Control.Model.reopenClass({
-
-  getJSON: function(params, cb) {
-    var url = this.urlFor(params);
-    $.getJSON(url, cb);
-  },
-
-  doPOST: function(params, data, success_cb, error_cb) {
-    var url = this.urlFor(params);
-    $.ajax(url, {
-      dataType: 'json',
-      data: JSON.stringify(data),
-      contentType: "application/json; charset=UTF-8",
-      type: 'POST',
-      success: success_cb,
-      error: error_cb
+    RestangularProvider.setRequestInterceptor(function(original_elem, operation, what) {
+      var tmp, singular;
+      var elem = original_elem;
+      console.log(what, operation, elem);
+      singular = what.replace(/s$/, '');
+      if (operation === 'put' || operation === 'post') {
+        elem._id = undefined;
+        tmp = elem;
+        elem = {};
+        elem[singular] = tmp;
+      }
+      console.log('sending', elem);
+      return elem;
     });
-  },
-
-  _save: function(obj) {
-    var prop, payload, data, req_type, url;
-    payload = {}
-    obj.set('errors', {});
-    for (prop in obj) {
-      if (prop == 'errors' || prop == '_url') {
-        continue;
+    RestangularProvider.setResponseExtractor(function(original_response, operation, what, url) {
+      var response = original_response;
+      var singular = what.replace(/s$/, '');
+      if (operation === 'getList') {
+        return response[what];
       }
-      if (obj.hasOwnProperty(prop)) {
-        payload[prop] = obj[prop];
+      if ((operation === 'get' || operation == 'put' || operation == 'post') && response[singular]) {
+        response = response[singular];
+        response._url = url;
       }
-    }
-    data = {}
-    data[obj._name] = payload;
-    if (obj.isLoaded) {
-      // update
-      req_type = 'PUT';
-      url = obj._url;
-    } else {
-      // create
-      req_type = 'POST';
-      obj._url = this.urlFor([obj]);
-      // pass in the class itself, so we get the 'index' URL,
-      // which is where we need to POST to.
-      url = this.urlFor([this]);
-    }
+      console.log('setResponse', response);
+      return response;
+    });
 
-    $.ajax(url, {
-      dataType: 'json',
-      data: JSON.stringify(data),
-      contentType: "application/json; charset=UTF-8",
-      type: req_type,
-      success: function(data) {
-        var prop;
-        data = data[obj._name];
-        for (prop in data) {
-          data.hasOwnProperty(prop) && obj.set(prop, data[prop]);
-        }
-        if (obj.isLoaded) {
-          obj.trigger('didSave');
+    RestangularProvider.addElementTransformer("servers", false, function(server) {
+      if (!server.name) {
+        // not yet complete
+        return server;
+      }
+      // addRM signature is (name, operation, path, params, headers, elementToPost)
+      server.addRestangularMethod('stop', 'post', 'stop', null, {});
+      server.addRestangularMethod('restart', 'post', 'restart', null, {});
+      server.addRestangularMethod('flush_cache', 'post', 'flush-cache', null, {});
+      server.addRestangularMethod('log_grep', 'get', 'log-grep', null, {needle: true});
+      server.graphite_name = (function() {
+        var name = 'pdns.' + server.name.replace(/\./gm,'-');
+        if (server.daemon_type == 'Authoritative') {
+          name = name + '.auth';
         } else {
-          obj.trigger('didCreate');
-          obj.set('isLoaded', true);
+          name = name + '.recursor';
         }
-      },
-      error: function(jqXHR) {
-        var response = JSON.parse(jqXHR.responseText);
-        obj.set('errors', response.errors);
-        obj.trigger('becameInvalid');
-      }
-    });
-  },
+        return name;
+      })();
 
-  _delete: function(obj) {
-    $.ajax(obj._url, {
-      type: 'DELETE',
-      success: function(data) {
-        obj.trigger('didDelete');
-      },
-      error: function(jqXHR) {
-        var response = JSON.parse(jqXHR.responseText);
-        obj.set('errors', response.errors);
-        obj.trigger('becameInvalid');
-      }
-    });
-  },
-
-  createObject: function(finderParams, pkey_val, data) {
-    var pkey = this.proto()._primaryKey,
-      bare_data,
-      prop,
-      url,
-      obj;
-
-    if (!pkey_val && !data) {
-      throw "Cant have no data and no pkey value";
-    }
-    if (!pkey_val) {
-      pkey_val = data[pkey];
-    }
-
-    url = this.urlFor(finderParams.concat([this, pkey_val]));
-    if (Control.IdentityMap[url] === undefined) {
-      bare_data = {};
-      bare_data._url = url;
-      bare_data[pkey] = bare_data.id = pkey_val;
-      Control.IdentityMap[url] = this.create(bare_data);
-    }
-
-    obj = Control.IdentityMap[url];
-    if (data) {
-      console.log(this, data);
-      for (prop in data) {
-        data.hasOwnProperty(prop) && obj.set(prop, data[prop]);
-      }
-      obj.set('isLoaded', true);
-      obj.trigger('didLoad');
-    }
-
-    return obj;
-  },
-
-  findAll: function() {
-    var that = this,
-      object_list = Ember.ArrayProxy.create({content: []}),
-      params = Array.prototype.slice.call(arguments);
-    console.log('findAll', this);
-    this.getJSON(params.concat([this]), function(data) {
-      var obj, i;
-      data = data[that.proto()._plural];
-      for (i in data) {
-        if (!data.hasOwnProperty(i)) {
-          continue;
-        }
-        obj = that.createObject(params, null, data[i]);
-        object_list.pushObject(obj);
-      }
-    });
-    return object_list;
-  },
-
-  find: function(pkey_val) {
-    var that = this,
-      params = Array.prototype.slice.call(arguments, 1),
-      obj = this.createObject(params, pkey_val);
-    if (obj.get('isLoaded') == false || this._lazyFind == false) {
-      // hit server only if we have to
-      obj.reload();
-    }
-    return obj;
-  },
-
-  urlFor: function(params) {
-    // TODO: probably need a setContext() call or something, for nested
-    // resources.
-
-    if (params.length == 1 && params[0]._url) {
-      return params[0]._url;
-    }
-
-    var parts = ['/api'],
-      objs = [],
-      thing,
-      url,
-      i;
-    for (i=0; i<params.length; i++) {
-      thing = params[i];
-      if (thing.proto && thing.proto()) {
-        // class
-        parts.push(thing.proto()._plural);
-      } else if (thing.constructor && thing.constructor.proto) {
-        // instance
-        parts.push(thing.constructor.proto()._plural);
-        parts.push(thing.get(thing.constructor.proto()._primaryKey));
-      } else {
-        // bare thing
-        //parts.push(this.constructor.proto()._plural);
-        parts.push(thing);
-      }
-    }
-    url = parts.join('/');
-    console.log(url);
-    return url;
-  }
-});
-
-//// Models
-
-App.ServerStat = Control.Model.extend({
-  _primaryKey: 'name',
-  name: null,
-  value: null
-});
-
-App.ServerSetting = Control.Model.extend({
-  _primaryKey: 'name',
-  name: null,
-  value: null
-});
-
-App.RRSet = Control.Model.extend({
-  _primaryKey: 'name_qtype',
-  name_qtype: null,
-  name: null,
-  qtype: null,
-  rrs: null
-});
-
-App.RR = Control.Model.extend({
-  content: null,
-  prio: null,
-  ttl: null,
-});
-
-App.Zone = Control.Model.extend({
-  _name: 'zone',
-  _plural: 'zones',
-  _primaryKey: 'name',
-  _lazyFind: false,
-  server: null,
-  name: null,
-  kind: null,
-  rrsets: null,
-  masters: null,
-  serial: null,
-  forwarders: null,
-  rdbit: null
-});
-
-
-App.Server = Control.Model.extend({
-  _name: 'server',
-  _plural: 'servers',
-  _primaryKey: 'name',
-  name: '',
-  kind: '',
-  stats_url: '',
-  manager_url: '',
-  stats: null,
-  config_settings: null,
-  zones: null,
-//  stats: DS.hasMany('App.ServerStat'),
-//  config_settings: DS.hasMany('App.ServerSetting'),
-//  zones: DS.hasMany('App.Zone'),
-
-  // Computed Properties
-
-  uptime: function() {
-    var stats = this.get('stats'),
-      uptime = stats && stats.findProperty('name', 'uptime');
-    return (uptime && uptime.get('value') || '');
-  }.property('stats.@each'), // FIXME: @each is a lie
-
-  listen_address: function() {
-    // Can be simplified once sideloading is gone.
-    var config_settings = this.get('config_settings');
-    if (!config_settings) {
-      return '';
-    }
-    var local_address = config_settings.findProperty('name', 'local-address');
-    var local_ipv6 = config_settings.findProperty('name', 'local-ipv6');
-    return '' +
-      (local_address && local_address.get('value') || '') +
-      ' ' +
-      (local_ipv6 && local_ipv6.get('value') || '');
-  }.property('config_settings.@each'), // FIXME: @each is a lie
-
-  graphite_name: function() {
-    if (!this.get('name')) {
-      return null;
-    }
-
-    var name = 'pdns.'+this.get('name').replace(/\./gm,'-');
-    if (this.get('kind') == 'Authoritative') {
-      name = name + '.auth';
-    } else {
-      name = name + '.recursor';
-    }
-    return name;
-  }.property('kind', 'name'),
-
-  // Methods
-  init: function() {
-    this._super(arguments);
-    this.on('didLoad', this.didLoad);
-  },
-
-  didLoad: function() {
-    // Sideload data and stuff into 'configuration' and 'stats'.
-    var that = this;
-    var kind = this.get('kind');
-    console.log('didLoad for', this.get('name'), this.get('kind'));
-
-
-    this.set('stats', []);
-    this.set('config_settings', []);
-
-    //this.get('stats').isLoaded = false;
-    //this.get('config_settings').isLoaded = false;
-
-    this.constructor.getJSON([this, 'stats'], function(data) {
-      var stats = that.get('stats');
-      for (var name in data) {
-        stats.pushObject(App.ServerStat.create({
-          name: name,
-          value: data[name]
-        }));
-      }
-
-      if (kind === 'Authoritative') {
-        that.set('version', data['version']);
-      }
-    });
-
-    this.constructor.getJSON([this, 'config'], function(data) {
-      var config_settings = that.get('config_settings');
-      if (kind === 'Recursor') {
-        for (var name in data) {
-          if (data.hasOwnProperty(name)) {
-            config_settings.pushObject(App.ServerSetting.create({
-              name: name,
-              value: data[name]
-            }));
-          }
-        }
-      } else {
-        var i;
-        for (i=0; i < data.config.length; i++) {
-          config_settings.pushObject(App.ServerSetting.create({
-            name: data.config[i][0],
-            value: data.config[i][1]
-          }));
+      if (server.stats) {
+        server.uptime = server.stats.uptime;
+        if (server.daemon_type == 'Authoritative') {
+          server.version = server.stats.version;
         }
       }
-
-      if (kind === 'Recursor') {
-        that.set('version', data["version-string"].split(" ")[2]);
+      if (server.config) {
+        if (server.daemon_type == 'Authoritative') {
+          // Auth replies with a list instead of an object.
+          server.config = _.object(server.config);
+        }
+        if (server.daemon_type == 'Recursor') {
+          server.version = server.config['version-string'].split(" ")[2];
+        }
+        server.listen_address = (function() {
+          var local_address = server.config['local-address'];
+          var local_ipv6 = server.config['local-ipv6'];
+          return '' +
+            (local_address || '') +
+            ' ' +
+            (local_ipv6 || '');
+        })();
       }
+
+      return server;
     });
-  },
-
-  load_zones: function() {
-    // Sideload zones.
-    var that = this;
-
-    this.constructor.getJSON([this, 'domains'], function(data) {
-      var zone_type = that.get('kind') === 'Authoritative' ? App.AuthZone : App.RecursorZone;
-
-      var zones = that.get('zones');
-      data["domains"].forEach(function(zone, key) {
-        zone.kind = zone.type;
-        zone.type = undefined;
-        zone.id = zone.name;
-        zones.pushObject(App.Zone.createRecord(zone));
-      });
-    });
-  },
-
-  flush_cache: function(domain) {
-    var progress = App.ActionProgress.create();
-    var payload = {};
-    if (domain) {
-      payload.domain = domain;
-    }
-    this.constructor.doPOST(
-      [this, 'flush-cache?domain='+domain],
-      payload,
-      function(data) {
-        progress.set('state', 'success');
-        progress.set('messages', '' + data.content.number + ' domains flushed.');
-      },
-      function(data) {
-        progress.set('state', 'error');
-        progress.set('messages', data.errors);
-      }
-    );
-    return progress;
-  },
-
-  search_log: function(search_text, logdata) {
-    logdata = logdata || [];
-    this.constructor.getJSON([this, 'log-grep?needle='+search_text], function(data) {
-      data.content.forEach(function(el, idx) {
-        logdata.pushObject(el);
-      });
-    });
-    return logdata;
-  },
-
-  restart: function() {
-    var progress = App.ActionProgress.create();
-    this.constructor.doPOST(
-      [this, 'restart'],
-      {},
-      function(data) {
-        progress.set('state', 'success');
-        progress.set('messages', data.messages);
-      },
-      function(data) {
-        progress.set('state', 'error');
-        progress.set('messages', data.errors);
-      }
-    );
-    return progress;
-  },
-
-  shutdown: function() {
-    var progress = App.ActionProgress.create();
-    this.constructor.doPOST(
-      [this, 'stop'],
-      {},
-      function(data) {
-        progress.set('state', 'success');
-        progress.set('messages', data.messages);
-      },
-      function(data) {
-        progress.set('state', 'error');
-        progress.set('messages', data.errors);
-      }
-    );
-    return progress;
-  }
-
-});
-
-App.ActionProgress = Em.Object.extend({
-  state: 'pending',
-  messages: [],
-  succeeded: function() {
-    return (this.get('state') === 'success');
-  }.property('state')
-});
-
-App.Graphite = Em.Object.extend({});
-App.Graphite.url_for = function(source, targets, opts) {
-  var url = ServerData.Config.graphite_server + '?_salt=' + Math.random()*10000000;
-  opts = _.defaults(opts || {}, ServerData.Config.graphite_default_opts);
-
-  url = _.reduce(_.pairs(opts), function(memo, pair) {
-    return memo + '&' + pair[0] + '=' + encodeURIComponent(pair[1]);
-  }, url);
-
-  url = _.reduce(targets, function(memo, target) {
-    return memo + '&target=' + encodeURIComponent(target.replace(/%SOURCE%/g, source));
-  }, url);
-
-  return url;
-};
+  });

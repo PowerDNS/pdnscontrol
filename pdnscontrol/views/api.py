@@ -1,64 +1,16 @@
-import requests
 import urlparse
 import urllib
-import json
 import time
 import sys
 
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
 
-from pdnscontrol.utils import jsonpify
+from pdnscontrol.utils import jsonpify, jsonarify, fetch_remote, fetch_json
 from pdnscontrol.auth import CamelAuth, requireApiAuth, requireApiRole
 from pdnscontrol.models import db, Server
 
 mod = Blueprint('api', __name__)
-
-def auth_from_url(url):
-    auth = None
-    parsed_url = urlparse.urlparse(url).netloc
-    if '@' in parsed_url:
-        auth = parsed_url.split('@')[0].split(':')
-        auth = requests.auth.HTTPBasicAuth(auth[0], auth[1])
-    return auth
-
-
-def fetch_remote(remote_url, method='GET', data=None):
-    verify = not current_app.config.get('IGNORE_SSL_ERRORS', False)
-    r = requests.request(
-        method,
-        remote_url,
-        headers={'user-agent': 'Camel/0'},
-        verify=verify,
-        auth=auth_from_url(remote_url),
-        timeout=5,
-        data=data
-        )
-    try:
-        r.raise_for_status()
-    except Exception as e:
-        raise Exception("While fetching " + remote_url + ": " + str(e)), None, sys.exc_info()[2]
-
-    return r
-
-
-def fetch_json(remote_url, method='GET', data=None):
-    r = fetch_remote(remote_url, method=method, data=data)
-    try:
-        assert('json' in r.headers['content-type'])
-    except Exception as e:
-        raise Exception("While fetching " + remote_url + ": " + str(e)), None, sys.exc_info()[2]
-
-    # don't use r.json here, as it will read from r.text, which will trigger
-    # content encoding auto-detection in almost all cases, WHICH IS EXTREMELY
-    # SLOOOOOOOOOOOOOOOOOOOOOOW. just don't.
-    data = None
-    try:
-        data = json.loads(r.content)
-    except UnicodeDecodeError:
-        data = json.loads(r.content, 'iso-8859-1')
-    return data
-
 
 def forward_remote_response(response):
     return make_response(
@@ -69,24 +21,10 @@ def forward_remote_response(response):
             )
         )
 
-
-def build_pdns_url(server):
-    remote_url = server.stats_url
-    if remote_url is None:
-        return None
-    if server.daemon_type == 'Authoritative':
-        if remote_url[-1] != '/':
-            remote_url = remote_url + '/'
-        remote_url = remote_url + 'jsonstat'
-    return remote_url
-
-
 @mod.route('/servers', methods=['GET'])
 @requireApiRole('view')
 def server_index():
     ary = Server.all()
-    for server in ary:
-        server['id'] = server['name']
     return jsonify(servers=ary)
 
 
@@ -109,7 +47,10 @@ def server_get(server):
     obj = Server.query.filter_by(name=server).first()
     if not obj:
         return "Not found", 404
-    return jsonify(server=obj.to_dict())
+    server = obj.to_dict()
+    server['stats'] = obj.sideload('stats')
+    server['config'] = obj.sideload('config')
+    return jsonify(server=server)
 
 
 @mod.route('/servers/<server>', methods=['DELETE'])
@@ -143,7 +84,7 @@ def server_edit(server):
 def server_zone_qname_qtype(server, zone, qname, qtype):
     server = db.session.query(Server).filter_by(name=server).first()
 
-    remote_url = build_pdns_url(server)
+    remote_url = server.pdns_url
     remote_url += '?command=zone-rest&rest=/{zone}/{qname}/{qtype}'.format(
         zone=urllib.quote_plus(zone.encode("utf-8")),
         qname=urllib.quote_plus(qname.encode("utf-8")),
@@ -158,15 +99,18 @@ def server_zone_qname_qtype(server, zone, qname, qtype):
 def zone_index(server):
     server = db.session.query(Server).filter_by(name=server).first()
 
-    remote_url = urlparse.urljoin(build_pdns_url(server), '?command=domains')
+    remote_url = urlparse.urljoin(server.pdns_url, '?command=domains')
     data = fetch_json(remote_url)
+    if type(data) == dict:
+        data = data['domains']
     for zone in data:
-        zone['kind'] = zone['type']
-        del zone['type']
+        if 'type' in zone:
+            zone['kind'] = zone['type']
+            del zone['type']
         if 'servers' in zone:
             zone['forwarders'] = zone['servers']
             del zone['servers']
-        zone['id'] = zone['name']
+        zone['_id'] = zone['name']
         zone['server'] = server.name
 
     return jsonify(zones=data)
@@ -177,12 +121,12 @@ def zone_index(server):
 def zone_get(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()
 
-    remote_url = build_pdns_url(server)
+    remote_url = server.pdns_url
     remote_url += '?command=get-zone&zone=' + zone
     data = fetch_json(remote_url)
     print remote_url
 
-    return jsonify({'name': zone, 'rrsets': data})
+    return jsonify({'zone': {'name': zone, 'rrsets': data}})
 
 
 @mod.route('/servers/<server>/log-grep')
@@ -192,7 +136,7 @@ def server_loggrep(server):
 
     needle = request.values.get('needle')
 
-    remote_url = build_pdns_url(server)
+    remote_url = server.pdns_url
     remote_url += '?command=log-grep&needle=' + needle
 
     data = fetch_json(remote_url)
@@ -207,7 +151,7 @@ def server_flushcache(server):
 
     domain = request.values.get('domain', '')
 
-    remote_url = build_pdns_url(server)
+    remote_url = server.pdns_url
     remote_url += '?command=flush-cache&domain=' + domain
 
     data = fetch_json(remote_url)
@@ -223,7 +167,7 @@ def server_control(server):
 
     data = request.data
 
-    remote_url = build_pdns_url(server)
+    remote_url = server.pdns_url
     remote_url += '?command=pdns-control'
 
     r = fetch_remote(remote_url, method=request.method, data=request.data)
@@ -232,7 +176,7 @@ def server_control(server):
 
 @mod.route('/servers/<server>/<action>', methods=['GET','POST'])
 @requireApiRole('stats')
-def server_stats(server, action):
+def server_action(server, action):
     server = db.session.query(Server).filter_by(name=server).first()
 
     pdns_actions = ['stats', 'config']
@@ -260,7 +204,7 @@ def server_stats(server, action):
                 remote_action = 'get'
             elif action == 'config':
                 remote_action = 'config'
-        remote_url = urlparse.urljoin(build_pdns_url(server), '?command=' + remote_action)
+        remote_url = urlparse.urljoin(server.pdns_url, '?command=' + remote_action)
 
     data = fetch_json(remote_url)
 

@@ -1,0 +1,42 @@
+<div class="row">
+  <div class="twelve columns">
+    <a href="/server/{{server.name}}"><h2>{{server.name}}</h2></a>
+    <h3>{{zone.name}}</h3>
+  </div>
+</div>
+
+<div class="row">
+  <div class="six columns" style="min-height: 30px;">
+    Updated: {{now | date:'shortTime' }}
+  </div>
+  <div class="six columns text-right">
+    <span ng-show="!isClean()">
+    Unsaved changes.
+    </span>
+    &nbsp;
+
+    <button class="button tiny" ng-click="save()" ng-class="{disabled: isClean(), secondary: isClean()}">Save</button>
+    &nbsp;
+    <button class="button secondary tiny" ng-click="delete_selected()" ng-class="{disabled: !isDeletePossible(), alert: isDeletePossible()}"><span class="foundicon-trash"></span> Selection</button>
+  </div>
+</div>
+
+<div class="row">
+  <div class="twelve columns">
+    <div class="gridStyle" ng-grid="rrsetsGridOptions">
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="twelve columns">
+<pre>
+DEBUG:
+
+{{mySelections}}
+
+{{mySelections.length}}
+</pre>
+  </div>
+</div>

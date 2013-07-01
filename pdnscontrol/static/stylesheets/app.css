@@ -191,4 +191,11 @@ table.dataTable tbody tr:nth-child(even) {
    Page Name 2
 ----------------------------------------- */
 
+.hidden {
+    display: none;
+}
 
+.gridStyle {
+    border: 1px solid rgb(212,212,212);
+    height: 500px
+}

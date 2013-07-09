@@ -527,6 +527,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
   var typeEditTemplate;
 
   $scope.server = server;
+  $scope.loading = false;
 
   $scope.master = zone;
 
@@ -547,7 +548,35 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
     });
   };
 
-  $scope.now = new Date();
+  // TODO: it'd be nice if the server would give us kind, masters setc. with the zone,
+  // so we don't have to load the whole zone list here.
+  $scope.server.all("zones").getList().then(function(zones) {
+    var kind = _.find(zones, function(z) { return z.name == zone.name; }).kind.toUpperCase();
+    $scope.isNotifyAllowed = (kind == 'MASTER') || (kind == 'SLAVE' && server.config.mustDo('slave-renotify'));
+    $scope.isUpdateFromMasterAllowed = (kind == 'SLAVE');
+  });
+
+  $scope.notify_slaves = function() {
+    $scope.loading = true;
+    $scope.server.control({command: 'NOTIFY '+$scope.zone.name}).then(function(response) {
+      $scope.loading = false;
+      alert(response.result);
+    }, function() {
+      $scope.loading = false;
+      alert('Request failed.');
+    });
+  };
+
+  $scope.update_from_master = function() {
+    $scope.loading = true;
+    $scope.server.control({command: 'RETRIEVE '+$scope.zone.name}).then(function(response) {
+      $scope.loading = false;
+      alert(response.result);
+    }, function() {
+      $scope.loading = false;
+      alert('Request failed.');
+    });
+  };
 
   var rrTypesSort = function(a,b) {
     var typeA = _.findWhere($scope.rrTypes, {name: a});

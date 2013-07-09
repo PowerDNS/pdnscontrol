@@ -165,12 +165,12 @@ def server_flushcache(server):
 def server_control(server):
     server = db.session.query(Server).filter_by(name=server).first()
 
-    data = request.data
+    data = {'parameters': request.values.get('command', '')}
 
     remote_url = server.pdns_url
     remote_url += '?command=pdns-control'
 
-    r = fetch_remote(remote_url, method=request.method, data=request.data)
+    r = fetch_remote(remote_url, method=request.method, data=data)
     return forward_remote_response(r)
 
 

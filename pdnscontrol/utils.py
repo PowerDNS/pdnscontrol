@@ -36,8 +36,10 @@ def auth_from_url(url):
 
 
 def fetch_remote(remote_url, method='GET', data=None):
+    if data is not None and type(data) != str:
+        data = json.dumps(data)
+
     verify = not current_app.config.get('IGNORE_SSL_ERRORS', False)
-    print "verify:", verify
     r = requests.request(
         method,
         remote_url,

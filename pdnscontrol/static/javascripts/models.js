@@ -45,6 +45,7 @@ angular.module('models', ['restangular']).
       server.addRestangularMethod('update', 'post', 'update', null, {});
       server.addRestangularMethod('flush_cache', 'post', 'flush-cache', null, {});
       server.addRestangularMethod('log_grep', 'get', 'log-grep', null, {needle: true});
+      server.addRestangularMethod('control', 'post', 'control', null, {parameters: true});
       server.graphite_name = (function() {
         var name = 'pdns.' + server.name.replace(/\./gm,'-');
         if (server.daemon_type == 'Authoritative') {

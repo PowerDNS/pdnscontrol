@@ -53,14 +53,6 @@ h2#server-name {
     margin-top: 0;
 }
 
-/* override foundation css where it conflicts with dataTable */
-.dataTables_wrapper select, .dataTables_wrapper input, .dataTables_wrapper label {
-    width: auto;
-    display: inline;
-}
-table.dataTable {
-    border-collapse: separate;
-    border-spacing: 0;
 }
 table.dataTable tr.odd {
     background-color: hsl(34, 61%, 85%);
@@ -71,12 +63,6 @@ table.dataTable tr.odd td.sorting_1 {
 table.dataTable tr.even td.sorting_1 {
     background-color: hsl(43, 100%, 96%);
 }
-/*
-table.dataTable tr.odd td.sorting_2
-table.dataTable tr.odd td.sorting_3
-table.dataTable tr.even td.sorting_2
-table.dataTable tr.even td.sorting_3
-*/
 
 html {
     overflow-y: scroll;

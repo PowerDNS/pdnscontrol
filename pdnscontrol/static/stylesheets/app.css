@@ -49,8 +49,13 @@ a#appname {
     color: #666;
 }
 
-h2#server-name {
+h2.server-name {
     margin-top: 0;
+    margin-bottom: 0;
+}
+
+.title-edit {
+    font-size: 12pt;
 }
 
 }
@@ -83,13 +88,13 @@ html {
 }
 
 a {
-    color: #E38000;
+    color: #0959c2;
 }
 a:hover {
-    color: #E3A000;
+    color: #3B8EC8;
 }
 .tabs dd.active, .tabs li.active {
-    border-top: 3px solid #E38000;
+    border-top: 3px solid #3B8EC8;
 }
 
 #current_user {
@@ -97,12 +102,7 @@ a:hover {
 }
 
 #header {
-    margin-bottom: 1em;
 }
-
-/* -----------------------------------------
-   Page Name 1
------------------------------------------ */
 
 .server-list ul.button-group {
     margin-bottom: 0;
@@ -173,10 +173,6 @@ table.dataTable tbody tr:nth-child(even) {
     text-decoration: inherit;
 }
 
-/* -----------------------------------------
-   Page Name 2
------------------------------------------ */
-
 .hidden {
     display: none;
 }
@@ -184,4 +180,14 @@ table.dataTable tbody tr:nth-child(even) {
 .gridStyle {
     border: 1px solid rgb(212,212,212);
     height: 500px
+}
+
+footer.row {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+footer {
+    border-top: 1px solid #ddd;
+    padding-top: 4px;
+    font-size: 9pt;
 }

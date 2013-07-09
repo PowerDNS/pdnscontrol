@@ -81,7 +81,7 @@ ControlApp.
 ControlApp.directive('searchlog', function() {
   return {
     restrict: 'E',
-    templateUrl: templateUrl('server/search_log_directiv'),
+    templateUrl: templateUrl('server/search_log_directive'),
     replace: true,
     scope: {
       servers: '&servers'

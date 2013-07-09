@@ -3,6 +3,7 @@ import json
 import requests
 import urllib
 import urlparse
+import sys
 
 from pdnscontrol import app
 

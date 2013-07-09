@@ -446,6 +446,17 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
     });
   }
 
+  function handleManagerResponseAndReload(scope, response) {
+    scope.output = '$ ' + response.cmdline.join(' ') + "\n" + response.output;
+    scope.succeeded = response.success;
+    scope.loading = false;
+    // reload server object, as everything might have changed now.
+    $scope.server.get().then(function(s) {
+      $scope.server = s;
+      loadServerData();
+    });
+  }
+
   $scope.popup_shutdown = function() {
     showPopup($scope, $compile, 'server/shutdown', function(scope) {
       scope.loading = false;
@@ -454,9 +465,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
       scope.doIt = function() {
         scope.loading = true;
         $scope.server.stop({}).then(function(response) {
-          scope.output = '$ ' + response.cmdline.join(' ') + "\n" + response.output;
-          scope.succeeded = response.success;
-          scope.loading = false;
+          handleManagerResponseAndReload(scope, response);
         }, function(response) {
           scope.output = 'Shutdown failed.';
           scope.loading = false;
@@ -473,14 +482,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
       scope.doIt = function() {
         scope.loading = true;
         $scope.server.restart({}).then(function(response) {
-          scope.output = '$ ' + response.cmdline.join(' ') + "\n" + response.output;
-          scope.succeeded = response.success;
-          scope.loading = false;
-          // reload server object, as everything might have changed now.
-          $scope.server.get().then(function(s) {
-            $scope.server = s;
-            loadServerData();
-          });
+          handleManagerResponseAndReload(scope, response);
         }, function(response) {
           scope.output = 'Restart failed.';
           scope.loading = false;

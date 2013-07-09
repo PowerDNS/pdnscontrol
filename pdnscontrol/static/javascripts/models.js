@@ -42,6 +42,7 @@ angular.module('models', ['restangular']).
       // addRM signature is (name, operation, path, params, headers, elementToPost)
       server.addRestangularMethod('stop', 'post', 'stop', null, {});
       server.addRestangularMethod('restart', 'post', 'restart', null, {});
+      server.addRestangularMethod('update', 'post', 'update', null, {});
       server.addRestangularMethod('flush_cache', 'post', 'flush-cache', null, {});
       server.addRestangularMethod('log_grep', 'get', 'log-grep', null, {needle: true});
       server.graphite_name = (function() {

@@ -342,6 +342,11 @@ function ServerListCtrl($scope, $compile, Restangular) {
       }
     });
   };
+
+  $scope.popup_deploy = function() {
+    showPopup($scope, $compile, 'server/deploy', function(scope) {
+    });
+  };
 }
 
 function ServerCreateCtrl($scope, $location, Restangular) {

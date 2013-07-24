@@ -6,7 +6,7 @@ import urlparse
 
 from pdnscontrol.models import *
 from pdnscontrol.utils import jsonpify
-from pdnscontrol.auth import requireLoggedInRole, requireLoggedIn, requireApiRole, CamelAuth
+from pdnscontrol.auth import requireLoggedInRole, requireLoggedIn, requireApiRole
 
 
 mod = Blueprint('pages', __name__)

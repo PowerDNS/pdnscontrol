@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, url_for, redirect, session, g, make_response
 
-from pdnscontrol.auth import CamelAuth, requireLoggedIn
+from pdnscontrol.auth import Auth, requireLoggedIn
 
 mod = Blueprint('account', __name__)
 
@@ -8,7 +8,7 @@ mod = Blueprint('account', __name__)
 @mod.route('/')
 @requireLoggedIn
 def index():
-    return render_template('/account/index.html', user=CamelAuth.getCurrentUser())
+    return render_template('/account/index.html', user=Auth.getCurrentUser())
 
 
 @mod.route('/login', methods=['GET','POST'])
@@ -20,7 +20,7 @@ def login():
         login = request.form.get('login')
         password = request.form.get('password')
 
-        error = not CamelAuth.login(login, password)
+        error = not Auth.login(login, password)
         if not error:
             return redirect(next)
 
@@ -29,5 +29,5 @@ def login():
 
 @mod.route('/logout')
 def logout():
-    CamelAuth.logout()
+    Auth.logout()
     return render_template('/account/logout.html')

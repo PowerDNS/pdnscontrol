@@ -7,7 +7,7 @@ from flask import Blueprint, render_template, request, url_for, redirect, sessio
 from flask import current_app, jsonify, make_response
 
 from pdnscontrol.utils import jsonpify, jsonarify, fetch_remote, fetch_json
-from pdnscontrol.auth import CamelAuth, requireApiAuth, requireApiRole
+from pdnscontrol.auth import Auth, requireApiAuth, requireApiRole
 from pdnscontrol.models import db, Server
 
 mod = Blueprint('api', __name__)
@@ -192,7 +192,7 @@ def server_action(server, action):
     if action in manager_actions:
         if request.method != 'POST':
             return "must call action %s using POST" % (action,), 403
-        if not CamelAuth.getCurrentUser().has_role('edit'):
+        if not Auth.getCurrentUser().has_role('edit'):
             return 'Not authorized', 401
 
     remote_url = None

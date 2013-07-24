@@ -12,6 +12,6 @@ GRAPHITE_SERVER = '/graphite/render/'
 IGNORE_SSL_ERRORS = False
 
 USE_X_SENDFILE = False
-SESSION_COOKIE_NAME = 'CamelSess'
+SESSION_COOKIE_NAME = 'ControlSess'
 
 DEBUG = False

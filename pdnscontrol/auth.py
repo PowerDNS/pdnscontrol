@@ -6,7 +6,7 @@ from pdnscontrol import app
 from pdnscontrol.models import User, UserRole, db
 
 
-class CamelAuth(object):
+class Auth(object):
 
     @staticmethod
     def getCurrentUser():
@@ -25,7 +25,7 @@ class CamelAuth(object):
 
     @staticmethod
     def isLoggedIn():
-        return CamelAuth.getCurrentUser() is not None
+        return Auth.getCurrentUser() is not None
 
     @staticmethod
     def login(login, password):
@@ -55,7 +55,7 @@ class CamelAuth(object):
 @app.context_processor
 def inject_auth_data():
     logged_in = False
-    user = CamelAuth.getCurrentUser()
+    user = Auth.getCurrentUser()
     roles = []
     if user is not None:
         logged_in = True
@@ -72,7 +72,7 @@ def requireLoggedIn(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if CamelAuth.isLoggedIn():
+        if Auth.isLoggedIn():
             return f(*args, **kwargs)
         return _forceLogin()
 
@@ -85,7 +85,7 @@ def requireLoggedInRole(role):
         @requireLoggedIn
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            user = CamelAuth.getCurrentUser()
+            user = Auth.getCurrentUser()
             if user.has_role(role):
                 return f(*args, **kwargs)
             return _forceLogin()
@@ -110,8 +110,8 @@ def requireApiAuth(f):
 
         auth = request.authorization
         if auth:
-            CamelAuth.login(auth.username, auth.password)
-        if CamelAuth.isLoggedIn():
+            Auth.login(auth.username, auth.password)
+        if Auth.isLoggedIn():
             return f(*args, **kwargs)
         return _apiLogin()
 
@@ -125,7 +125,7 @@ def requireApiRole(role):
         @requireApiAuth
         def decorated_function(*args, **kwargs):
 
-            user = CamelAuth.getCurrentUser()
+            user = Auth.getCurrentUser()
             if user.has_role(role):
                 return f(*args, **kwargs)
             return _apiLogin()

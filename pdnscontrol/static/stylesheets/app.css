@@ -182,6 +182,11 @@ table.dataTable tbody tr:nth-child(even) {
     height: 500px
 }
 
+.gridStyle .zoneName {
+    color: #888;
+    font-style: italic;
+}
+
 footer.row {
     margin-top: 1em;
     margin-bottom: 1em;

@@ -79,10 +79,15 @@ def server_edit(server):
     return jsonify(server=obj.to_dict())
 
 
-@mod.route('/servers/<server>/zones/<path:zone>/names/<path:qname>/types/<qtype>', methods=['GET','PUT','POST','DELETE'])
+@mod.route('/servers/<server>/zones/<path:zone>/rrsets', methods=['GET','PATCH'])
 @requireApiRole('edit')
-def server_zone_qname_qtype(server, zone, qname, qtype):
+def server_zone_qname_qtype(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()
+    qname = request.json['name']
+    qtype = request.json['type']
+    method = request.json['changetype'].upper()
+    if method == 'REPLACE':
+        method = 'POST'
 
     remote_url = server.pdns_url
     remote_url += '?command=zone-rest&rest=/{zone}/{qname}/{qtype}'.format(
@@ -90,7 +95,7 @@ def server_zone_qname_qtype(server, zone, qname, qtype):
         qname=urllib.quote_plus(qname.encode("utf-8")),
         qtype=urllib.quote_plus(qtype.encode("utf-8"))
         )
-    r = fetch_remote(remote_url, method=request.method, data=request.data)
+    r = fetch_remote(remote_url, method=method, data=request.data)
     return forward_remote_response(r)
 
 
@@ -124,9 +129,8 @@ def zone_get(server, zone):
     remote_url = server.pdns_url
     remote_url += '?command=get-zone&zone=' + zone
     data = fetch_json(remote_url)
-    print remote_url
 
-    return jsonify({'zone': {'name': zone, 'rrsets': data}})
+    return jsonify({'zone': {'_id': zone, 'name': zone, 'rrsets': data}})
 
 
 @mod.route('/servers/<server>/log-grep')

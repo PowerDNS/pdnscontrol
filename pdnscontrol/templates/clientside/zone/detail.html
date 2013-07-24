@@ -5,6 +5,15 @@
   </div>
 </div>
 
+<div class="row" ng-show="errors.length">
+  <div class="twelve columns errors">
+    <h5>Errors</h5>
+    <ul class="disc">
+      <li ng-repeat="error in errors">{{error}}</li>
+    </ul>
+  </div>
+</div>
+
 <div class="row">
   <div class="six columns" style="min-height: 30px;">
     <button class="button tiny" ng-click="notify_slaves()" ng-show="isNotifyAllowed">Notify slaves</button>
@@ -19,6 +28,8 @@
     <button class="button tiny" ng-click="save()" ng-class="{disabled: isClean(), secondary: isClean()}">Save</button>
     &nbsp;
     <button class="button secondary tiny" ng-click="delete_selected()" ng-class="{disabled: !isDeletePossible(), alert: isDeletePossible()}"><span class="foundicon-trash"></span> Selection</button>
+    &nbsp;
+    <button class="button secondary tiny" ng-click="add()"><span class="foundicon-plus"></span></button>
   </div>
 </div>
 

@@ -248,7 +248,6 @@ function ServerListCtrl($scope, $compile, Restangular) {
     showPopup($scope, $compile, 'server/flush_cache_multi', function(scope) {
       scope.loading = false;
       scope.affected_servers = $scope.selected_servers();
-      console.log('servers:', scope.affected_servers);
       scope.doIt = function() {
         var requestCount = scope.affected_servers.length;
         scope.results = [];
@@ -368,7 +367,6 @@ function ServerCreateCtrl($scope, $location, Restangular) {
 
 function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   $scope.server = server;
-  console.log('ServerDetailCtrl', server);
 
   $scope.flush_cache = function() {
     alert('flush!');
@@ -395,7 +393,6 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   }
 
   function loadServerData() {
-    console.log("loadServerData()");
     $scope.server.all("zones").getList().then(function(zones) {
       $scope.zones = zones;
     }, function(response) {
@@ -544,8 +541,133 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
       return false;
     selectedTypes = _.map($scope.mySelections, function(row) { return _.findWhere($scope.rrTypes, {name: row.type}); });
     return _.every(selectedTypes, function(type) {
-      return (type.allowDelete === undefined) ? true : type.allowDelete;
+      return (type && type.allowDelete !== undefined) ? type.allowDelete : true;
     });
+  };
+
+  $scope.save = function() {
+    function pluckNameTypes(source) {
+      return _.uniq(_.map(source, rrToNameType));
+    }
+    function rrToNameType(rr) {
+      return '' + escape(rr['name']) + '/' + escape(rr['type']);
+    }
+    function unpackNameType(nt) {
+      return _.map(nt.split('/'), unescape);
+    }
+    function compareNameTypeAndRR(rr, nt) {
+      return rrToNameType(rr) == nt;
+    }
+
+    var currentNameTypes = pluckNameTypes($scope.zone.rrsets);
+    var masterNameTypes = pluckNameTypes($scope.master.rrsets);
+    var removedNameTypes = _.difference(masterNameTypes, currentNameTypes);
+    var addedNameTypes = _.difference(currentNameTypes, masterNameTypes);
+    var noNameChangeNameTypes = _.intersection(masterNameTypes, currentNameTypes);
+
+    var changes = [];
+
+    _.each(removedNameTypes, function(nt) {
+      var nt_ = unpackNameType(nt);
+      changes.push({
+        changetype: 'delete',
+        name: nt_[0],
+        type: nt_[1]
+      });
+    });
+
+    _.each(addedNameTypes, function(nt) {
+      var nt_ = unpackNameType(nt);
+      changes.push({
+        changetype: 'replace',
+        name: nt_[0],
+        type: nt_[1],
+        records: _.filter($scope.zone.rrsets, function(rr) {
+          return compareNameTypeAndRR(rr, nt);
+        })
+      });
+    });
+
+    _.each(noNameChangeNameTypes, function(nt) {
+      var nt_ = unpackNameType(nt);
+      var recordsCurrent = _.filter($scope.zone.rrsets, function(rr) {
+        return compareNameTypeAndRR(rr, nt);
+      });
+      var recordsMaster = _.filter($scope.master.rrsets, function(rr) {
+        return compareNameTypeAndRR(rr, nt);
+      });
+      if (!angular.equals(recordsCurrent.sort(), recordsMaster.sort())) {
+        changes.push({
+          changetype: 'replace',
+          name: nt_[0],
+          type: nt_[1],
+          records: _.filter($scope.zone.rrsets, function(rr) {
+            return compareNameTypeAndRR(rr, nt);
+          })
+        });
+      }
+    });
+
+    function sendNextChange(changes) {
+      var change = changes.pop();
+      if (change === undefined) {
+        // done.
+        // sort master and current so equals will return true.
+        $scope.zone.rrsets = _.sortBy($scope.zone.rrsets, function(v) {
+          return '' + v.name + '/' + v.type + '/' + v.ttl + '/' + v.prio + '/' + v.content;
+        });
+        $scope.master.rrsets = _.sortBy($scope.master.rrsets, function(v) {
+          return '' + v.name + '/' + v.type + '/' + v.ttl + '/' + v.prio + '/' + v.content;
+        });
+        return;
+      }
+
+      $scope.zone.customOperation(
+        'patch',
+        'rrsets',
+        {},
+        {'Content-Type': 'application/json'},
+        change
+      ).then(function(response) {
+        if (response.error) {
+          $scope.errors.push(response.error);
+          return;
+        }
+
+        // replace data in master with saved data
+        _.each($scope.master.rrsets, function(row) {
+          if (row.name == change.name && row.type == change.type) {
+            $scope.master.rrsets.splice($scope.master.rrsets.indexOf(row), 1);
+          }
+        });
+        _.each(change.records, function(row) {
+          row._new = undefined;
+          $scope.master.rrsets.push(_.extend({}, row));
+        });
+
+        sendNextChange(changes);
+      }, function(errorResponse) {
+        $scope.errors.push(errorResponse.error || 'Unknown server error');
+      });
+    }
+
+    window.X = $scope;
+    $scope.errors = [];
+    sendNextChange(changes);
+  };
+
+  $scope.add = function() {
+    $scope.zone.rrsets.push({name: $scope.zone.name, _new: true});
+  };
+
+  $scope.delete_selected = function() {
+    var row;
+    while(row = $scope.mySelections.pop()) {
+      var idx = $scope.zone.rrsets.indexOf(row);
+      if (idx != -1) {
+        $scope.zone.rrsets.splice(idx, 1);
+      }
+    }
   };
 
   // TODO: it'd be nice if the server would give us kind, masters setc. with the zone,
@@ -622,24 +744,40 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
     {name: 'SPF'},
     {name: 'DLV'}
   ];
-  typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in rrTypes"></select>';
+  typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in rrTypes" ng-show="!!row.entity._new"></select><div class="ngCellText" ng-show="!!!row.entity._new">{{COL_FIELD}}</div>';
+  $scope.stripZone = function(val) {
+    var val = val;
+    if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) == '.'+$scope.zone.name) {
+      val = val.substring(0, val.lastIndexOf('.'+$scope.zone.name));
+    } else if (val == $scope.zone.name) {
+      val = '';
+    }
+    return val;
+  };
+  nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{zone.name}}</span></div>'
+  nameEditTemplate = ''
 
   $scope.mySelections = [];
   $scope.rrsetsGridOptions = {
     data: 'zone.rrsets',
     enableRowSelection: true,
-    enableCellEditOnFocus: true,
+    enableCellEditOnFocus: false,
+    enableCellSelection: true,
+    enableCellEdit: true,
     showSelectionCheckbox: true,
     selectWithCheckboxOnly: true,
     showFilter: true,
     sortInfo: { fields: ['name', 'type', 'priority', 'content'], directions: ['ASC', 'ASC', 'ASC', 'ASC'] },
     selectedItems: $scope.mySelections,
     columnDefs: [
-      {field: 'name', displayName: 'Name', enableCellEdit: true},
+      {field: 'name', displayName: 'Name', enableCellEdit: true, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate},
       {field: 'type', displayName: 'Type', width: '80', enableCellEdit: true, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
       {field: 'priority', displayName: 'Priority', width: '80', enableCellEdit: true},
       {field: 'ttl', displayName: 'TTL', width: '80', enableCellEdit: true},
       {field: 'content', displayName: 'Data', enableCellEdit: true},
     ]
   };
+
+  window.z = $scope.zone;
+  window.R = Restangular;
 }

@@ -1,6 +1,6 @@
 Flask==0.10.1
 Flask-Assets==0.8
 Flask-SQLAlchemy==0.16
+Flask-Security==1.6.7
 requests==1.2.3
-Flask-Security
 MySQL-python

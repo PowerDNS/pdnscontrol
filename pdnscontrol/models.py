@@ -94,10 +94,10 @@ user_datastore = SQLAlchemyUserDatastore(db, User, UserRole)
 class Server(db.Model, IterableModel, RestModel):
     __tablename__ = 'servers'
     id = db.Column(db.Integer, primary_key = True)
-    name = db.Column(db.UnicodeText, nullable=False, unique=True)
-    daemon_type = db.Column(db.UnicodeText)
-    stats_url = db.Column(db.UnicodeText)
-    manager_url = db.Column(db.UnicodeText)
+    name = db.Column(db.Unicode(255), nullable=False, unique=True)
+    daemon_type = db.Column(db.Unicode(255))
+    stats_url = db.Column(db.Unicode(255))
+    manager_url = db.Column(db.Unicode(255))
     __public_fields__ = ['name', 'daemon_type', 'stats_url', 'manager_url']
     __readonly_fields__ = []
     __id_mapped_to__ = 'name'

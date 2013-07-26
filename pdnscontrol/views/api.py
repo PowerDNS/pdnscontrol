@@ -2,12 +2,12 @@ import urlparse
 import urllib
 import time
 import sys
-
+from functools import wraps
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
+from flask.ext.security import roles_required, http_auth_required
 
 from pdnscontrol.utils import jsonpify, jsonarify, fetch_remote, fetch_json
-from pdnscontrol.auth import Auth, requireApiAuth, requireApiRole
 from pdnscontrol.models import db, Server
 
 mod = Blueprint('api', __name__)
@@ -21,15 +21,27 @@ def forward_remote_response(response):
             )
         )
 
+def api_auth_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth = request.authorization
+        if auth:
+            return http_auth_required(auth)
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @mod.route('/servers', methods=['GET'])
-@requireApiRole('view')
+@api_auth_required
+@roles_required('view')
 def server_index():
     ary = Server.all()
     return jsonify(servers=ary)
 
 
 @mod.route('/servers', methods=['POST'])
-@requireApiRole('edit')
+@api_auth_required
+@roles_required('edit')
 def server_create():
     data = request.json['server']
     obj = Server()
@@ -42,7 +54,8 @@ def server_create():
 
 
 @mod.route('/servers/<string:server>', methods=['GET'])
-@requireApiRole('view')
+@api_auth_required
+@roles_required('view')
 def server_get(server):
     obj = Server.query.filter_by(name=server).first()
     if not obj:
@@ -54,7 +67,8 @@ def server_get(server):
 
 
 @mod.route('/servers/<server>', methods=['DELETE'])
-@requireApiRole('edit')
+@api_auth_required
+@roles_required('edit')
 def server_delete(server):
     obj = Server.query.filter_by(name=server).first()
     if not obj:
@@ -65,7 +79,8 @@ def server_delete(server):
 
 
 @mod.route('/servers/<server>', methods=['PUT'])
-@requireApiRole('edit')
+@api_auth_required
+@roles_required('edit')
 def server_edit(server):
     data = request.json['server']
     obj = Server.query.filter_by(name=server).first()
@@ -80,7 +95,8 @@ def server_edit(server):
 
 
 @mod.route('/servers/<server>/zones/<path:zone>/rrsets', methods=['GET','PATCH'])
-@requireApiRole('edit')
+@api_auth_required
+@roles_required('edit')
 def server_zone_qname_qtype(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()
     qname = request.json['name']
@@ -100,7 +116,8 @@ def server_zone_qname_qtype(server, zone):
 
 
 @mod.route('/servers/<server>/zones')
-@requireApiRole('view')
+@api_auth_required
+@roles_required('view')
 def zone_index(server):
     server = db.session.query(Server).filter_by(name=server).first()
 
@@ -122,7 +139,8 @@ def zone_index(server):
 
 
 @mod.route('/servers/<server>/zones/<path:zone>')
-@requireApiRole('view')
+@api_auth_required
+@roles_required('view')
 def zone_get(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()
 
@@ -134,7 +152,8 @@ def zone_get(server, zone):
 
 
 @mod.route('/servers/<server>/log-grep')
-@requireApiRole('edit')
+@api_auth_required
+@roles_required('edit')
 def server_loggrep(server):
     server = db.session.query(Server).filter_by(name=server).first()
 
@@ -149,7 +168,8 @@ def server_loggrep(server):
 
 
 @mod.route('/servers/<server>/flush-cache', methods=['POST'])
-@requireApiRole('edit')
+@api_auth_required
+@roles_required('edit')
 def server_flushcache(server):
     server = db.session.query(Server).filter_by(name=server).first()
 
@@ -165,7 +185,8 @@ def server_flushcache(server):
 
 # pdns_control protocol tunnel
 @mod.route('/servers/<server>/control', methods=['POST'])
-@requireApiRole('edit')
+@api_auth_required
+@roles_required('edit')
 def server_control(server):
     server = db.session.query(Server).filter_by(name=server).first()
 
@@ -179,7 +200,8 @@ def server_control(server):
 
 
 @mod.route('/servers/<server>/<action>', methods=['GET','POST'])
-@requireApiRole('stats')
+@api_auth_required
+@roles_required('stats')
 def server_action(server, action):
     server = db.session.query(Server).filter_by(name=server).first()
 

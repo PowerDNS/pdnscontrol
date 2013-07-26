@@ -1,13 +1,13 @@
 from flask import Flask, request
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.security import SQLAlchemyUserDatastore, UserMixin, RoleMixin
+import datetime
+import urlparse
 
 from pdnscontrol import app
 from pdnscontrol.utils import fetch_json
 
-import datetime
-import urlparse
-
-__all__ = ['db', 'User', 'UserRole', 'Server']
+__all__ = ['db', 'Server', 'user_datastore']
 
 db = SQLAlchemy(app)
 
@@ -55,60 +55,40 @@ class RestModel(object):
         self._validation_errors = None
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
-    login = db.Column(db.UnicodeText, unique=True)
-    name = db.Column(db.UnicodeText)
-    email = db.Column(db.UnicodeText)
-    _password = db.Column('password', db.UnicodeText)
-    password_reset = db.Column(db.DateTime)
+    email = db.Column(db.Unicode(255))
+    name = db.Column(db.Unicode(255))
+    active = db.Column(db.Boolean())
+    password = db.Column('password', db.Unicode(255))
     roles = db.relationship('UserRole', secondary='users_userroles', backref='users')
-
-    def __init__(self, login, name):
-        self.login = login
-        self.name = name
+    confirmed_at = db.Column(db.DateTime())
+    last_login_at = db.Column(db.DateTime())
+    current_login_at = db.Column(db.DateTime())
+    last_login_ip = db.Column(db.Unicode(64))
+    current_login_ip = db.Column(db.Unicode(64))
+    login_count = db.Column(db.Integer)
 
     def __repr__(self):
-        return '<User %r>' % self.login
-
-    def check_password(self, password):
-        if password == '':
-            return False
-
-        format = 'unknown'
-        if self._password.startswith('{plain}'):
-            format = 'plain'
-        if format == 'plain':
-            return (self._password == '{plain}'+password)
-        else:
-            return False
-
-    def set_password(self, password):
-        self._password = '{plain}' + password
-        self.password_reset = datetime.datetime.now()
-
-    def has_role(self, role):
-        for r in self.roles:
-            if r.name == role:
-                return True
-        return False
+        return '<User %r>' % self.email
 
 
-class UserRole(db.Model):
+class UserRole(db.Model, RoleMixin):
     __tablename__ = "userroles"
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.UnicodeText, unique=True)
-
-    def __init__(self, name):
-        self.name = name
+    name = db.Column(db.Unicode(255), unique=True)
+    description = db.Column(db.Unicode(255))
 
 
 users_userroles = db.Table(
-    'users_userroles', db.metadata,
+    'users_userroles',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
     db.Column('userrole_id', db.Integer, db.ForeignKey('userroles.id'))
 )
+
+# Flask-Security
+user_datastore = SQLAlchemyUserDatastore(db, User, UserRole)
 
 
 class Server(db.Model, IterableModel, RestModel):

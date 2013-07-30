@@ -10,13 +10,14 @@ GraphiteModule.directive('graphite', function() {
 
       function updateUrl() {
         var invalid = false;
+
         var url = ServerData.Config.graphite_server + '?_salt=' + Math.random()*10000000;
         if (attrs.gSource === undefined)
           return;
 
         var opts = _.defaults({
           'title': attrs.gTitle,
-          'areaMode': attrs.gAreaMode
+          'areaMode': attrs.gAreaMode || 'none'
         }, ServerData.Config.graphite_default_opts);
 
         url = _.reduce(_.pairs(opts), function(memo, pair) {
@@ -50,7 +51,7 @@ GraphiteModule.directive('graphite', function() {
       attrs.$observe('gAreaMode', updateUrl);
       attrs.$observe('gTitle', updateUrl);
       scope.$on('graph_target_changed', function() {
-        updateUrl()
+        updateUrl();
       });
     }
   }

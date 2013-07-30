@@ -126,10 +126,10 @@ def getserverlist(serverlist_url):
 
     return s['servers']
 
-def graph_server(url, kind, keys, node):
+def graph_server(url, daemon_type, keys, node):
     global config
 
-    logger.debug('getting stats for %s server %s (%s)', kind, node, url)
+    logger.debug('getting stats for %s server %s (%s)', daemon_type, node, url)
     node = node.replace('.', '-')
 
     try:
@@ -149,7 +149,7 @@ def graph_server(url, kind, keys, node):
 
     for s in keys:
         if s in stats:
-            lines.append("pdns.%s.%s.%s %s %d" % (node, kind, s, stats[s], timestamp))
+            lines.append("pdns.%s.%s.%s %s %d" % (node, daemon_type, s, stats[s], timestamp))
 
     message = '\n'.join(lines) + '\n'
     logger.debug('carbon message: %s', message)
@@ -188,13 +188,13 @@ def main():
         for server in getserverlist(config['serverlist_url']):
             url = server['url']
             url = urlparse.urljoin(url, 'stats')
-            if server['kind'] == 'Authoritative':
+            if server['daemon_type'] == 'Authoritative':
                 statlist = auth
-                kind = 'auth'
+                daemon_type = 'auth'
             else:
                 statlist = recursor
-                kind = 'recursor'
-            graph_server(url, kind, statlist, server['name'])
+                daemon_type = 'recursor'
+            graph_server(url, daemon_type, statlist, server['name'])
         sleepuntil(lastpoll + float(config['carbon_delay']))
 
 if __name__ == '__main__':

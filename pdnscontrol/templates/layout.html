@@ -1,16 +1,11 @@
 <!doctype html>
-<html ng-app="control" class="no-js" lang="en">
+<html class="no-js" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width" />
   <title>PowerDNS Control Server</title>
 
-  {% assets output="gen/styles-%(version)s.css",
-    "stylesheets/foundation.min.css",
-    "stylesheets/general_foundicons.css",
-    "stylesheets/ng-grid.css",
-    "stylesheets/app.css"
-  %}
+  {% assets "styles" %}
   <link rel="stylesheet" href="{[ ASSET_URL ]}">
   {% endassets %}
 
@@ -46,16 +41,7 @@ ServerData.Config = {
   }
 };
 </script>
-  {% assets output="gen/js-body-%(version)s.js",
-    "javascripts/jquery.js",
-    "javascripts/jquery-migrate.min.js",
-    "javascripts/moment.min.js",
-    "javascripts/underscore.js",
-    "javascripts/purl.js",
-    "javascripts/spin.js",
-    "javascripts/jquery.foundation.reveal.js",
-    "javascripts/jquery.foundation.forms.js"
-  %}
+  {% assets "js_libs" %}
   <script src="{[ ASSET_URL ]}"></script>
   {% endassets %}
 

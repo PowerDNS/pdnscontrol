@@ -1,22 +1,11 @@
 {% extends "/layout.html" -%}
 {% block body %}
 
-{% assets output="gen/js-angular-%(version)s.js",
-  "javascripts/angular.js",
-  "javascripts/restangular.js",
-  "javascripts/ng-grid.js"
-%}
+{% assets "js_pdnscontrol" %}
 <script src="{[ ASSET_URL ]}"></script>
 {% endassets %}
 
-<script src="{[ url_for('static', filename='javascripts/util.js') ]}"></script>
-<script src="{[ url_for('static', filename='javascripts/components.js') ]}"></script>
-<script src="{[ url_for('static', filename='javascripts/popup.js') ]}"></script>
-<script src="{[ url_for('static', filename='javascripts/graphite.js') ]}"></script>
-<script src="{[ url_for('static', filename='javascripts/models.js') ]}"></script>
-<script src="{[ url_for('static', filename='javascripts/control.js') ]}"></script>
-
-<div ng-view>Loading...</div>
+<div ng-view ng-app="control">Loading...</div>
 
 {% endblock %}
 

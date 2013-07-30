@@ -21,12 +21,16 @@ def forward_remote_response(response):
             )
         )
 
+
 def api_auth_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         auth = request.authorization
         if auth:
-            return http_auth_required(auth)
+            @http_auth_required
+            def call():
+                return f(*args, **kwargs)
+            return call()
         return f(*args, **kwargs)
     return decorated_function
 

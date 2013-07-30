@@ -59,7 +59,8 @@ def server_create():
 def server_get(server):
     obj = Server.query.filter_by(name=server).first()
     if not obj:
-        return "Not found", 404
+        return jsonify(errors={'name':"Not found"}), 404
+
     server = obj.to_dict()
     server['stats'] = obj.sideload('stats')
     server['config'] = obj.sideload('config')
@@ -99,6 +100,9 @@ def server_edit(server):
 @roles_required('edit')
 def server_zone_qname_qtype(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
+
     qname = request.json['name']
     qtype = request.json['type']
     method = request.json['changetype'].upper()
@@ -120,6 +124,8 @@ def server_zone_qname_qtype(server, zone):
 @roles_required('view')
 def zone_index(server):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
     remote_url = urlparse.urljoin(server.pdns_url, '?command=domains')
     data = fetch_json(remote_url)
@@ -143,6 +149,8 @@ def zone_index(server):
 @roles_required('view')
 def zone_get(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
     remote_url = server.pdns_url
     remote_url += '?command=get-zone&zone=' + zone
@@ -156,6 +164,8 @@ def zone_get(server, zone):
 @roles_required('edit')
 def server_loggrep(server):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
     needle = request.values.get('needle')
 
@@ -172,6 +182,8 @@ def server_loggrep(server):
 @roles_required('edit')
 def server_flushcache(server):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
     domain = request.values.get('domain', '')
 
@@ -189,6 +201,8 @@ def server_flushcache(server):
 @roles_required('edit')
 def server_control(server):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
     data = {'parameters': request.values.get('command', '')}
 
@@ -204,6 +218,8 @@ def server_control(server):
 @roles_required('stats')
 def server_action(server, action):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
     pdns_actions = ['stats', 'config']
     manager_actions = ['start', 'stop', 'restart', 'update', 'install']

@@ -23,7 +23,8 @@
   <div class="twelve columns">
     <tabs>
       <pane title="Graph">
-        <div ng-show="server.daemon_type=='Authoritative'">
+        <div ng-switch on="server.daemon_type">
+        <div ng-switch-when="Authoritative">
           <graphite g-source="{{server.graphite_name}}" g-title="UDP Queries" g-area-mode="first">
             <graph target="nonNegativeDerivative(%SOURCE%.udp-answers)" title="UDP answers" style="cacti" />
             <graph target="nonNegativeDerivative(%SOURCE%.udp-queries)" title="UDP queries" style="cacti" />
@@ -31,6 +32,9 @@
           <graphite g-source="{{server.graphite_name}}" g-title="TCP Queries" g-area-mode="first">
             <graph target="nonNegativeDerivative(%SOURCE%.tcp-answers)" title="TCP answers" style="cacti" />
             <graph target="nonNegativeDerivative(%SOURCE%.tcp-queries)" title="TCP queries" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Latency">
+            <graph target="%SOURCE%.latency" title="latency" style="cacti" />
           </graphite>
           <graphite g-source="{{server.graphite_name}}" g-title="Database queue">
             <graph target="%SOURCE%.qsize-q" title="queue size" style="cacti" />
@@ -42,17 +46,38 @@
           </graphite>
         </div>
 
-        <div ng-show="server.daemon_type=='Recursor'">
+        <div ng-switch-when="Recursor">
           <graphite g-source="{{server.graphite_name}}" g-title="Questions" g-area-mode="first">
             <graph target="nonNegativeDerivative(%SOURCE%.questions)" title="Questions" />
             <graph target="sumSeries(nonNegativeDerivative(%SOURCE%.answers0-1), nonNegativeDerivative(%SOURCE%.answers1-10), nonNegativeDerivative(%SOURCE%.answers10-100), nonNegativeDerivative(%SOURCE%.answers100-1000), nonNegativeDerivative(%SOURCE%.answers-slow))" title="Answers" />
           </graphite>
-          <graphite g-source="{{server.graphite_name}}" g-title="TCP Queries" g-area-mode="first">
-            <graph target="nonNegativeDerivative(%SOURCE%.tcp-answers)" title="TCP answers" style="cacti" />
-            <graph target="nonNegativeDerivative(%SOURCE%.tcp-queries)" title="TCP queries" style="cacti" />
+          <graphite g-source="{{server.graphite_name}}" g-title="Latency distribution" g-area-mode="stacked">
+            <graph target="nonNegativeDerivative(%SOURCE%.answers0-1)" title="in 1ms" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.answers1-10)" title="in 10ms" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.answers10-100)" title="in 100ms" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.answers100-1000)" title="in 1s" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.answers-slow)" title="over 1s" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.outgoing-timeouts)" title="timeouts" style="cacti" />
           </graphite>
-
-          <!-- TODO: port the other graphs -->
+          <graphite g-source="{{server.graphite_name}}" g-title="Cache">
+            <graph target="nonNegativeDerivative(%SOURCE%.cache-hits)" title="cache hits" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.cache-misses)" title="cache misses" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Cache size" g-area-mode="stacked">
+            <graph target="nonNegativeDerivative(%SOURCE%.cache-entries)" title="entries" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.negcache-entries)" title="negative entries" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Concurrent queries" g-area-mode="stacked">
+            <graph target="nonNegativeDerivative(%SOURCE%.concurrent-queries)" title="queries" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Exceptions">
+            <graph target="nonNegativeDerivative(%SOURCE%.spoof-prevents)" title="spoofs" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.resource-limits)" title="resources" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.client-parse-errors)" title="client" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.server-parse-errors)" title="server" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.tcp-client-overflow)" title="tcp concurrency" style="cacti" />
+          </graphite>
+        </div>
         </div>
       </pane>
       <pane title="Statistics">

@@ -195,6 +195,34 @@ function ServerListCtrl($scope, $compile, Restangular) {
     return _.filter($scope.servers, function(server) { return server.daemon_type == 'Recursor'; });
   }
 
+  $scope.auth_answers = function() {
+    var sources, servers;
+    servers = _.filter($scope.servers, function(server) { return server.daemon_type == 'Authoritative'; });
+
+    sources = 'nonNegativeDerivative(%SOURCE%.udp-answers)';
+
+    servers = _.map(servers, function(server) {
+      var source = server.graphite_name;
+      return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
+    });
+
+    return "sumSeries(" + servers.join(',') + ")";
+  };
+
+  $scope.auth_queries = function() {
+    var sources, servers;
+    servers = _.filter($scope.servers, function(server) { return server.daemon_type == 'Authoritative'; });
+
+    sources = 'nonNegativeDerivative(%SOURCE%.udp-queries)';
+
+    servers = _.map(servers, function(server) {
+      var source = server.graphite_name;
+      return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
+    });
+
+    return "sumSeries(" + servers.join(',') + ")";
+  };
+
   $scope.recursor_answers = function() {
     var sources, servers;
     servers = _.filter($scope.servers, function(server) { return server.daemon_type == 'Recursor'; });

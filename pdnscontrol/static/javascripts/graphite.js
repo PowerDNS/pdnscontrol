@@ -2,7 +2,7 @@ var GraphiteModule = angular.module('graphite', []);
 GraphiteModule.directive('graphite', function() {
   return {
     restrict: 'E',
-    template: '<div><img src="{{url}}"><div ng-transclude></div></div>',
+    template: '<div><img ng-src="{{url}}"><div ng-transclude></div></div>',
     transclude: true,
     replace: true,
     scope: true,

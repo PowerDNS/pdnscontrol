@@ -24,6 +24,7 @@ app.config.from_pyfile('pdnscontrol.conf')
 app.config['SQLALCHEMY_DATABASE_URI'] = app.config['DATABASE_URI']
 
 asset_env = flask.ext.assets.Environment(app)
+asset_env.auto_build = not app.debug
 asset_env.debug = app.debug
 
 @app.errorhandler(404)

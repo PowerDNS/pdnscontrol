@@ -39,14 +39,14 @@ def fetch_remote(remote_url, method='GET', data=None):
     if data is not None and type(data) != str:
         data = json.dumps(data)
 
-    verify = not current_app.config.get('IGNORE_SSL_ERRORS', False)
+    verify = not current_app.config['IGNORE_SSL_ERRORS']
     r = requests.request(
         method,
         remote_url,
         headers={'user-agent': 'pdnscontrol/0'},
         verify=verify,
         auth=auth_from_url(remote_url),
-        timeout=5,
+        timeout=current_app.config['REMOTE_TIMEOUT'],
         data=data
         )
     try:

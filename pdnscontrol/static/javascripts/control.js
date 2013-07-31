@@ -380,7 +380,7 @@ function ServerCreateCtrl($scope, $location, Restangular) {
   window.CC = this;
   $scope.save = function() {
     Restangular.all("servers").post($scope.server).then(function(response) {
-      $location.path('/server/' + server.name);
+      $location.path('/server/' + $scope.server.name);
     }, function(response) {
       if (response.status == 422) {
         _.each(response.data.errors, function(field, desc) {

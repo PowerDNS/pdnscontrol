@@ -82,7 +82,7 @@ angular.module('models', ['restangular']).
             (local_ipv6 || '');
         })();
         server.config.mustDo = function(key) {
-          var val = server.config[setting];
+          var val = server.config[key];
           return (val!=="no") && (val!=="off");
         };
       }

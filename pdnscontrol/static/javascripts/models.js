@@ -29,6 +29,9 @@ angular.module('models', ['restangular']).
       if ((operation === 'get' || operation == 'put' || operation == 'post') && response[singular]) {
         response = response[singular];
         response._url = url;
+        if (!!response.name && !response._id) {
+          response._id = response.name;
+        }
       }
       console.log('setResponse', response);
       return response;

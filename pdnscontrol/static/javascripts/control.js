@@ -75,6 +75,14 @@ ControlApp.
       }
       return moment(value).fromNow();
     }
+  }).
+  filter('array_join', function() {
+    return function(value) {
+      if (value === undefined) {
+        return '';
+      }
+      return value.join(' ');
+    }
   });
 
 
@@ -416,7 +424,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
     $scope.zonesGridOptions.columnDefs.push({field: 'forwarders', displayName: 'Forwarders'});
     $scope.zonesGridOptions.columnDefs.push({field: 'rdbit', displayName: 'Recursion Desired', cellFilter: 'checkmark'});
   } else {
-    $scope.zonesGridOptions.columnDefs.push({field: 'masters', displayName: 'Masters'});
+    $scope.zonesGridOptions.columnDefs.push({field: 'masters', displayName: 'Masters', cellTemplate: '<div class="ngCellText">{{row.entity[col.field] | array_join }}</div>'});
     $scope.zonesGridOptions.columnDefs.push({field: 'serial', displayName: 'Serial'});
   }
 
@@ -587,8 +595,8 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
       return rrToNameType(rr) == nt;
     }
 
-    var currentNameTypes = pluckNameTypes($scope.zone.rrsets);
-    var masterNameTypes = pluckNameTypes($scope.master.rrsets);
+    var currentNameTypes = pluckNameTypes($scope.zone.records);
+    var masterNameTypes = pluckNameTypes($scope.master.records);
     var removedNameTypes = _.difference(masterNameTypes, currentNameTypes);
     var addedNameTypes = _.difference(currentNameTypes, masterNameTypes);
     var noNameChangeNameTypes = _.intersection(masterNameTypes, currentNameTypes);
@@ -610,7 +618,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
         changetype: 'replace',
         name: nt_[0],
         type: nt_[1],
-        records: _.filter($scope.zone.rrsets, function(rr) {
+        records: _.filter($scope.zone.records, function(rr) {
           return compareNameTypeAndRR(rr, nt);
         })
       });
@@ -618,10 +626,10 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
 
     _.each(noNameChangeNameTypes, function(nt) {
       var nt_ = unpackNameType(nt);
-      var recordsCurrent = _.filter($scope.zone.rrsets, function(rr) {
+      var recordsCurrent = _.filter($scope.zone.records, function(rr) {
         return compareNameTypeAndRR(rr, nt);
       });
-      var recordsMaster = _.filter($scope.master.rrsets, function(rr) {
+      var recordsMaster = _.filter($scope.master.records, function(rr) {
         return compareNameTypeAndRR(rr, nt);
       });
       if (!angular.equals(recordsCurrent.sort(), recordsMaster.sort())) {
@@ -629,7 +637,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
           changetype: 'replace',
           name: nt_[0],
           type: nt_[1],
-          records: _.filter($scope.zone.rrsets, function(rr) {
+          records: _.filter($scope.zone.records, function(rr) {
             return compareNameTypeAndRR(rr, nt);
           })
         });
@@ -641,10 +649,10 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
       if (change === undefined) {
         // done.
         // sort master and current so equals will return true.
-        $scope.zone.rrsets = _.sortBy($scope.zone.rrsets, function(v) {
+        $scope.zone.records = _.sortBy($scope.zone.records, function(v) {
           return '' + v.name + '/' + v.type + '/' + v.ttl + '/' + v.prio + '/' + v.content;
         });
-        $scope.master.rrsets = _.sortBy($scope.master.rrsets, function(v) {
+        $scope.master.records = _.sortBy($scope.master.records, function(v) {
           return '' + v.name + '/' + v.type + '/' + v.ttl + '/' + v.prio + '/' + v.content;
         });
         return;
@@ -663,14 +671,14 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
         }
 
         // replace data in master with saved data
-        _.each($scope.master.rrsets, function(row) {
+        _.each($scope.master.records, function(row) {
           if (row.name == change.name && row.type == change.type) {
-            $scope.master.rrsets.splice($scope.master.rrsets.indexOf(row), 1);
+            $scope.master.records.splice($scope.master.records.indexOf(row), 1);
           }
         });
         _.each(change.records, function(row) {
           row._new = undefined;
-          $scope.master.rrsets.push(_.extend({}, row));
+          $scope.master.records.push(_.extend({}, row));
         });
 
         sendNextChange(changes);
@@ -685,26 +693,21 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
   };
 
   $scope.add = function() {
-    $scope.zone.rrsets.push({name: $scope.zone.name, _new: true});
+    $scope.zone.records.push({name: $scope.zone.name, _new: true});
   };
 
   $scope.delete_selected = function() {
     var row;
     while(row = $scope.mySelections.pop()) {
-      var idx = $scope.zone.rrsets.indexOf(row);
+      var idx = $scope.zone.records.indexOf(row);
       if (idx != -1) {
-        $scope.zone.rrsets.splice(idx, 1);
+        $scope.zone.records.splice(idx, 1);
       }
     }
   };
 
-  // TODO: it'd be nice if the server would give us kind, masters setc. with the zone,
-  // so we don't have to load the whole zone list here.
-  $scope.server.all("zones").getList().then(function(zones) {
-    var kind = _.find(zones, function(z) { return z.name == zone.name; }).kind.toUpperCase();
-    $scope.isNotifyAllowed = (kind == 'MASTER') || (kind == 'SLAVE' && server.config.mustDo('slave-renotify'));
-    $scope.isUpdateFromMasterAllowed = (kind == 'SLAVE');
-  });
+  $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() == 'MASTER') || ($scope.zone.kind.toUpperCase() == 'SLAVE' && server.config.mustDo('slave-renotify'));
+  $scope.isUpdateFromMasterAllowed = ($scope.zone.kind.toUpperCase() == 'SLAVE');
 
   $scope.notify_slaves = function() {
     $scope.loading = true;
@@ -786,8 +789,8 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
   nameEditTemplate = ''
 
   $scope.mySelections = [];
-  $scope.rrsetsGridOptions = {
-    data: 'zone.rrsets',
+  $scope.recordsGridOptions = {
+    data: 'zone.records',
     enableRowSelection: true,
     enableCellEditOnFocus: false,
     enableCellSelection: true,

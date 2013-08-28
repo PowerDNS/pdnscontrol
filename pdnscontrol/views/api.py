@@ -99,7 +99,7 @@ def server_edit(server):
     return jsonify(server=obj.to_dict())
 
 
-@mod.route('/servers/<server>/zones/<path:zone>/rrsets', methods=['GET','PATCH'])
+@mod.route('/servers/<server>/zones/<path:zone>/rrsets', methods=['PATCH'])
 @api_auth_required
 @roles_required('edit')
 def server_zone_qname_qtype(server, zone):
@@ -157,10 +157,10 @@ def zone_get(server, zone):
         return jsonify(errors={'name':"Not found"}), 404
 
     remote_url = server.pdns_url
-    remote_url += '?command=get-zone&zone=' + zone
-    data = fetch_json(remote_url)
+    remote_url += '?command=zone&zone=' + zone
 
-    return jsonify({'zone': {'_id': zone, 'name': zone, 'rrsets': data}})
+    r = fetch_remote(remote_url, 'GET')
+    return forward_remote_response(r)
 
 
 @mod.route('/servers/<server>/log-grep')

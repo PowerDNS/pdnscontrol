@@ -706,7 +706,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
     }
   };
 
-  $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() == 'MASTER') || ($scope.zone.kind.toUpperCase() == 'SLAVE' && server.config.mustDo('slave-renotify'));
+  $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() == 'MASTER' && server.config.mustDo('master')) || ($scope.zone.kind.toUpperCase() == 'SLAVE' && server.config.mustDo('slave-renotify'));
   $scope.isUpdateFromMasterAllowed = ($scope.zone.kind.toUpperCase() == 'SLAVE');
 
   $scope.notify_slaves = function() {

@@ -1,0 +1,11 @@
+{% extends "/layout.html" -%}
+{% block body %}
+
+{% assets "js_pdnscontrol" %}
+<script src="{[ ASSET_URL ]}"></script>
+{% endassets %}
+
+<div ng-view ng-app="control">Loading...</div>
+
+{% endblock %}
+

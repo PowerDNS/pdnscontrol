@@ -1,0 +1,54 @@
+<div class="row">
+  <div class="twelve columns">
+    <a href="/server/{{server.name}}"><h2 class="server-name">{{server.name}}</h2></a>
+    <h3>{{zone.name}} <spinner class="right" id="zone-spinner" spin="{{loading}}"></spinner></h3>
+  </div>
+</div>
+
+<div class="row" ng-show="errors.length">
+  <div class="twelve columns errors">
+    <h5>Errors</h5>
+    <ul class="disc">
+      <li ng-repeat="error in errors">{{error}}</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="six columns" style="min-height: 30px;">
+    <button class="button tiny" ng-click="notify_slaves()" ng-show="isNotifyAllowed">Notify slaves</button>
+    <button class="button tiny" ng-click="update_from_master()" ng-show="isUpdateFromMasterAllowed">Update from master</button>
+  </div>
+  <div class="six columns text-right">
+    <span ng-show="!isClean()">
+    Unsaved changes.
+    </span>
+    &nbsp;
+
+    <button class="button tiny" ng-click="save()" ng-class="{disabled: isClean(), secondary: isClean()}">Save</button>
+    &nbsp;
+    <button class="button secondary tiny" ng-click="delete_selected()" ng-class="{disabled: !isDeletePossible(), alert: isDeletePossible()}"><span class="foundicon-trash"></span> Selection</button>
+    &nbsp;
+    <button class="button secondary tiny" ng-click="add()"><span class="foundicon-plus"></span></button>
+  </div>
+</div>
+
+<div class="row">
+  <div class="twelve columns">
+    <div class="gridStyle" ng-grid="recordsGridOptions">
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="twelve columns">
+<pre>
+DEBUG:
+
+{{mySelections}}
+
+{{mySelections.length}}
+</pre>
+  </div>
+</div>

@@ -1,0 +1,97 @@
+<div class="row">
+  <div class="eleven columns">
+    <h2 class="server-name">{{server.name}}
+      <a href="/server/{{server.name}}/edit" class="title-edit"><span class="foundicon-edit"></span></a>
+    </h2>
+  </div>
+</div>
+<div class="row">
+  <div class="twelve columns">
+    <p ng-show="server.version">Running version <strong>{{server.version}}</strong>, up since {{server.uptime | absolute_time}}.</p>
+    <p ng-show="load_error" class="load_error">{{load_error}}</p>
+  </div>
+  <div class="twelve columns">
+    <ul class="button-group four-up even">
+      <li><button class="alert button" ng-click="popup_shutdown()">Shutdown</button></li>
+      <li><button class="button" ng-click="popup_restart()">Restart</button></li>
+      <li><button class="button" ng-click="popup_flush_cache()">Flush cache</button></li>
+      <li><button class="button" ng-click="popup_deploy()">Deploy</button></li>
+    </ul>
+    <searchlog servers="[server]"></searchlog>
+
+  </div>
+  <div class="twelve columns">
+    <tabs>
+      <pane title="Graph">
+        <div ng-switch on="server.daemon_type">
+        <div ng-switch-when="Authoritative">
+          <graphite g-source="{{server.graphite_name}}" g-title="UDP Queries" g-area-mode="first">
+            <graph target="nonNegativeDerivative(%SOURCE%.udp-answers)" title="UDP answers" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.udp-queries)" title="UDP queries" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="TCP Queries" g-area-mode="first">
+            <graph target="nonNegativeDerivative(%SOURCE%.tcp-answers)" title="TCP answers" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.tcp-queries)" title="TCP queries" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Latency">
+            <graph target="%SOURCE%.latency" title="latency" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Database queue">
+            <graph target="%SOURCE%.qsize-q" title="queue size" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Errors">
+            <graph target="nonNegativeDerivative(%SOURCE%.corrupt-packets)" title="corrupt packets" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.servfail-packets)" title="servfail packets" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.timedout-packets)" title="timed out packets" style="cacti" />
+          </graphite>
+        </div>
+
+        <div ng-switch-when="Recursor">
+          <graphite g-source="{{server.graphite_name}}" g-title="Questions" g-area-mode="first">
+            <graph target="nonNegativeDerivative(%SOURCE%.questions)" title="Questions" />
+            <graph target="sumSeries(nonNegativeDerivative(%SOURCE%.answers0-1), nonNegativeDerivative(%SOURCE%.answers1-10), nonNegativeDerivative(%SOURCE%.answers10-100), nonNegativeDerivative(%SOURCE%.answers100-1000), nonNegativeDerivative(%SOURCE%.answers-slow))" title="Answers" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Latency distribution" g-area-mode="stacked">
+            <graph target="nonNegativeDerivative(%SOURCE%.answers0-1)" title="in 1ms" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.answers1-10)" title="in 10ms" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.answers10-100)" title="in 100ms" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.answers100-1000)" title="in 1s" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.answers-slow)" title="over 1s" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.outgoing-timeouts)" title="timeouts" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Cache">
+            <graph target="nonNegativeDerivative(%SOURCE%.cache-hits)" title="cache hits" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.cache-misses)" title="cache misses" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Cache size" g-area-mode="stacked">
+            <graph target="nonNegativeDerivative(%SOURCE%.cache-entries)" title="entries" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.negcache-entries)" title="negative entries" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Concurrent queries" g-area-mode="stacked">
+            <graph target="nonNegativeDerivative(%SOURCE%.concurrent-queries)" title="queries" style="cacti" />
+          </graphite>
+          <graphite g-source="{{server.graphite_name}}" g-title="Exceptions">
+            <graph target="nonNegativeDerivative(%SOURCE%.spoof-prevents)" title="spoofs" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.resource-limits)" title="resources" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.client-parse-errors)" title="client" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.server-parse-errors)" title="server" style="cacti" />
+            <graph target="nonNegativeDerivative(%SOURCE%.tcp-client-overflow)" title="tcp concurrency" style="cacti" />
+          </graphite>
+        </div>
+        </div>
+      </pane>
+      <pane title="Statistics">
+        <div class="gridStyle" ng-grid="statisticsGridOptions">
+        </div>
+      </pane>
+      <pane title="Zones">
+        <div class="gridStyle" ng-grid="zonesGridOptions">
+        </div>
+      </pane>
+      <pane title="Configuration">
+        <div class="gridStyle" ng-grid="configurationGridOptions">
+        </div>
+      </pane>
+    </tabs>
+  </div>
+</div>

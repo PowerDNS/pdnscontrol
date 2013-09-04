@@ -29,11 +29,6 @@ Flask-based web app.
 
 #### Installing the frontend
 
-    easy_install pbundler
-    pbundle
-
-or
-
     virtualenv venv-pdnscontrol
     . ./venv-pdnscontrol/bin/activate
     pip install -r requirements.txt
@@ -47,12 +42,16 @@ or
 
 #### Running (Debug mode)
 
-    pbundle-py debug.py
-
-or
-
     . ./venv-pdnscontrol/bin/activate
     python debug.py
+
+
+#### Developing
+
+To update built templates, you also need to have a few gems installed.
+
+    cd pdnscontrol && bundle
+    make
 
 
 ### Graphite data feeder

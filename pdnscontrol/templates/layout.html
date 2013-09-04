@@ -1,28 +1,12 @@
-<!DOCTYPE html>
-{# paulirish.com/2008/conditional-stylesheets-vs-css-hacks-answer-neither/ #}
-<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
-<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
-<!--[if IE 8]>    <html class="no-js lt-ie9" lang="en"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<!doctype html>
+<html class="no-js" lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width" />
   <title>PowerDNS Control Server</title>
 
-  {% assets output="gen/styles-%(version)s.css",
-    "dataTables/media/css/jquery.dataTables.css",
-    "stylesheets/foundation.min.css",
-    "stylesheets/general_foundicons.css",
-    "stylesheets/dataTables.css",
-    "stylesheets/app.css"
-  %}
-  <link rel="stylesheet" href="{{ ASSET_URL }}">
-  {% endassets %}
-
-  {% assets output="gen/js-head-%(version)s.js",
-    "javascripts/foundation.min.js"
-  %}
-  <script src="{{ ASSET_URL }}"></script>
+  {% assets "styles" %}
+  <link rel="stylesheet" href="{[ ASSET_URL ]}">
   {% endassets %}
 
   <!-- IE Fix for HTML5 Tags -->
@@ -33,31 +17,16 @@
 </head>
 <body>
 
-  <div class="row" id="header">
-    <div class="seven columns">
-      <a href="{{ request.url_root }}" id="appname">PowerDNS Control Server</a>
-
-      {% if logged_in %}
-      <span id="current_user">
-      Signed in as <b>{{ user.name }}</b>. <a href="{{ url_for('account.logout') }}">Sign out</a>.
-      </span>
-      {% endif %}
-
-    </div>
-    <div class="five columns">
-      <a target="_blank" href="http://www.powerdns.com/"><img align="right" class="logo" src="{{ url_for('static', filename='images/powerdns-logo-154px.png') }}"></a>
-    </div>
-  </div>
-
 <script>
-var User = {
-  name: "{{ user.name }}",
-  roles: {{ user_roles|tojson|safe }}
+var ServerData = {};
+ServerData.User = {
+  name: "{[ user.name ]}",
+  roles: {[ user_roles|tojson|safe ]}
 };
 {# FIXME: move this into its own route and make it cacheable #}
-var Config = {
-  url_root: "{{ request.url_root }}",
-  graphite_server: "{{ config['GRAPHITE_SERVER'] }}",
+ServerData.Config = {
+  url_root: "{[ request.url_root ]}",
+  graphite_server: "{[ config['GRAPHITE_SERVER'] ]}",
   graphite_default_opts: {
     bgcolor: "FFFFFF",
     majorGridLineColor: "darkgray",
@@ -72,22 +41,32 @@ var Config = {
   }
 };
 </script>
+  {% assets "js_libs" %}
+  <script src="{[ ASSET_URL ]}"></script>
+  {% endassets %}
+
+{% block header %}
+  <div class="row" id="header">
+    <div class="seven columns">
+      <a href="{[ request.url_root ]}" id="appname">PowerDNS Control Server</a>
+    </div>
+    <div class="five columns">
+      <a target="_blank" href="http://www.powerdns.com/"><div class="logo"></div></a>
+    </div>
+  </div>
+{% endblock %}
 
 {%- block body %}{% endblock -%}
 
-  {% assets output="gen/js-body-%(version)s.js",
-    "javascripts/moment.min.js",
-    "javascripts/jquery.dataTables.min.js",
-    "javascripts/jquery.sparkline.min.js",
-    "javascripts/underscore-min.js",
-    "javascripts/purl.js",
-    "javascripts/spin.min.js",
-    "javascripts/jquery.spin.js",
-    "javascripts/app.js",
-    "javascripts/shared.js"
-  %}
-  <script src="{{ ASSET_URL }}"></script>
-  {% endassets %}
+{% block footer %}
+<div class="row">
+<div class="twelve columns">
+  <footer>
+    &copy; Copyright 2013 PowerDNS B.V.
+  </footer>
+</div>
+</div>
+{% endblock %}
 
 </body>
 </html>

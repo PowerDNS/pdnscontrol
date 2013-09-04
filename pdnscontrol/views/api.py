@@ -1,64 +1,16 @@
-import requests
 import urlparse
 import urllib
-import json
 import time
 import sys
-
+from functools import wraps
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
+from flask.ext.security import roles_required, http_auth_required
 
-from pdnscontrol.utils import jsonpify
-from pdnscontrol.auth import CamelAuth, requireApiAuth, requireApiRole
+from pdnscontrol.utils import jsonpify, jsonarify, fetch_remote, fetch_json
 from pdnscontrol.models import db, Server
 
 mod = Blueprint('api', __name__)
-
-def auth_from_url(url):
-    auth = None
-    parsed_url = urlparse.urlparse(url).netloc
-    if '@' in parsed_url:
-        auth = parsed_url.split('@')[0].split(':')
-        auth = requests.auth.HTTPBasicAuth(auth[0], auth[1])
-    return auth
-
-
-def fetch_remote(remote_url, method='GET', data=None):
-    verify = not current_app.config.get('IGNORE_SSL_ERRORS', False)
-    r = requests.request(
-        method,
-        remote_url,
-        headers={'user-agent': 'Camel/0'},
-        verify=verify,
-        auth=auth_from_url(remote_url),
-        timeout=5,
-        data=data
-        )
-    try:
-        r.raise_for_status()
-    except Exception as e:
-        raise Exception("While fetching " + remote_url + ": " + str(e)), None, sys.exc_info()[2]
-
-    return r
-
-
-def fetch_json(remote_url, method='GET', data=None):
-    r = fetch_remote(remote_url, method=method, data=data)
-    try:
-        assert('json' in r.headers['content-type'])
-    except Exception as e:
-        raise Exception("While fetching " + remote_url + ": " + str(e)), None, sys.exc_info()[2]
-
-    # don't use r.json here, as it will read from r.text, which will trigger
-    # content encoding auto-detection in almost all cases, WHICH IS EXTREMELY
-    # SLOOOOOOOOOOOOOOOOOOOOOOW. just don't.
-    data = None
-    try:
-        data = json.loads(r.content)
-    except UnicodeDecodeError:
-        data = json.loads(r.content, 'iso-8859-1')
-    return data
-
 
 def forward_remote_response(response):
     return make_response(
@@ -70,82 +22,158 @@ def forward_remote_response(response):
         )
 
 
-def build_pdns_url(server):
-    remote_url = server.stats_url
-    if server.daemon_type == 'Authoritative':
-        if remote_url[-1] != '/':
-            remote_url = remote_url + '/'
-        remote_url = remote_url + 'jsonstat'
-    return remote_url
+def api_auth_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth = request.authorization
+        if auth:
+            @http_auth_required
+            def call():
+                return f(*args, **kwargs)
+            return call()
+        return f(*args, **kwargs)
+    return decorated_function
 
 
-@mod.route('/server/', methods=['PUT'])
-@requireApiRole('edit')
+@mod.route('/servers', methods=['GET'])
+@api_auth_required
+@roles_required('view')
+def server_index():
+    ary = Server.all()
+    return jsonify(servers=ary)
+
+
+@mod.route('/servers', methods=['POST'])
+@api_auth_required
+@roles_required('edit')
 def server_create():
-    obj = request.json['server']
-    server = Server(obj['name'], obj['daemon_type'], obj['stats_url'], obj['manager_url'])
-    db.session.add(server)
+    data = request.json['server']
+    obj = Server()
+    obj.mass_assign(data)
+    if not obj.is_valid:
+        return jsonify(errors=obj.validation_errors), 422
+    db.session.add(obj)
     db.session.commit()
-    return jsonify(server=dict(server))
+    return jsonify(server=obj.to_dict())
 
 
-@mod.route('/server/<server>', methods=['DELETE'])
-@requireApiRole('edit')
+@mod.route('/servers/<string:server>', methods=['GET'])
+@api_auth_required
+@roles_required('view')
+def server_get(server):
+    obj = Server.query.filter_by(name=server).first()
+    if not obj:
+        return jsonify(errors={'name':"Not found"}), 404
+
+    server = obj.to_dict()
+    server['stats'] = obj.sideload('stats')
+    server['config'] = obj.sideload('config')
+    return jsonify(server=server)
+
+
+@mod.route('/servers/<server>', methods=['DELETE'])
+@api_auth_required
+@roles_required('edit')
 def server_delete(server):
-    server = db.session.query(Server).filter_by(name=server).first()
-    db.session.delete(server)
+    obj = Server.query.filter_by(name=server).first()
+    if not obj:
+        return "Not found", 404
+    db.session.delete(obj)
     db.session.commit()
     return ""
 
 
-@mod.route('/server/<server>', methods=['POST'])
-@requireApiRole('edit')
+@mod.route('/servers/<server>', methods=['PUT'])
+@api_auth_required
+@roles_required('edit')
 def server_edit(server):
-    server = db.session.query(Server).filter_by(name=server).first()
-    server.name = obj['name']
-    server.daemon_type = obj['daemon_type']
-    server.stats_url = obj['stats_url']
-    server.manager_url = obj['manager_url']
-    db.session.add(server)
+    data = request.json['server']
+    obj = Server.query.filter_by(name=server).first()
+    if not obj:
+        return jsonify(errors={'name':"Not found"}), 404
+    obj.mass_assign(data)
+    if not obj.is_valid:
+        return jsonify(errors=obj.validation_errors), 422
+    db.session.add(obj)
     db.session.commit()
-    return jsonify(server=dict(server))
+    return jsonify(server=obj.to_dict())
 
 
-@mod.route('/server/<server>/zones/<path:zone>/names/<path:qname>/types/<qtype>', methods=['GET','PUT','POST','DELETE'])
-@requireApiRole('edit')
-def server_zone_qname_qtype(server, zone, qname, qtype):
+@mod.route('/servers/<server>/zones/<path:zone>/rrsets', methods=['PATCH'])
+@api_auth_required
+@roles_required('edit')
+def server_zone_qname_qtype(server, zone):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
-    remote_url = build_pdns_url(server)
+    qname = request.json['name']
+    qtype = request.json['type']
+    method = request.json['changetype'].upper()
+    if method == 'REPLACE':
+        method = 'POST'
+
+    remote_url = server.pdns_url
     remote_url += '?command=zone-rest&rest=/{zone}/{qname}/{qtype}'.format(
         zone=urllib.quote_plus(zone.encode("utf-8")),
         qname=urllib.quote_plus(qname.encode("utf-8")),
         qtype=urllib.quote_plus(qtype.encode("utf-8"))
         )
-    r = fetch_remote(remote_url, method=request.method, data=request.data)
+    r = fetch_remote(remote_url, method=method, data=request.data)
     return forward_remote_response(r)
 
 
-@mod.route('/server/<server>/zones/<path:zone>')
-@requireApiRole('edit')
-def server_zone(server, zone):
+@mod.route('/servers/<server>/zones')
+@api_auth_required
+@roles_required('view')
+def zone_index(server):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
-    remote_url = build_pdns_url(server)
-    remote_url += '?command=get-zone&zone=' + zone
+    remote_url = urlparse.urljoin(server.pdns_url, '?command=domains')
     data = fetch_json(remote_url)
+    if type(data) == dict:
+        data = data['domains']
+    for zone in data:
+        if 'type' in zone:
+            zone['kind'] = zone['type']
+            del zone['type']
+        if 'servers' in zone:
+            zone['forwarders'] = zone['servers']
+            del zone['servers']
+        zone['_id'] = zone['name']
+        zone['server'] = server.name
 
-    return jsonify({'zone': zone, 'content': data})
+    return jsonify(zones=data)
 
 
-@mod.route('/server/<server>/log-grep')
-@requireApiRole('edit')
+@mod.route('/servers/<server>/zones/<path:zone>')
+@api_auth_required
+@roles_required('view')
+def zone_get(server, zone):
+    server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
+
+    remote_url = server.pdns_url
+    remote_url += '?command=zone&zone=' + zone
+
+    r = fetch_remote(remote_url, 'GET')
+    return forward_remote_response(r)
+
+
+@mod.route('/servers/<server>/log-grep')
+@api_auth_required
+@roles_required('edit')
 def server_loggrep(server):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
     needle = request.values.get('needle')
 
-    remote_url = build_pdns_url(server)
+    remote_url = server.pdns_url
     remote_url += '?command=log-grep&needle=' + needle
 
     data = fetch_json(remote_url)
@@ -153,14 +181,17 @@ def server_loggrep(server):
     return jsonify({'needle': needle, 'content': data})
 
 
-@mod.route('/server/<server>/flush-cache', methods=['POST'])
-@requireApiRole('edit')
+@mod.route('/servers/<server>/flush-cache', methods=['POST'])
+@api_auth_required
+@roles_required('edit')
 def server_flushcache(server):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
     domain = request.values.get('domain', '')
 
-    remote_url = build_pdns_url(server)
+    remote_url = server.pdns_url
     remote_url += '?command=flush-cache&domain=' + domain
 
     data = fetch_json(remote_url)
@@ -169,26 +200,32 @@ def server_flushcache(server):
 
 
 # pdns_control protocol tunnel
-@mod.route('/server/<server>/control', methods=['POST'])
-@requireApiRole('edit')
+@mod.route('/servers/<server>/control', methods=['POST'])
+@api_auth_required
+@roles_required('edit')
 def server_control(server):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
-    data = request.data
+    data = {'parameters': request.values.get('command', '')}
 
-    remote_url = build_pdns_url(server)
+    remote_url = server.pdns_url
     remote_url += '?command=pdns-control'
 
-    r = fetch_remote(remote_url, method=request.method, data=request.data)
+    r = fetch_remote(remote_url, method=request.method, data=data)
     return forward_remote_response(r)
 
 
-@mod.route('/server/<server>/<action>', methods=['GET','POST'])
-@requireApiRole('stats')
-def server_stats(server, action):
+@mod.route('/servers/<server>/<action>', methods=['GET','POST'])
+@api_auth_required
+@roles_required('stats')
+def server_action(server, action):
     server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
 
-    pdns_actions = ['stats', 'domains', 'config']
+    pdns_actions = ['stats', 'config']
     manager_actions = ['start', 'stop', 'restart', 'update', 'install']
     generic_actions = pdns_actions + manager_actions
     if action not in generic_actions:
@@ -197,7 +234,7 @@ def server_stats(server, action):
     if action in manager_actions:
         if request.method != 'POST':
             return "must call action %s using POST" % (action,), 403
-        if not CamelAuth.getCurrentUser().has_role('edit'):
+        if not Auth.getCurrentUser().has_role('edit'):
             return 'Not authorized', 401
 
     remote_url = None
@@ -213,7 +250,7 @@ def server_stats(server, action):
                 remote_action = 'get'
             elif action == 'config':
                 remote_action = 'config'
-        remote_url = urlparse.urljoin(build_pdns_url(server), '?command=' + remote_action)
+        remote_url = urlparse.urljoin(server.pdns_url, '?command=' + remote_action)
 
     data = fetch_json(remote_url)
 

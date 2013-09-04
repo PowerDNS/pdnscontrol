@@ -4,3 +4,5 @@ __pycache__
 instance/pdnscontrol.fcgi
 instance/pdnscontrol.conf
 instance/test.db
+Cheesefile*
+venv-pdnscontrol

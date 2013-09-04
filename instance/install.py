@@ -6,33 +6,29 @@ from pdnscontrol.models import *
 db.create_all()
 print "The database has been created."
 
-if db.session.query(User).first() != None:
+if user_datastore.find_role(u'admin') is not None:
     print "The database has been set up already."
     sys.exit(1)
 
-role_edit = UserRole(u'edit')
-db.session.add(role_edit)
-role_stats = UserRole(u'stats')
-db.session.add(role_stats)
-role_view = UserRole(u'view')
-db.session.add(role_view)
+role_admin = user_datastore.find_or_create_role(name=u'admin')
+role_edit = user_datastore.find_or_create_role(name=u'edit')
+role_stats = user_datastore.find_or_create_role(name=u'stats')
+role_view = user_datastore.find_or_create_role(name=u'view')
 
 admin_password = u'changeme'
-admin = User(u'admin', u'The Admin')
-admin.set_password(admin_password)
-admin.roles.append(role_edit)
-admin.roles.append(role_stats)
-admin.roles.append(role_view)
-db.session.add(admin)
+admin_email = u'admin@example.org'
+admin = user_datastore.create_user(email=admin_email, name=u'The Admin', password=admin_password)
+user_datastore.add_role_to_user(admin, role_admin)
+user_datastore.add_role_to_user(admin, role_stats)
+user_datastore.add_role_to_user(admin, role_edit)
+user_datastore.add_role_to_user(admin, role_view)
 
 graphite_password = u'notsecure'
-graphite = User(u'graphite', u'Stats Fetcher')
-graphite.set_password(graphite_password)
-graphite.roles.append(role_stats)
-db.session.add(graphite)
+graphite = user_datastore.create_user(email=u'graphite@example.org', name=u'Stats Fetcher', password=graphite_password)
+user_datastore.add_role_to_user(graphite, role_stats)
 
 db.session.commit()
 
-print "The admin user has been created. Log in as \"{admin.login}\" with password \"{admin_password}\".".format(**locals())
-print "The graphite user has been created, with password \"{graphite_password}\".".format(**locals())
 
+print "The admin user has been created. Log in as \"{admin_email}\" with password \"{admin_password}\".".format(**locals())
+print "The graphite user has been created, with password \"{graphite_password}\".".format(**locals())

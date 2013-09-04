@@ -1,0 +1,23 @@
+<form ng-submit="doIt()">
+
+  <h3>{{server.name}}</h3>
+  <div class="row output">
+    <b>Shut down</b> {{server.name}}?<br>
+
+    <pre ng-show="output.length>0">{{output}}</pre>
+  </div>
+  <div class="row">
+    <div class="right">
+      <spinner spin="{{loading}}"></spinner>
+      <div class="inline-block">
+        <span ng-show="succeeded">
+          <button class="small button cancel" ng-click="close()">Close</button>
+        </span>
+        <span ng-show="!succeeded">
+          <button class="small button success alert" type="submit">Shut down</button> <button class="small button cancel" ng-click="close()">Cancel</button>
+        </span>
+      </div>
+    </div>
+  </div>
+
+</form>

@@ -17,11 +17,15 @@ body {
     margin-top: 1em;
 }
 
-IMG.logo {
+.logo {
     vertical-align: bottom;
     margin-bottom: 14px; 
     margin-top: 7px;
     border: 0;
+    height: 20px;
+    width: 154px;
+    float: right;
+    background: url(../images/powerdns-logo-154px.png);
 }
 
 .output pre {
@@ -45,18 +49,15 @@ a#appname {
     color: #666;
 }
 
-h2#server-name {
+h2.server-name {
     margin-top: 0;
+    margin-bottom: 0;
 }
 
-/* override foundation css where it conflicts with dataTable */
-.dataTables_wrapper select, .dataTables_wrapper input, .dataTables_wrapper label {
-    width: auto;
-    display: inline;
+.title-edit {
+    font-size: 12pt;
 }
-table.dataTable {
-    border-collapse: separate;
-    border-spacing: 0;
+
 }
 table.dataTable tr.odd {
     background-color: hsl(34, 61%, 85%);
@@ -67,12 +68,6 @@ table.dataTable tr.odd td.sorting_1 {
 table.dataTable tr.even td.sorting_1 {
     background-color: hsl(43, 100%, 96%);
 }
-/*
-table.dataTable tr.odd td.sorting_2
-table.dataTable tr.odd td.sorting_3
-table.dataTable tr.even td.sorting_2
-table.dataTable tr.even td.sorting_3
-*/
 
 html {
     overflow-y: scroll;
@@ -93,13 +88,13 @@ html {
 }
 
 a {
-    color: #E38000;
+    color: #0959c2;
 }
 a:hover {
-    color: #E3A000;
+    color: #3B8EC8;
 }
 .tabs dd.active, .tabs li.active {
-    border-top: 3px solid #E38000;
+    border-top: 3px solid #3B8EC8;
 }
 
 #current_user {
@@ -107,12 +102,7 @@ a:hover {
 }
 
 #header {
-    margin-bottom: 1em;
 }
-
-/* -----------------------------------------
-   Page Name 1
------------------------------------------ */
 
 .server-list ul.button-group {
     margin-bottom: 0;
@@ -157,8 +147,61 @@ table.dataTable tbody tr:nth-child(even) {
     padding: 0;
 }
 
-/* -----------------------------------------
-   Page Name 2
------------------------------------------ */
+.header-cell {
+    font-weight: bold;
+}
+.header-cell span {
+    display: inline-block;
+    height: 100%;
+    width: 80%;
+    cursor: pointer;
+}
+.header-cell.sorted-by {
+}
+.header-cell.sorted-by.sort-ascending:before {
+    content: "\f017"; /* down-arrow */
+    font-family: "GeneralFoundicons";
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: inherit;
+}
+.header-cell.sorted-by.sort-descending:before {
+    content: "\f016"; /* up-arrow */
+    font-family: "GeneralFoundicons";
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: inherit;
+}
+
+.hidden {
+    display: none;
+}
+
+.gridStyle {
+    border: 1px solid rgb(212,212,212);
+    height: 500px
+}
+
+.gridStyle .zoneName {
+    color: #888;
+    font-style: italic;
+}
+
+footer.row {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+footer {
+    border-top: 1px solid #ddd;
+    padding-top: 4px;
+    font-size: 9pt;
+}
 
 
+.flashes li {
+    list-style-type: none;
+}
+
+.flashes .error {
+    padding: 1em; border: 2px solid red; margin-bottom: 1em;
+}

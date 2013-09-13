@@ -153,13 +153,10 @@ def do_start_stop_restart(action):
 
 
 def do_install_upgrade(version):
-    cmdline = BECOME_ROOT + ['apt-get', 'update']
-    check_output(cmdline)
-    pkg = UPSTREAM.package
-    if len(version) > 0:
-        pkg = pkg + '==' + version
-    cmdline = BECOME_ROOT + ['apt-get', 'install', '-y', pkg]
-    return run_proc(cmdline)
+    PACKAGE_MANAGER.refresh()
+    if version and len(version) == 0:
+        version = None
+    return PACKAGE_MANAGER.install_upgrade(UPSTREAM.package, version)
 
 
 def do_configure(config):
@@ -302,7 +299,49 @@ class PdnsmgrdServer(wsgissl.SecureWSGIServer):
         self.setup_environ()
 
 
-def run_server(address, port):
+class PackageManager(object):
+    def __init__(self, refresh_command, install_upgrade_command, install_upgrade_version_command):
+        self.refresh_command = refresh_command
+        self.install_upgrade_command = install_upgrade_command
+        self.install_upgrade_version_command = install_upgrade_version_command
+
+    def refresh(self):
+        cmdline = BECOME_ROOT + self.refresh_command
+        check_output(cmdline)
+
+    def install_upgrade(self, package, version=None):
+        if not version:
+            tpl = BECOME_ROOT + self.install_upgrade_command
+        else:
+            tpl = BECOME_ROOT + self.install_upgrade_version_command
+        cmdline = []
+        format_args = {'package': package, 'version': version}
+        for part in tpl:
+            cmdline.append(part.format(**format_args))
+        return run_proc(cmdline)
+
+
+class PackageManagerAPT(PackageManager):
+    def __init__(self):
+        PackageManager.__init__(
+            self,
+            ['apt-get', '-q', 'update'],
+            ['DEBIAN_FRONTEND=noninteractive', 'apt-get', '-q', 'install', '-y', '{package}'],
+            ['DEBIAN_FRONTEND=noninteractive', 'apt-get', '-q', 'install', '-y', '{package}=={version}']
+        )
+
+
+class PackageManagerYUM(PackageManager):
+    def __init__(self):
+        PackageManager.__init__(
+            self,
+            ['yum', 'makecache'],
+            ['yum', 'install', '-d', '0', '-e', '0', '-y', '{package}'],
+            ['yum', 'install', '-d', '0', '-e', '0', '-y', '--allow-downgrade', '{package}=={version}']
+        )
+
+
+def run_server(address, port, certfile, keyfile):
     if not address:
         address = '0.0.0.0'
 
@@ -320,6 +359,7 @@ if __name__ == '__main__':
     CONFIG.set('proxy', 'address', '127.0.0.1')
     CONFIG.read("pdnsmgrd.conf")
     UPSTREAM = UpstreamServer(CONFIG.items('upstream'))
+    PACKAGE_MANAGER = PackageManagerAPT()
 
     run_server(
         CONFIG.get('proxy', 'address'),

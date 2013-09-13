@@ -3,7 +3,7 @@
 # Encryption key for client-side sessions.
 # Please generate a new one, f.e. using this:
 #   python -c 'print repr(open("/dev/urandom","rb").read(42))'
-# SECRET_KEY = 'changeme'
+# SECRET_KEY = ''
 
 # Your database.
 # Example: DATABASE_URI = 'postgresql://user:password@localhost:5432/pdnscontrol'

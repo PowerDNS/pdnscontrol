@@ -2,7 +2,7 @@
 # Please keep the defaults in sync with
 #     instance/pdnscontrol.conf.example.
 
-SECRET_KEY = 'changeme'
+SECRET_KEY = ''
 DATABASE_URI = ''
 
 PREFERRED_URL_SCHEME = 'http'

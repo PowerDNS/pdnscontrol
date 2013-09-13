@@ -23,6 +23,12 @@ app.config.from_object('pdnscontrol.default_settings')
 app.config.from_pyfile('pdnscontrol.conf')
 app.config['SQLALCHEMY_DATABASE_URI'] = app.config['DATABASE_URI']
 
+if not app.config['DATABASE_URI']:
+    raise Exception('DATABASE_URI must be set in pdnscontrol.conf.')
+if not app.config['SECRET_KEY']:
+    raise Exception('SECRET_KEY must be set in pdnscontrol.conf.')
+
+
 asset_env = flask.ext.assets.Environment(app)
 asset_env.auto_build = app.debug
 asset_env.debug = app.debug

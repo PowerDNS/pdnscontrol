@@ -110,7 +110,7 @@ class JSONResponse(Response):
 class ExceptionResponse(Response):
 
     def __init__(self, ex):
-        Response.__init__(self, ex.message, status=ex.status, headers=ex.headers)
+        Response.__init__(self, str(ex), status=ex.status, headers=ex.headers)
 
 
 def run_proc(cmdline):

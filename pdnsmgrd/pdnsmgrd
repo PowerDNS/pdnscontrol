@@ -7,6 +7,7 @@ from wsgiref.util import request_uri
 
 import wsgissl
 from BaseHTTPServer import BaseHTTPRequestHandler
+import SocketServer
 import base64
 import ConfigParser
 import urlparse
@@ -273,11 +274,31 @@ def manager_app(environ, start_response):
     return response.start(start_response)
 
 
+class PdnsmgrdRequestHandler(wsgissl.SecureWSGIRequestHandler):
+
+    def address_string(self):
+        """Override address_string to not resolve the client address."""
+        return str(self.client_address[0])
+
+
+class PdnsmgrdServer(wsgissl.SecureWSGIServer):
+
+    def server_bind(self):
+        """Override server_bind to not resolve the hostname.
+        Basically undo the override in BaseHTTPServer.
+        """
+        SocketServer.TCPServer.server_bind(self)
+        host, port = self.socket.getsockname()[:2]
+        self.server_name = host
+        self.server_port = port
+        self.setup_environ()
+
+
 def run_server(address, port):
     if not address:
         address = '0.0.0.0'
 
-    httpd = make_server(address, port, manager_app, server_class=wsgissl.SecureWSGIServer, handler_class=wsgissl.SecureWSGIRequestHandler)
+    httpd = make_server(address, port, manager_app, server_class=PdnsmgrdServer, handler_class=PdnsmgrdRequestHandler)
     httpd.allow_reuse_address = True
     httpd.set_credentials(CONFIG.get('server', 'keyfile'), CONFIG.get('server', 'certfile'))
 

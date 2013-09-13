@@ -71,7 +71,7 @@ def favicon():
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 log_file = app.config['LOG_FILE']
-if log_file is not None and log_file != '':
+if log_file:
     log_file = os.path.join(app.instance_path, log_file)
     import logging
     import logging.handlers

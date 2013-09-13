@@ -20,12 +20,34 @@ import collections
 
 BECOME_ROOT = ['sudo', '-n']
 
-TARGETS = ['Authoritative', 'Recursor']
 STARTSTOP_COMMAND = {'start': 'start', 'stop': 'stop', 'restart': 'restart'}
 
 CONFIG = ConfigParser.ConfigParser()
 
 Request = collections.namedtuple('Request', ['environ', 'args', 'path', 'method', 'body'])
+
+class UpstreamServer(object):
+    def __init__(self, config):
+        config = dict(config)
+        self.daemon_type = config['daemon_type'].lower()
+        if self.daemon_type == 'recursor':
+            self.package = 'pdns-recursor'
+            self.service = 'pdns-recursor'
+            self.config = '/etc/powerdns/recursor.conf'
+            self.url = 'http://localhost:8082'
+        elif self.daemon_type == 'authoritative':
+            self.package = 'pdns-server'
+            self.service = 'pdns'
+            self.config = '/etc/powerdns/powerdns.conf'
+            self.url = 'http://localhost:8081'
+        else:
+            raise 'Unknown daemon_type %r' % self.daemon_type
+
+        self.package = config.get('package', self.package)
+        self.service = config.get('service', self.service)
+        self.config = config.get('config', self.config)
+        self.url = config.get('url', self.url)
+        self.url = self.url.rstrip('/') # strip last /
 
 
 def check_output(*popenargs, **kwargs):
@@ -90,7 +112,7 @@ class Response(object):
             status = str(status) + ' ' + BaseHTTPRequestHandler.responses[status][1]
         headers = [
             ('Content-Type', self.content_type),
-            ('Access-Control-Allow-Origin', CONFIG.get('server', 'allow_origin')),
+            ('Access-Control-Allow-Origin', CONFIG.get('proxy', 'allow_origin')),
             ('Server', 'Manager/0')
             ] + self.headers
         start_response(status, headers)
@@ -125,59 +147,49 @@ def run_proc(cmdline):
     return status
 
 
-def do_start_stop_restart(action, target):
-    cmdline = BECOME_ROOT + ['service', CONFIG.get(target, 'service'), STARTSTOP_COMMAND[action]]
+def do_start_stop_restart(action):
+    cmdline = BECOME_ROOT + ['service', UPSTREAM.service, STARTSTOP_COMMAND[action]]
     return run_proc(cmdline)
 
 
-def do_install_upgrade(target, version):
+def do_install_upgrade(version):
     cmdline = BECOME_ROOT + ['apt-get', 'update']
     check_output(cmdline)
-    pkg = CONFIG.get(target, 'package')
+    pkg = UPSTREAM.package
     if len(version) > 0:
         pkg = pkg + '==' + version
     cmdline = BECOME_ROOT + ['apt-get', 'install', '-y', pkg]
     return run_proc(cmdline)
 
 
-def do_configure(target, config):
+def do_configure(config):
     (tfhandle, tfname) = tempfile.mkstemp()
     tf = os.fdopen(tfhandle, 'w')
     tf.write(config)
     tf.close()
-    cmdline = BECOME_ROOT + ['cp', tfname, CONFIG.get(target, 'config')]
+    cmdline = BECOME_ROOT + ['cp', tfname, UPSTREAM.config]
     status = run_proc(cmdline)
     os.unlink(tfname)
     return status
 
 
-def handle_route_do(action, target, args):
-    if target not in TARGETS:
-        raise ExposedException('unknown target')
-
+def handle_route_do(action, args):
     if action in ['start', 'stop', 'restart']:
-        return do_start_stop_restart(action, target)
+        return do_start_stop_restart(action)
     if action in ['install', 'upgrade']:
         version = args.get('version', [''])[0]
-        return do_install_upgrade(target, version)
+        return do_install_upgrade(version)
     if action == 'configure':
         config = str(args['config'][0])
         if len(config) < 5:
             raise ExposedException('invalid config')
-        return do_configure(target, config + "\n")
+        return do_configure(config + "\n")
 
     raise ExposedException('unknown action')
 
 
-def handle_route_server(server_name, subpath, request):
-    url = None
-    try:
-        url = CONFIG.get('relay', server_name)
-    except:
-        pass
-
-    if url is None:
-        raise NotFoundException()
+def handle_route_servers(request):
+    url = UPSTREAM.url + request.path + '?' + request.environ['QUERY_STRING']
 
     data = None
     if request.method == 'POST':
@@ -185,7 +197,7 @@ def handle_route_server(server_name, subpath, request):
 
     result = ''
     try:
-        conn = urllib2.urlopen(url + '/' + subpath + '?' + request.environ['QUERY_STRING'], data, timeout=5)
+        conn = urllib2.urlopen(url, data, timeout=5)
         result = conn.read()
         conn.close()
     except urllib2.HTTPError as ex:
@@ -225,21 +237,17 @@ def route(request):
     if not authenticate(request.environ.get('HTTP_AUTHORIZATION', '')):
         raise AuthenticationRequiredException('Basic realm="manager"')
 
+    callback = request.args.get('_callback', [None])[0]
+
     if request.path == '/do':
         action = request.args.get('action', [None])[0]
-        target = request.args.get('target', [None])[0]
-        if action is None or target is None:
+        if action is None:
             raise NotFoundException()
 
-        return JSONResponse(handle_route_do(action, target, request.args), callback=request.args.get('callback', [None])[0])
+        return JSONResponse(handle_route_do(action, request.args), callback=callback)
 
-    elif request.path.startswith('/server/'):
-        server_name = request.path.split('/server/', 1)[1]
-        subpath = ''
-        if '/' in server_name:
-            (server_name, subpath) = server_name.split('/', 1)
-
-        return handle_route_server(server_name, subpath, request)
+    elif request.path.startswith('/servers'):
+        return handle_route_servers(request)
 
     else:
         raise NotFoundException()
@@ -300,16 +308,22 @@ def run_server(address, port):
 
     httpd = make_server(address, port, manager_app, server_class=PdnsmgrdServer, handler_class=PdnsmgrdRequestHandler)
     httpd.allow_reuse_address = True
-    httpd.set_credentials(CONFIG.get('server', 'keyfile'), CONFIG.get('server', 'certfile'))
+    httpd.set_credentials(keyfile, certfile)
 
     print("Serving https://%s:%d/ ..." % (address, port))
     httpd.serve_forever()
 
 
 if __name__ == '__main__':
-    CONFIG.add_section('server')
-    CONFIG.set('server', 'port', '8080')
-    CONFIG.set('server', 'address', '127.0.0.1')
+    CONFIG.add_section('proxy')
+    CONFIG.set('proxy', 'port', '8080')
+    CONFIG.set('proxy', 'address', '127.0.0.1')
     CONFIG.read("pdnsmgrd.conf")
+    UPSTREAM = UpstreamServer(CONFIG.items('upstream'))
 
-    run_server(CONFIG.get('server', 'address'), CONFIG.getint('server', 'port'))
+    run_server(
+        CONFIG.get('proxy', 'address'),
+        CONFIG.getint('proxy', 'port'),
+        CONFIG.get('proxy', 'certfile'),
+        CONFIG.get('proxy', 'keyfile')
+    )

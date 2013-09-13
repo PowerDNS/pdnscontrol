@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 from wsgiref.simple_server import make_server
-from wsgiref.util import *
+from wsgiref.util import request_uri
 
 import wsgissl
 from BaseHTTPServer import BaseHTTPRequestHandler
@@ -17,14 +17,15 @@ import tempfile
 import os
 import collections
 
-become_root = ['sudo', '-n']
+BECOME_ROOT = ['sudo', '-n']
 
-targets = ['Authoritative', 'Recursor']
-startstop_command = {'start': 'start', 'stop': 'stop', 'restart': 'restart'}
+TARGETS = ['Authoritative', 'Recursor']
+STARTSTOP_COMMAND = {'start': 'start', 'stop': 'stop', 'restart': 'restart'}
 
-Config = ConfigParser.ConfigParser()
+CONFIG = ConfigParser.ConfigParser()
 
 Request = collections.namedtuple('Request', ['environ', 'args', 'path', 'method', 'body'])
+
 
 def check_output(*popenargs, **kwargs):
     r"""Run command with arguments and return its output as a byte string.
@@ -36,7 +37,7 @@ def check_output(*popenargs, **kwargs):
     Python 2.6.2
     """
     process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
-    output, unused_err = process.communicate()
+    output = process.communicate()[0]
     retcode = process.poll()
     if retcode:
         cmd = kwargs.get("args")
@@ -47,7 +48,9 @@ def check_output(*popenargs, **kwargs):
         raise error
     return output
 
+
 class ExposedException(Exception):
+
     def __init__(self, message, status=500, headers=None):
         if message is None:
             message = BaseHTTPRequestHandler.responses[status][1]
@@ -57,15 +60,21 @@ class ExposedException(Exception):
         if headers is None:
             self.headers = []
 
+
 class NotFoundException(ExposedException):
+
     def __init__(self):
         ExposedException.__init__(self, None, status=404)
 
+
 class AuthenticationRequiredException(ExposedException):
+
     def __init__(self, www_auth):
         ExposedException.__init__(self, None, status=401, headers=[('WWW-Authenticate', www_auth)])
 
+
 class Response(object):
+
     def __init__(self, content, content_type='text/plain', headers=None, status=200):
         self.content = content
         self.content_type = content_type
@@ -73,19 +82,22 @@ class Response(object):
         if self.headers is None:
             self.headers = []
         self.status = status
+
     def start(self, start_response):
         status = self.status
         if not isinstance(status, str):
             status = str(status) + ' ' + BaseHTTPRequestHandler.responses[status][1]
         headers = [
             ('Content-Type', self.content_type),
-            ('Access-Control-Allow-Origin', Config.get('server', 'allow_origin')),
+            ('Access-Control-Allow-Origin', CONFIG.get('server', 'allow_origin')),
             ('Server', 'Manager/0')
             ] + self.headers
         start_response(status, headers)
         return [self.content]
 
+
 class JSONResponse(Response):
+
     def __init__(self, data, callback=None, headers=None):
         content = json.dumps(data)
         content_type = 'application/json'
@@ -94,50 +106,57 @@ class JSONResponse(Response):
             content = callback + '(' + content + ');'
         Response.__init__(self, content, content_type=content_type, headers=headers)
 
+
 class ExceptionResponse(Response):
-    def __init__(self, e):
-        Response.__init__(self, e.message, status=e.status, headers=e.headers)
+
+    def __init__(self, ex):
+        Response.__init__(self, ex.message, status=ex.status, headers=ex.headers)
+
 
 def run_proc(cmdline):
     status = {'success': True, 'cmdline': cmdline}
     try:
         status['output'] = check_output(cmdline, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError as ex:
         status['success'] = False
-        status['returncode'] = e.returncode
-        status['output'] = e.output
+        status['returncode'] = ex.returncode
+        status['output'] = ex.output
     return status
 
+
 def do_start_stop_restart(action, target):
-    cmdline = become_root + ['service', Config.get(target, 'service'), startstop_command[action]]
+    cmdline = BECOME_ROOT + ['service', CONFIG.get(target, 'service'), STARTSTOP_COMMAND[action]]
     return run_proc(cmdline)
 
+
 def do_install_upgrade(target, version):
-    cmdline = become_root + ['apt-get', 'update']
+    cmdline = BECOME_ROOT + ['apt-get', 'update']
     check_output(cmdline)
-    pkg = Config.get(target, 'package')
+    pkg = CONFIG.get(target, 'package')
     if len(version) > 0:
         pkg = pkg + '==' + version
-    cmdline = become_root + ['apt-get', 'install', '-y', pkg]
+    cmdline = BECOME_ROOT + ['apt-get', 'install', '-y', pkg]
     return run_proc(cmdline)
+
 
 def do_configure(target, config):
     (tfhandle, tfname) = tempfile.mkstemp()
     tf = os.fdopen(tfhandle, 'w')
     tf.write(config)
     tf.close()
-    cmdline = become_root + ['cp', tfname, Config.get(target, 'config')]
+    cmdline = BECOME_ROOT + ['cp', tfname, CONFIG.get(target, 'config')]
     status = run_proc(cmdline)
     os.unlink(tfname)
     return status
 
+
 def handle_route_do(action, target, args):
-    if target not in targets:
+    if target not in TARGETS:
         raise ExposedException('unknown target')
 
-    if action in ['start','stop','restart']:
+    if action in ['start', 'stop', 'restart']:
         return do_start_stop_restart(action, target)
-    if action in ['install','upgrade']:
+    if action in ['install', 'upgrade']:
         version = args.get('version', [''])[0]
         return do_install_upgrade(target, version)
     if action == 'configure':
@@ -148,10 +167,11 @@ def handle_route_do(action, target, args):
 
     raise ExposedException('unknown action')
 
+
 def handle_route_server(server_name, subpath, request):
     url = None
     try:
-        url = Config.get('relay', server_name)
+        url = CONFIG.get('relay', server_name)
     except:
         pass
 
@@ -167,8 +187,8 @@ def handle_route_server(server_name, subpath, request):
         conn = urllib2.urlopen(url + '/' + subpath + '?' + request.environ['QUERY_STRING'], data, timeout=5)
         result = conn.read()
         conn.close()
-    except urllib2.HTTPError as e:
-        raise ExposedException(e.reason, status=e.code)
+    except urllib2.HTTPError as ex:
+        raise ExposedException(ex.reason, status=ex.code)
 
     headers = map(lambda kv: (kv[0].lower().strip(), kv[1].strip()), map(lambda h: h.split(': ', 1), conn.info().headers))
     content_type = filter(lambda kv: kv[0] == 'content-type', headers)[0][1]
@@ -176,9 +196,10 @@ def handle_route_server(server_name, subpath, request):
 
     return response
 
+
 def authenticate(auth_data):
-    expected_username = Config.get('auth', 'username', None)
-    expected_password = Config.get('auth', 'password', None)
+    expected_username = CONFIG.get('auth', 'username', None)
+    expected_password = CONFIG.get('auth', 'password', None)
     if not expected_username or not expected_password:
         raise Exception('no username or password configured')
 
@@ -197,6 +218,7 @@ def authenticate(auth_data):
         return True
     else:
         return False
+
 
 def route(request):
     if not authenticate(request.environ.get('HTTP_AUTHORIZATION', '')):
@@ -221,8 +243,8 @@ def route(request):
     else:
         raise NotFoundException()
 
-def manager_app(environ, start_response):
 
+def manager_app(environ, start_response):
     path = request_uri(environ)
     parsed_path = urlparse.urlparse(path)
     method = environ['REQUEST_METHOD']
@@ -245,25 +267,28 @@ def manager_app(environ, start_response):
 
         response = route(request)
 
-    except ExposedException as e:
-        response = ExceptionResponse(e)
+    except ExposedException as ex:
+        response = ExceptionResponse(ex)
 
     return response.start(start_response)
 
-if __name__ == '__main__':
-    Config.add_section('server')
-    Config.set('server', 'port', '8080')
-    Config.set('server', 'address', '127.0.0.1')
-    Config.read("pdnsmgrd.conf")
 
-    port = Config.getint('server', 'port')
-    address = Config.get('server', 'address')
-    if address == '':
+def run_server(address, port):
+    if not address:
         address = '0.0.0.0'
 
     httpd = make_server(address, port, manager_app, server_class=wsgissl.SecureWSGIServer, handler_class=wsgissl.SecureWSGIRequestHandler)
     httpd.allow_reuse_address = True
-    httpd.set_credentials(Config.get('server', 'keyfile'), Config.get('server', 'certfile'))
+    httpd.set_credentials(CONFIG.get('server', 'keyfile'), CONFIG.get('server', 'certfile'))
 
     print("Serving https://%s:%d/ ..." % (address, port))
     httpd.serve_forever()
+
+
+if __name__ == '__main__':
+    CONFIG.add_section('server')
+    CONFIG.set('server', 'port', '8080')
+    CONFIG.set('server', 'address', '127.0.0.1')
+    CONFIG.read("pdnsmgrd.conf")
+
+    run_server(CONFIG.get('server', 'address'), CONFIG.getint('server', 'port'))

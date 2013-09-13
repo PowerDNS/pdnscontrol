@@ -30,28 +30,27 @@ Do something.
 #### Parameters
 
  * **action**: _start_, _stop_, _restart_, _install_, _upgrade_, _configure_
- * **target**: _manager_, _recursor_, _auth_
  * For action=configure: **config** - the config file contents
  * For action=install and action=upgrade: **version** - the version to install/upgrade (_optional_)
- * **callback**: _optional_, turns response into JSONP instead of JSON
+ * **\_callback**: _optional_, turns response into JSONP instead of JSON
  
-POST with `application/x-www-form-urlencoded` preferred. Result will be JSON or JSONP (see **callback** parameter).
+POST with `application/x-www-form-urlencoded` preferred. Result will be JSON or JSONP (see **\_callback** parameter).
 
 #### Example
 
-    curl -u 'secret:sikrit' -k 'https://localhost:8080/do/?action=restart&target=auth'
+    curl -u 'secret:sikrit' -k 'https://localhost:8080/do/?action=restart'
     {"cmdline": ["sudo", "service", "pdns", "restart"], "success": true, "output": "Restarting pdns (via systemctl): pdns.service.\n"}
 
 
-### /server/$servername/$subpath
+### /server/localhost/$subpath
 
-Relay `$subpath` to configured `$servername`.
+Relay `$subpath` to configured upstream.
 
 GET or POST. Result format will be determined by upstream server.
 
 #### Example
 
-    curl -u 'secret:sikrit' -k https://localhost:8080/server/1/
+    curl -u 'secret:sikrit' -k https://localhost:8080/server/localhost/
     {"aaaa-additional-processing": "off"
     , "additional-processing": "off"
     , "allow-from": "127.0.0.0/8, 10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12, ::1/128, fe80::/10"

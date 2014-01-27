@@ -35,7 +35,7 @@ asset_env.debug = app.debug
 
 styles_files = ["stylesheets/foundation.min.css", "stylesheets/general_foundicons.css", "stylesheets/ng-grid.css", "stylesheets/app.css"]
 asset_env.register('styles', *styles_files, output='gen/styles-%(version)s.css')
-js_libs_files = ["javascripts/jquery.js", "javascripts/jquery-migrate.min.js", "javascripts/moment.min.js", "javascripts/underscore.js", "javascripts/purl.js", "javascripts/spin.js", "javascripts/jquery.foundation.reveal.js", "javascripts/jquery.foundation.forms.js", "javascripts/angular.js", "javascripts/restangular.js", "javascripts/ng-grid.js"]
+js_libs_files = ["javascripts/jquery.js", "javascripts/jquery-migrate.min.js", "javascripts/moment.min.js", "javascripts/underscore.js", "javascripts/purl.js", "javascripts/spin.js", "javascripts/jquery.foundation.reveal.js", "javascripts/jquery.foundation.forms.js", "javascripts/angular.js", "javascripts/restangular.js", "javascripts/ng-grid.js", "javascripts/Blob.js", "javascripts/FileSaver.js"]
 asset_env.register('js_libs', *js_libs_files, output='gen/js-libs-%(version)s.js')
 js_pdnscontrol_files = ["javascripts/util.js", "javascripts/components.js", "javascripts/popup.js", "javascripts/graphite.js", "javascripts/models.js", "javascripts/control.js"]
 asset_env.register('js_pdnscontrol', *js_pdnscontrol_files, output='gen/js-pdnscontrol-%(version)s.js')

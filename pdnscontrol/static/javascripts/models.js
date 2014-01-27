@@ -6,18 +6,11 @@ angular.module('models', ['restangular']).
     RestangularProvider.setRestangularFields({
       id: "_id"
     });
-    RestangularProvider.setRequestInterceptor(function(original_elem, operation, what) {
-      var tmp, singular;
-      var elem = original_elem;
-      console.log(what, operation, elem);
-      singular = what.replace(/s$/, '');
-      if (operation === 'put' || operation === 'post') {
+    RestangularProvider.setRequestInterceptor(function(elem, operation, what) {
+      if (operation === 'put' || operation === 'post' || operation == 'patch') {
         elem._id = undefined;
-        tmp = elem;
-        elem = {};
-        elem[singular] = tmp;
       }
-      console.log('sending', elem);
+      //DBG//console.log('sending', elem);
       return elem;
     });
     RestangularProvider.setResponseExtractor(function(original_response, operation, what, url) {
@@ -26,14 +19,14 @@ angular.module('models', ['restangular']).
       if (operation === 'getList') {
         return response[what];
       }
-      if ((operation === 'get' || operation == 'put' || operation == 'post') && response[singular]) {
-        response = response[singular];
+      if (operation === 'get' || operation == 'put' || operation == 'post') {
         response._url = url;
         if (!!response.name && !response._id) {
           response._id = response.name;
         }
+        response._url = url;
       }
-      console.log('setResponse', response);
+      //DBG//console.log('setResponse', response);
       return response;
     });
 

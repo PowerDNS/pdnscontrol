@@ -68,7 +68,7 @@ def server_get(server):
     server = obj.to_dict()
     server['stats'] = obj.sideload('stats')
     server['config'] = obj.sideload('config')
-    return jsonify(server=server)
+    return jsonify(**server)
 
 
 @mod.route('/servers/<server>', methods=['DELETE'])
@@ -87,7 +87,7 @@ def server_delete(server):
 @api_auth_required
 @roles_required('edit')
 def server_edit(server):
-    data = request.json['server']
+    data = request.json
     obj = Server.query.filter_by(name=server).first()
     if not obj:
         return jsonify(errors={'name':"Not found"}), 404

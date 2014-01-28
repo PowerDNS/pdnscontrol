@@ -136,7 +136,9 @@ class Server(db.Model, IterableModel, RestModel):
                 remote_action = 'get'
             elif what == 'config':
                 remote_action = 'config'
-        remote_url = urlparse.urljoin(self.pdns_url, '?command=' + remote_action)
+            remote_url = urlparse.urljoin(self.pdns_url, 'jsonstat?command=' + remote_action)
+        else:
+            remote_url = urlparse.urljoin(self.pdns_url, '?command=' + remote_action)
 
         try:
             data = fetch_json(remote_url)
@@ -149,8 +151,6 @@ class Server(db.Model, IterableModel, RestModel):
         remote_url = self.stats_url
         if remote_url is None or remote_url == '':
             return None
-        if self.daemon_type == 'Authoritative':
-            if remote_url[-1] != '/':
-                remote_url = remote_url + '/'
-            remote_url = remote_url + 'jsonstat'
+        if remote_url[-1] == '/':
+            remote_url = remote_url[:-1]
         return remote_url

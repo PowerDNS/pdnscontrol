@@ -1,13 +1,19 @@
-<fieldset>
-  <legend>Log Search</legend>
-  <form ng-submit="submit()">
+<div>
+  <form class="inline-form" ng-submit="submit()">
     <div class="row collapse">
       <div class="ten columns">
-        <input type="text" ng-model="query" class="search-query" placeholder="Log Message">
+        <div class="row collapse">
+          <div class="one columns">
+            <span class="prefix"><span class="foundicon-search"></span></span>
+          </div>
+          <div class="eleven columns">
+            <input type="text" ng-model="query" class="search-query" placeholder="Log Message">
+          </div>
+        </div>
       </div>
       <div class="two columns">
         <button type="submit" class="button expand postfix" ng-class="{disabled:query.length==0}">Search</button>
       </div>
     </div>
   </form>
-</fieldset>
+</div>

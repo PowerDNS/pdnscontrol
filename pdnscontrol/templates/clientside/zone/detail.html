@@ -18,8 +18,8 @@
 
 <div class="row">
   <div class="six columns" style="min-height: 30px;">
-    <button class="button tiny" ng-click="notify_slaves()" ng-show="isNotifyAllowed">Notify slaves</button>
-    <button class="button tiny" ng-click="update_from_master()" ng-show="isUpdateFromMasterAllowed">Update from master</button>
+    <button class="button tiny" ng-click="notify_slaves()" ng-show="isNotifyAllowed"><span class="foundicon-cloud"></span> Notify slaves</button>
+    <button class="button tiny" ng-click="update_from_master()" ng-show="isUpdateFromMasterAllowed"><span class="foundicon-refresh"></span> Update from master</button>
   </div>
   <div class="six columns text-right">
     <span ng-show="!isClean()">
@@ -27,13 +27,11 @@
     </span>
     &nbsp;
 
-    <button class="button tiny" ng-click="save()" ng-class="{disabled: isClean(), secondary: isClean()}">Save</button>
+    <button class="button tiny" ng-click="save()" ng-class="{disabled: isClean()}"><span class="foundicon-inbox"></span> Save</button>
+    <button class="button tiny" ng-click="export()"><span class="foundicon-paper-clip"></span> Export</button>
     &nbsp;
-    <button class="button secondary tiny" ng-click="delete_selected()" ng-class="{disabled: !isDeletePossible(), alert: isDeletePossible()}"><span class="foundicon-trash"></span> Selection</button>
-    &nbsp;
-    <button class="button tiny" ng-click="export()">Export</button>
-    &nbsp;
-    <button class="button secondary tiny" ng-click="add()"><span class="foundicon-plus"></span></button>
+    <button class="button tiny alert" ng-click="delete_selected()" ng-class="{disabled: !isDeletePossible(), alert: isDeletePossible()}"><span class="foundicon-trash"></span></button>
+    <button class="button tiny" ng-click="add()"><span class="foundicon-plus"></span></button>
   </div>
 </div>
 

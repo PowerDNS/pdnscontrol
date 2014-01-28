@@ -1,0 +1,92 @@
+<form class=custom name="zoneForm">
+<div class="row">
+<div class="twelve columns">
+  <a href="/server/{{server.name}}"><h2 class="server-name">{{server.name}}</h2></a>
+  <h3 class="zone-name" ng-show="zone._url">{{master.name}}</h3>
+  <h3 class="zone-name" ng-show="!zone._url">Add Zone</h3>
+</div>
+</div>
+
+<div class="row" ng-show="errors.length">
+  <div class="twelve columns errors">
+    <h5>Errors</h5>
+    <ul class="disc">
+      <li ng-repeat="error in errors">{{error}}</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+<div class="twelve columns">
+  <label ng-class="{error: zoneForm.name.$invalid}">Zone Name:
+    <input type="text" name="name" ng-model="zone.name" required>
+  </label>
+
+  <label ng-class="{error: zoneForm.kind.$invalid}">Zone Type:
+        <select ng-model="zone.kind"  required>
+          <option value="Native">Native</option>
+          <option value="Master">Master</option>
+          <option value="Slave">Slave</option>
+        </select>
+  </label>
+
+  <fieldset ng-show="!zone._url">
+    <legend ng-class="{error: zoneForm.nameservers.$invalid}">Nameservers:</legend>
+
+    <div class="row">
+      <div class="large-6 columns" ng-repeat="nameserver in zone.nameservers_o">
+        <div class="row collapse">
+          <div class="small-9 columns">
+            <input type="text" ng-model="nameserver.nameserver">
+          </div>
+          <div class="small-2 columns">
+            <a href="#" ng-click="removeNameserver($index)" class="button postfix">Delete</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="large-6 columns">
+        <div class="row collapse">
+          <div class="small-2 columns">
+            <a href="" ng-click="addNameserver()" class="button">Add</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset ng-show="showMasters()">
+    <legend ng-class="{error: zoneForm.masters.$invalid}">Masters:</legend>
+
+    <div class="row">
+      <div class="large-6 columns" ng-repeat="master in zone.masters_o">
+        <div class="row collapse">
+          <div class="small-9 columns">
+            <input type="text" ng-model="master.master">
+          </div>
+          <div class="small-2 columns">
+            <a href="#" ng-click="removeMaster($index)" class="button postfix">Delete</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="large-6 columns" ng-show="canAddMaster()">
+        <div class="row collapse">
+          <div class="small-2 columns">
+            <a href="" ng-click="addMaster()" class="button">Add</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  <br>
+
+  <a href="/zone/{{master.name}}" class="button" ng-show="zone._url">Cancel</a>
+  <a href="/" class="button" ng-show="!zone._url">Cancel</a>
+  <button ng-click="save()" ng-disabled="isClean() || zoneForm.$invalid" class="button">Save</button>
+  <button ng-click="destroy()" ng-show="zone._url" class="button alert">Delete</button>
+
+</div>
+</div>
+</form>

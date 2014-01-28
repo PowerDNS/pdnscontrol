@@ -153,6 +153,18 @@ def zone_index(server):
         return jsonarify(data)
 
 
+@mod.route('/servers/<server>/zones', methods=['POST'])
+@api_auth_required
+@roles_required('edit')
+def zone_create(server):
+    server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
+
+    r = fetch_remote(server.pdns_url + '/servers/localhost/zones', method=request.method, data=request.data)
+    return forward_remote_response(r)
+
+
 @mod.route('/servers/<server>/zones/<zone>')
 @api_auth_required
 @roles_required('view')
@@ -170,6 +182,30 @@ def zone_get(server, zone):
         remote_url += '?command=zone&zone=' + zone
 
     r = fetch_remote(remote_url, 'GET')
+    return forward_remote_response(r)
+
+
+@mod.route('/servers/<server>/zones/<zone>', methods=['PUT', 'DELETE'])
+@api_auth_required
+@roles_required('edit')
+def zone_update(server, zone):
+    server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
+
+    r = fetch_remote(server.pdns_url + '/servers/localhost/zones/' + zone, method=request.method, data=request.data)
+    return forward_remote_response(r)
+
+
+@mod.route('/servers/<server>/zones/<zone>/export')
+@api_auth_required
+@roles_required('view')
+def zone_export(server, zone):
+    server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
+
+    r = fetch_remote(server.pdns_url + '/servers/localhost/zones/' + zone + '/export', method=request.method, data=request.data)
     return forward_remote_response(r)
 
 

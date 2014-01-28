@@ -155,6 +155,9 @@ a:hover {
 .tabs dd.active, .tabs li.active {
     border-top: 3px solid #3B8EC8;
 }
+.tabs {
+    margin-bottom: 0; /* override foundation */
+}
 
 #current_user {
     font-size: small;

@@ -50,7 +50,8 @@ def fetch_remote(remote_url, method='GET', data=None):
         data=data
         )
     try:
-        r.raise_for_status()
+        if r.status_code not in (200, 400, 422):
+            r.raise_for_status()
     except Exception as e:
         raise Exception("While fetching " + remote_url + ": " + str(e)), None, sys.exc_info()[2]
 

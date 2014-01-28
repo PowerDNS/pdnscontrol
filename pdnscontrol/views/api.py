@@ -131,24 +131,29 @@ def zone_index(server):
     if server is None:
         return jsonify(errors={'name':"Not found"}), 404
 
-    remote_url = urlparse.urljoin(server.pdns_url, '?command=domains')
-    data = fetch_json(remote_url)
-    if type(data) == dict:
-        data = data['domains']
-    for zone in data:
-        if 'type' in zone:
-            zone['kind'] = zone['type']
-            del zone['type']
-        if 'servers' in zone:
-            zone['forwarders'] = zone['servers']
-            del zone['servers']
-        zone['_id'] = zone['name']
-        zone['server'] = server.name
+    if server.daemon_type == 'Authoritative':
+        r = fetch_remote(server.pdns_url + '/servers/localhost/zones', method=request.method, data=request.data)
+        return forward_remote_response(r)
+    else:
+        # legacy URL schema
+        remote_url = urlparse.urljoin(server.pdns_url, '?command=domains')
+        data = fetch_json(remote_url)
+        if type(data) == dict:
+            data = data['domains']
+        for zone in data:
+            if 'type' in zone:
+                zone['kind'] = zone['type']
+                del zone['type']
+            if 'servers' in zone:
+                zone['forwarders'] = zone['servers']
+                del zone['servers']
+            zone['_id'] = zone['name']
+            zone['server'] = server.name
 
     return jsonify(zones=data)
 
 
-@mod.route('/servers/<server>/zones/<path:zone>')
+@mod.route('/servers/<server>/zones/<zone>')
 @api_auth_required
 @roles_required('view')
 def zone_get(server, zone):
@@ -157,7 +162,12 @@ def zone_get(server, zone):
         return jsonify(errors={'name':"Not found"}), 404
 
     remote_url = server.pdns_url
-    remote_url += '?command=zone&zone=' + zone
+    if server.daemon_type == 'Authoritative':
+        remote_url += '/servers/localhost/zones/' + zone
+    else:
+        # legacy URL schema
+        # XXX broken, but why?
+        remote_url += '?command=zone&zone=' + zone
 
     r = fetch_remote(remote_url, 'GET')
     return forward_remote_response(r)

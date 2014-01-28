@@ -10,7 +10,7 @@ function ServerResolver(Restangular, $route) {
 }
 
 function ZoneResolver(Restangular, $route) {
-  return Restangular.one('servers', $route.current.params.serverName).one('zones', $route.current.params.zoneName).get();
+  return Restangular.one('servers', $route.current.params.serverName).one('zones', $route.current.params.zoneId).get();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ ControlApp.
           server: ServerResolver
         }
       }).
-      when('/server/:serverName/zone/:zoneName', {
+      when('/server/:serverName/zone/:zoneId', {
         controller:ZoneDetailCtrl, templateUrl: templateUrl('zone/detail'),
         resolve: {
           server: ServerResolver,
@@ -416,7 +416,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
     data: 'zones',
     enableRowSelection: false,
     columnDefs: [
-      {field: 'name', displayName: 'Name', cellTemplate: '<div class="ngCellText"><a href="/server/{{server._id}}/zone/{{row.entity[col.field]}}/">{{row.entity[col.field]}}</div></a>'},
+      {field: 'name', displayName: 'Name', cellTemplate: '<div class="ngCellText"><a href="/server/{{server._id}}/zone/{{row.entity._id}}">{{row.entity[col.field]}}</div></a>'},
       {field: 'kind', displayName: 'Kind'}
     ]
   };

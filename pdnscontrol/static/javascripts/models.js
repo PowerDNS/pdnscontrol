@@ -17,12 +17,23 @@ angular.module('models', ['restangular']).
       var response = original_response;
       var singular = what.replace(/s$/, '');
       if (operation === 'getList') {
-        return response[what];
+        var i;
+        for (i = 0; i < response.length; i++) {
+          if (!response[i]._id && response[i].id) {
+            response[i]._id = response[i].id;
+          }
+        }
+        return response;
       }
       if (operation === 'get' || operation == 'put' || operation == 'post') {
-        response._url = url;
-        if (!!response.name && !response._id) {
+        if (!response._id && !!response.id) {
+          response._id = response.id;
+        }
+        if (!response._id && !!response.name) {
           response._id = response.name;
+        }
+        if (!response._id) {
+          console.log('request for', operation, what, 'yielded no _id');
         }
         response._url = url;
       }

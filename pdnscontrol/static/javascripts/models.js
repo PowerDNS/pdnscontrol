@@ -67,15 +67,16 @@ angular.module('models', ['restangular']).
       })();
 
       if (server.stats) {
-        server.uptime = server.stats.uptime;
+        // TODO: have Recursor behave the same
         if (server.daemon_type == 'Authoritative') {
-          server.version = server.stats.version;
+          server.stats = _.object(_.map(server.stats, function(o) { return [o['name'], o['value']]; }));
         }
+        server.uptime = server.stats.uptime;
       }
       if (server.config) {
+        // TODO: have Recursor behave the same
         if (server.daemon_type == 'Authoritative') {
-          // Auth replies with a list instead of an object.
-          server.config = _.object(server.config);
+          server.config = _.object(_.map(server.config, function(o) { return [o['name'], o['value']]; }));
         }
         if (server.daemon_type == 'Recursor') {
           server.version = server.config['version-string'].split(" ")[2];

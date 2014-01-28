@@ -126,6 +126,10 @@ class Server(db.Model, IterableModel, RestModel):
         d = super(Server, self).to_dict()
         d['stats'] = self.sideload('stats')
         d['config'] = self.sideload('config')
+        if self.daemon_type == 'Authoritative':
+            # hack until Recursor does this, too
+            server = self.sideload('')
+            d['version'] = server.get('version')
         d['url'] = request.url_root + 'api/servers/' + self.name + '/'
         return d
 
@@ -133,10 +137,10 @@ class Server(db.Model, IterableModel, RestModel):
         remote_action = what
         if self.daemon_type == 'Authoritative':
             if what == 'stats':
-                remote_action = 'get'
+                remote_action = '/statistics'
             elif what == 'config':
-                remote_action = 'config'
-            remote_url = urlparse.urljoin(self.pdns_url, 'jsonstat?command=' + remote_action)
+                remote_action = '/config'
+            remote_url = urlparse.urljoin(self.pdns_url, '/servers/localhost' + remote_action)
         else:
             remote_url = urlparse.urljoin(self.pdns_url, '?command=' + remote_action)
 
@@ -144,7 +148,7 @@ class Server(db.Model, IterableModel, RestModel):
             data = fetch_json(remote_url)
             return data
         except:
-            return None
+            return {}
 
     @property
     def pdns_url(self):

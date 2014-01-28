@@ -10,6 +10,9 @@ angular.module('models', ['restangular']).
       if (operation === 'put' || operation === 'post' || operation == 'patch') {
         elem._id = undefined;
       }
+      if (what == 'zone') {
+//        elem.
+      }
       //DBG//console.log('sending', elem);
       return elem;
     });

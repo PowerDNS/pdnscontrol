@@ -40,7 +40,7 @@ def api_auth_required(f):
 @roles_required('view')
 def server_index():
     ary = Server.all()
-    return jsonify(servers=ary)
+    return jsonarify(ary)
 
 
 @mod.route('/servers', methods=['POST'])
@@ -54,7 +54,7 @@ def server_create():
         return jsonify(errors=obj.validation_errors), 422
     db.session.add(obj)
     db.session.commit()
-    return jsonify(server=obj.to_dict())
+    return jsonify(**obj.to_dict())
 
 
 @mod.route('/servers/<string:server>', methods=['GET'])
@@ -96,7 +96,7 @@ def server_edit(server):
         return jsonify(errors=obj.validation_errors), 422
     db.session.add(obj)
     db.session.commit()
-    return jsonify(server=obj.to_dict())
+    return jsonify(**obj.to_dict())
 
 
 @mod.route('/servers/<server>/zones/<path:zone>/rrsets', methods=['PATCH'])
@@ -150,7 +150,7 @@ def zone_index(server):
             zone['_id'] = zone['name']
             zone['server'] = server.name
 
-    return jsonify(zones=data)
+        return jsonarify(data)
 
 
 @mod.route('/servers/<server>/zones/<zone>')

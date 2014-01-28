@@ -99,7 +99,7 @@ def server_edit(server):
     return jsonify(**obj.to_dict())
 
 
-@mod.route('/servers/<server>/zones/<path:zone>/rrsets', methods=['PATCH'])
+@mod.route('/servers/<server>/zones/<path:zone>/rrset', methods=['PATCH'])
 @api_auth_required
 @roles_required('edit')
 def server_zone_qname_qtype(server, zone):
@@ -107,19 +107,7 @@ def server_zone_qname_qtype(server, zone):
     if server is None:
         return jsonify(errors={'name':"Not found"}), 404
 
-    qname = request.json['name']
-    qtype = request.json['type']
-    method = request.json['changetype'].upper()
-    if method == 'REPLACE':
-        method = 'POST'
-
-    remote_url = server.pdns_url
-    remote_url += '?command=zone-rest&rest=/{zone}/{qname}/{qtype}'.format(
-        zone=urllib.quote_plus(zone.encode("utf-8")),
-        qname=urllib.quote_plus(qname.encode("utf-8")),
-        qtype=urllib.quote_plus(qtype.encode("utf-8"))
-        )
-    r = fetch_remote(remote_url, method=method, data=request.data)
+    r = fetch_remote(server.pdns_url + '/servers/localhost/zones/' + zone + '/rrset', method=request.method, data=request.data)
     return forward_remote_response(r)
 
 

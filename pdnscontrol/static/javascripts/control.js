@@ -673,7 +673,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
 
       $scope.zone.customOperation(
         'patch',
-        'rrsets',
+        'rrset',
         {},
         {'Content-Type': 'application/json'},
         change
@@ -696,7 +696,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
 
         sendNextChange(changes);
       }, function(errorResponse) {
-        $scope.errors.push(errorResponse.error || 'Unknown server error');
+        $scope.errors.push(errorResponse.data.error || 'Unknown server error');
       });
     }
 
@@ -720,7 +720,8 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
   };
 
   $scope.add = function() {
-    $scope.zone.records.push({name: $scope.zone.name, _new: true});
+    // TODO: get default ttl from somewhere
+    $scope.zone.records.push({name: $scope.zone.name, type: '', priority: 0, ttl: 3600, content: '', _new: true});
   };
 
   $scope.delete_selected = function() {

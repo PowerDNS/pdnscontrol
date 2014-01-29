@@ -35,15 +35,24 @@ def auth_from_url(url):
     return auth
 
 
-def fetch_remote(remote_url, method='GET', data=None):
+def fetch_remote(remote_url, method='GET', data=None, accept=None):
     if data is not None and type(data) != str:
         data = json.dumps(data)
 
     verify = not current_app.config['IGNORE_SSL_ERRORS']
+
+    headers = {
+        'user-agent': 'pdnscontrol/0',
+        'pragma': 'no-cache',
+        'cache-control': 'no-cache'
+    }
+    if accept is not None:
+        headers['accept'] = accept
+
     r = requests.request(
         method,
         remote_url,
-        headers={'user-agent': 'pdnscontrol/0'},
+        headers=headers,
         verify=verify,
         auth=auth_from_url(remote_url),
         timeout=current_app.config['REMOTE_TIMEOUT'],

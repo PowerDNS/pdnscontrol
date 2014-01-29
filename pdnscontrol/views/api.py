@@ -22,6 +22,20 @@ def forward_remote_response(response):
         )
 
 
+def forward_request(server, remote_url):
+    server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name':"Not found"}), 404
+
+    response = fetch_remote(
+        server.pdns_url + remote_url,
+        method=request.method,
+        data=request.data,
+        accept=request.headers.get('Accept')
+    )
+    return forward_remote_response(response)
+
+
 def api_auth_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -102,13 +116,8 @@ def server_edit(server):
 @mod.route('/servers/<server>/zones/<path:zone>/rrset', methods=['PATCH'])
 @api_auth_required
 @roles_required('edit')
-def server_zone_qname_qtype(server, zone):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
-
-    r = fetch_remote(server.pdns_url + '/servers/localhost/zones/' + zone + '/rrset', method=request.method, data=request.data)
-    return forward_remote_response(r)
+def server_zone_rrset(server, zone):
+    return forward_request(server, '/servers/localhost/zones/' + zone + '/rrset')
 
 
 @mod.route('/servers/<server>/zones')
@@ -145,12 +154,7 @@ def zone_index(server):
 @api_auth_required
 @roles_required('edit')
 def zone_create(server):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
-
-    r = fetch_remote(server.pdns_url + '/servers/localhost/zones', method=request.method, data=request.data)
-    return forward_remote_response(r)
+    return forward_request(server, '/servers/localhost/zones')
 
 
 @mod.route('/servers/<server>/zones/<zone>')
@@ -177,24 +181,14 @@ def zone_get(server, zone):
 @api_auth_required
 @roles_required('edit')
 def zone_update(server, zone):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
-
-    r = fetch_remote(server.pdns_url + '/servers/localhost/zones/' + zone, method=request.method, data=request.data)
-    return forward_remote_response(r)
+    return forward_request(server, '/servers/localhost/zones/' + zone)
 
 
 @mod.route('/servers/<server>/zones/<zone>/export')
 @api_auth_required
 @roles_required('view')
 def zone_export(server, zone):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
-
-    r = fetch_remote(server.pdns_url + '/servers/localhost/zones/' + zone + '/export', method=request.method, data=request.data)
-    return forward_remote_response(r)
+    return forward_request(server, '/servers/localhost/zones/' + zone + '/export')
 
 
 @mod.route('/servers/<server>/log-grep')

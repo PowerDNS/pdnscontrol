@@ -144,6 +144,9 @@ def graph_server(url, daemon_type, keys, node):
         logger.error('error decoding stats from %s', url, exc_info=True)
         return
 
+    # transpose to simple dict
+    stats = dict([(el['name'], el['value']) for el in stats])
+
     timestamp = nowtics()
     lines = []
 

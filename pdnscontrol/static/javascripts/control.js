@@ -607,6 +607,9 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
     function compareNameTypeAndRR(rr, nt) {
       return rrToNameType(rr) == nt;
     }
+    function rrCmpSerialize(rr) {
+      return '' + rr.name + '/' + rr.type + '/' + rr.ttl + '/' + rr.prio + '/' + rr.content + '/' + rr.disabled;
+    }
 
     var currentNameTypes = pluckNameTypes($scope.zone.records);
     var masterNameTypes = pluckNameTypes($scope.master.records);
@@ -662,12 +665,8 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
       if (change === undefined) {
         // done.
         // sort master and current so equals will return true.
-        $scope.zone.records = _.sortBy($scope.zone.records, function(v) {
-          return '' + v.name + '/' + v.type + '/' + v.ttl + '/' + v.prio + '/' + v.content;
-        });
-        $scope.master.records = _.sortBy($scope.master.records, function(v) {
-          return '' + v.name + '/' + v.type + '/' + v.ttl + '/' + v.prio + '/' + v.content;
-        });
+        $scope.zone.records = _.sortBy($scope.zone.records, rrCmpSerialize);
+        $scope.master.records = _.sortBy($scope.master.records, rrCmpSerialize);
         return;
       }
 
@@ -729,7 +728,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
 
   $scope.add = function() {
     // TODO: get default ttl from somewhere
-    $scope.zone.records.push({name: $scope.zone.name, type: '', priority: 0, ttl: 3600, content: '', _new: true});
+    $scope.zone.records.push({name: $scope.zone.name, type: '', priority: 0, ttl: 3600, content: '', disabled: false, _new: true});
   };
 
   $scope.delete_selected = function() {
@@ -812,6 +811,8 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
     {name: 'DLV'}
   ];
   typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in rrTypes" ng-show="!!row.entity._new"></select><div class="ngCellText" ng-show="!!!row.entity._new">{{COL_FIELD}}</div>';
+  checkboxEditTemplate = '<input type=checkbox required ng-class="\'colt\' + col.index" ng-input="COL_FIELD" ng-model="COL_FIELD">';
+  checkboxViewTemplate = '<div class="ngCellText" ng-class=\"col.colIndex()\"><input type=checkbox required readonly ng-model="COL_FIELD"></div>';
   $scope.stripZone = function(val) {
     var val = val;
     if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) == '.'+$scope.zone.name) {
@@ -821,8 +822,8 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
     }
     return val;
   };
-  nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{zone.name}}</span></div>'
-  nameEditTemplate = ''
+  nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{zone.name}}</span></div>';
+  nameEditTemplate = '';
 
   $scope.mySelections = [];
   $scope.recordsGridOptions = {
@@ -838,9 +839,10 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
     selectedItems: $scope.mySelections,
     columnDefs: [
       {field: 'name', displayName: 'Name', enableCellEdit: true, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate},
-      {field: 'type', displayName: 'Type', width: '80', enableCellEdit: true, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
-      {field: 'priority', displayName: 'Priority', width: '80', enableCellEdit: true},
-      {field: 'ttl', displayName: 'TTL', width: '80', enableCellEdit: true},
+      {field: 'disabled', displayName: 'Dis.', width: '40', enableCellEdit: true, editableCellTemplate: checkboxEditTemplate, cellTemplate: checkboxViewTemplate },
+      {field: 'type', displayName: 'Type', width: '60', enableCellEdit: true, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
+      {field: 'ttl', displayName: 'TTL', width: '60', enableCellEdit: true},
+      {field: 'priority', displayName: 'Prio', width: '40', enableCellEdit: true},
       {field: 'content', displayName: 'Data', enableCellEdit: true},
     ]
   };

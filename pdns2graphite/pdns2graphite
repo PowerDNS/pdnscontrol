@@ -134,18 +134,17 @@ def graph_server(url, daemon_type, keys, node):
 
     try:
         r = requests.get(url, auth=(config['pdnscontrol_user'],config['pdnscontrol_pass']))
-    except requests.exceptions.RequestException:
-        logger.error('error fetching stats from %s', url, exc_info=True)
+    except:
+        logger.exception('error fetching stats from %s', url)
         return
 
     try:
         stats = json.loads(r.text)
-    except ValueError:
-        logger.error('error decoding stats from %s', url, exc_info=True)
+        # transpose to simple dict
+        stats = dict([(el['name'], el['value']) for el in stats])
+    except:
+        logger.error('error decoding stats from %s', url)
         return
-
-    # transpose to simple dict
-    stats = dict([(el['name'], el['value']) for el in stats])
 
     timestamp = nowtics()
     lines = []

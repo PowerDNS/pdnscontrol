@@ -85,7 +85,7 @@
   <a href="/server/{{server.name}}/zone/{{master.name}}" class="button" ng-show="zone._url">Cancel</a>
   <a href="/server/{{server.name}}" class="button" ng-show="!zone._url">Cancel</a>
   <button ng-click="save()" ng-disabled="isClean() || zoneForm.$invalid" class="button">Save</button>
-  <button ng-click="destroy()" ng-show="zone._url" class="button alert">Delete</button>
+  <button ng-click="destroy()" ng-show="zone._url" class="button alert right">Delete</button>
 
 </div>
 </div>

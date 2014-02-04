@@ -187,7 +187,7 @@ def main():
         logger.debug('polling')
         for server in getserverlist(config['serverlist_url']):
             url = server['url']
-            url = urlparse.urljoin(url, 'stats')
+            url = urlparse.urljoin(url, 'statistics')
             if server['daemon_type'] == 'Authoritative':
                 statlist = auth
                 daemon_type = 'auth'

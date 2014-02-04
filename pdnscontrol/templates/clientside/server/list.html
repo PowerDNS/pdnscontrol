@@ -19,9 +19,9 @@
             <td><input type="checkbox" ng-model="server.selected" ng-change="refreshSelectedAll()"></td>
             <td>{{server.daemon_type}}</td>
             <td><a href="/server/{{server.name}}">{{server.name}}</a></td>
-            <td>{{server.listen_address}}</td>
+            <td>{{server.listen_address()}}</td>
             <td>{{server.version}}</td>
-            <td>{{server.uptime | relative_time}}</td>
+            <td>{{server.stats.uptime | relative_time}}</td>
             <td>{{server.load}}</td>
           </tr>
           <span ng-show="!servers.length">

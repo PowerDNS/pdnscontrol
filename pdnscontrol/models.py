@@ -124,29 +124,13 @@ class Server(db.Model, IterableModel, RestModel):
 
     def to_dict(self):
         d = super(Server, self).to_dict()
-        d['stats'] = self.sideload('stats')
-        d['config'] = self.sideload('config')
-        if self.daemon_type == 'Authoritative':
-            # hack until Recursor does this, too
-            server = self.sideload('')
-            d['version'] = server.get('version')
         d['url'] = request.url_root + 'api/servers/' + self.name + '/'
         return d
 
     def sideload(self, what):
-        remote_action = what
-        if self.daemon_type == 'Authoritative':
-            if what == 'stats':
-                remote_action = '/statistics'
-            elif what == 'config':
-                remote_action = '/config'
-            remote_url = urlparse.urljoin(self.pdns_url, '/servers/localhost' + remote_action)
-        else:
-            remote_url = urlparse.urljoin(self.pdns_url, '?command=' + remote_action)
-
+        remote_url = urlparse.urljoin(self.pdns_url, '/servers/localhost/' + what)
         try:
-            data = fetch_json(remote_url)
-            return data
+            return fetch_json(remote_url)
         except:
             return {}
 

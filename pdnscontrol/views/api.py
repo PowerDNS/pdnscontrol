@@ -80,8 +80,23 @@ def server_get(server):
         return jsonify(errors={'name':"Not found"}), 404
 
     server = obj.to_dict()
-    server['stats'] = obj.sideload('stats')
-    server['config'] = obj.sideload('config')
+
+    try:
+        response = fetch_remote(
+            obj.pdns_url + '/servers/localhost',
+            method='GET',
+            accept=request.headers.get('Accept')
+        )
+        s = response.json()
+        s.update(server)
+        s['id'] = s['_id']
+        server = s
+    except Exception as e:
+        pass
+
+    # make sure JS doesn't loop endlessy
+    server['version'] = server.get('version', '')
+
     return jsonify(**server)
 
 
@@ -243,6 +258,20 @@ def server_control(server):
 
     r = fetch_remote(remote_url, method=request.method, data=data)
     return forward_remote_response(r)
+
+
+@mod.route('/servers/<server>/statistics', methods=['GET'])
+@api_auth_required
+@roles_required('stats')
+def server_stats(server):
+    return forward_request(server, '/servers/localhost/statistics')
+
+
+@mod.route('/servers/<server>/config', methods=['GET'])
+@api_auth_required
+@roles_required('stats')
+def server_config(server):
+    return forward_request(server, '/servers/localhost/config')
 
 
 @mod.route('/servers/<server>/<action>', methods=['GET','POST'])

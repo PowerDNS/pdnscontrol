@@ -448,28 +448,32 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
       $scope.load_error = $scope.load_error || '';
       $scope.load_error += 'Loading zones failed';
     });
-
-    $scope.configuration = _.pairs($scope.server.config);
-    $scope.configurationGridOptions = {
-      data: 'configuration',
-      enableRowSelection: false,
-      columnDefs: [
-        {field: '0', displayName: 'Name'},
-        {field: '1', displayName: 'Value'}
-      ]
-    };
-
-    $scope.statistics = _.pairs($scope.server.stats);
-    $scope.statisticsGridOptions = {
-      data: 'statistics',
-      enableRowSelection: false,
-      columnDefs: [
-        {field: '0', displayName: 'Name'},
-        {field: '1', displayName: 'Value'}
-      ]
-    };
   }
   loadServerData();
+
+  $scope.configurationGridOptions = {
+    data: 'configuration',
+    enableRowSelection: false,
+    columnDefs: [
+      {field: '0', displayName: 'Name'},
+      {field: '1', displayName: 'Value'}
+    ]
+  };
+  $scope.$watch('server.config', function() {
+    $scope.configuration = _.pairs($scope.server.config);
+  });
+
+  $scope.statisticsGridOptions = {
+    data: 'statistics',
+    enableRowSelection: false,
+    columnDefs: [
+      {field: '0', displayName: 'Name'},
+      {field: '1', displayName: 'Value'}
+    ]
+  };
+  $scope.$watch('server.stats', function() {
+    $scope.statistics = _.pairs($scope.server.stats);
+  });
 
   $scope.popup_flush_cache = function() {
     showPopup($scope, $compile, 'server/flush_cache', function(scope) {
@@ -741,7 +745,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
     }
   };
 
-  $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() == 'MASTER' && server.config.mustDo('master')) || ($scope.zone.kind.toUpperCase() == 'SLAVE' && server.config.mustDo('slave-renotify'));
+  $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() == 'MASTER' && server.mustDo('master')) || ($scope.zone.kind.toUpperCase() == 'SLAVE' && server.mustDo('slave-renotify'));
   $scope.isUpdateFromMasterAllowed = ($scope.zone.kind.toUpperCase() == 'SLAVE');
   $scope.isChangeAllowed = ($scope.zone.kind.toUpperCase() != 'SLAVE');
 

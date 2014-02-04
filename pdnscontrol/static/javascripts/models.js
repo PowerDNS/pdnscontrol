@@ -66,34 +66,34 @@ angular.module('models', ['restangular']).
         return name;
       })();
 
-      if (server.stats) {
-        // TODO: have Recursor behave the same
-        if (server.daemon_type == 'Authoritative') {
-          server.stats = _.object(_.map(server.stats, function(o) { return [o['name'], o['value']]; }));
-        }
-        server.uptime = server.stats.uptime;
+      server.stats = {};
+      server.config = {};
+
+      server.one('statistics').get().then(function(resp) {
+        server.stats = _.object(_.map(resp, function(o) { return [o['name'], o['value']]; }));
+      });
+      server.one('config').get().then(function(resp) {
+        server.config = _.object(_.map(resp, function(o) { return [o['name'], o['value']]; }));
+      });
+      if (!('version' in server)) {
+        server.get().then(function(resp) {
+          server.version = resp.version;
+        });
       }
-      if (server.config) {
-        // TODO: have Recursor behave the same
-        if (server.daemon_type == 'Authoritative') {
-          server.config = _.object(_.map(server.config, function(o) { return [o['name'], o['value']]; }));
-        }
-        if (server.daemon_type == 'Recursor') {
-          server.version = server.config['version-string'].split(" ")[2];
-        }
-        server.listen_address = (function() {
-          var local_address = server.config['local-address'];
-          var local_ipv6 = server.config['local-ipv6'];
-          return '' +
-            (local_address || '') +
-            ' ' +
-            (local_ipv6 || '');
-        })();
-        server.config.mustDo = function(key) {
-          var val = server.config[key];
-          return (val!=="no") && (val!=="off");
-        };
-      }
+
+      server.config.mustDo = function(key) {
+        var val = server.config[key];
+        return (val!=="no") && (val!=="off");
+      };
+
+      server.listen_address = (function() {
+        var local_address = server.config['local-address'];
+        var local_ipv6 = server.config['local-ipv6'];
+        return '' +
+          (local_address || '') +
+          ' ' +
+          (local_ipv6 || '');
+      });
 
       return server;
     });

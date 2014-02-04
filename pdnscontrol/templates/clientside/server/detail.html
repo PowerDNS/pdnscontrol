@@ -7,7 +7,7 @@
 </div>
 <div class="row">
   <div class="twelve columns">
-    <p ng-show="server.version">Running version <strong>{{server.version}}</strong>, up since {{server.uptime | absolute_time}}.</p>
+    <p ng-show="server.version">Running version <strong>{{server.version}}</strong>, up since {{server.stats.uptime | absolute_time}}.</p>
     <p ng-show="load_error" class="load_error">{{load_error}}</p>
   </div>
   <div class="twelve columns">

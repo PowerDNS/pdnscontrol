@@ -743,6 +743,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
 
   $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() == 'MASTER' && server.config.mustDo('master')) || ($scope.zone.kind.toUpperCase() == 'SLAVE' && server.config.mustDo('slave-renotify'));
   $scope.isUpdateFromMasterAllowed = ($scope.zone.kind.toUpperCase() == 'SLAVE');
+  $scope.isChangeAllowed = ($scope.zone.kind.toUpperCase() != 'SLAVE');
 
   $scope.notify_slaves = function() {
     $scope.loading = true;
@@ -812,7 +813,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
   ];
   typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in rrTypes" ng-show="!!row.entity._new"></select><div class="ngCellText" ng-show="!!!row.entity._new">{{COL_FIELD}}</div>';
   checkboxEditTemplate = '<input type=checkbox required ng-class="\'colt\' + col.index" ng-input="COL_FIELD" ng-model="COL_FIELD">';
-  checkboxViewTemplate = '<div class="ngCellText" ng-class=\"col.colIndex()\"><input type=checkbox required readonly ng-model="COL_FIELD"></div>';
+  checkboxViewTemplate = '<div class="ngCellText" ng-class=\"col.colIndex()\"><input type=checkbox required ng-model="COL_FIELD" ng-disabled="!isChangeAllowed"></div>';
   $scope.stripZone = function(val) {
     var val = val;
     if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) == '.'+$scope.zone.name) {
@@ -831,19 +832,19 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
     enableRowSelection: true,
     enableCellEditOnFocus: false,
     enableCellSelection: true,
-    enableCellEdit: true,
-    showSelectionCheckbox: true,
+    enableCellEdit: $scope.isChangeAllowed,
+    showSelectionCheckbox: $scope.isChangeAllowed,
     selectWithCheckboxOnly: true,
     showFilter: true,
     sortInfo: { fields: ['name', 'type', 'priority', 'content'], directions: ['ASC', 'ASC', 'ASC', 'ASC'] },
     selectedItems: $scope.mySelections,
     columnDefs: [
-      {field: 'name', displayName: 'Name', enableCellEdit: true, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate},
-      {field: 'disabled', displayName: 'Dis.', width: '40', enableCellEdit: true, editableCellTemplate: checkboxEditTemplate, cellTemplate: checkboxViewTemplate },
-      {field: 'type', displayName: 'Type', width: '60', enableCellEdit: true, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
-      {field: 'ttl', displayName: 'TTL', width: '60', enableCellEdit: true},
-      {field: 'priority', displayName: 'Prio', width: '40', enableCellEdit: true},
-      {field: 'content', displayName: 'Data', enableCellEdit: true},
+      {field: 'name', displayName: 'Name', enableCellEdit: $scope.isChangeAllowed, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate},
+      {field: 'disabled', displayName: 'Dis.', width: '40', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: checkboxEditTemplate, cellTemplate: checkboxViewTemplate },
+      {field: 'type', displayName: 'Type', width: '60', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
+      {field: 'ttl', displayName: 'TTL', width: '60', enableCellEdit: $scope.isChangeAllowed},
+      {field: 'priority', displayName: 'Prio', width: '40', enableCellEdit: $scope.isChangeAllowed},
+      {field: 'content', displayName: 'Data', enableCellEdit: $scope.isChangeAllowed},
     ]
   };
 

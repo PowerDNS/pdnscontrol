@@ -1,37 +1,44 @@
-<form class=custom name="serverForm">
+<form name="serverForm">
 <div class="row">
-<div class="twelve columns">
+<div class="small-12 columns">
   <h2 class="server-name" ng-show="server._url">{{master.name}}</h2>
   <h2 class="server-name" ng-show="!server._url">Add Server</h2>
 </div>
 </div>
 <div class="row">
-<div class="twelve columns">
-  <label ng-class="{error: serverForm.name.$invalid}">Server Name:
-    <input type="text" name="name" ng-model="server.name" required>
-  </label>
+  <div class="small-12 columns">
+    <label ng-class="{error: serverForm.name.$invalid}" for="name">Server Name</label>
+    <input type="text" name="name" ng-model="server.name" id="name" required>
+  </div>
+</div>
 
-  <label ng-class="{error: serverForm.daemon_type.$invalid}">Daemon Type:
-      <label>
-        <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Authoritative" required>
-        Authoritative
-      </label>
+<div class="row">
+  <div class="small-12 columns">
+    <label ng-class="{error: serverForm.daemon_type.$invalid}">Server Type</label>
+    <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Authoritative" id="daemon_typeAuth" required>
+    <label for="daemon_typeAuth">Authoritative</label>
+    <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Recursor" id="daemon_typeRecursor">
+    <label for="daemon_typeRecursor">Recursor</label>
+  </div>
+</div>
 
-      <label>
-        <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Recursor">
-        Recursor
-      </label>
-  </label>
+<div class="row">
+  <div class="small-12 columns">
+  <label ng-class="{error: serverForm.stats_url.$invalid}" for="api_url">API URL</label>
+  <input type="url" name="stats_url" ng-model="server.stats_url" placeholder="http://admin:password@127.0.0.1:8081/" required id="api_url">
+  </div>
+</div>
 
-  <label ng-class="{error: serverForm.stats_url.$invalid}">API URL:
-    <input type="url" name="stats_url" ng-model="server.stats_url" required>
-  </label>
+<div class="row">
+  <div class="small-12 columns">
+  <label ng-class="{error: serverForm.manager_url.$invalid}" for="manager_url">Manager URL</label>
+  <input type="url" name="manager_url" ng-model="server.manager_url" placeholder="http://admin:password@127.0.0.1:8181/" required id="manager_url">
+  </div>
+</div>
 
-  <label ng-class="{error: serverForm.manager_url.$invalid}">Manager URL:
-    <input type="url" name="manager_url" ng-model="server.manager_url" required>
-  </label>
 
-
+<div class="row">
+  <div class="small-12 columns">
   <br>
 
   <a href="/server/{{master.name}}" class="button" ng-show="server._url">Cancel</a>

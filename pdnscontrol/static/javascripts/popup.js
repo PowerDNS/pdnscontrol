@@ -3,6 +3,7 @@
  */
 function showPopup($scope, $compile, template, scopeBinder) {
   var popupTemplate = document.createElement("ng-include");
+  popupTemplate.setAttribute("data-reveal", "");
   popupTemplate.setAttribute("class", "reveal-modal fixedWidth1000");
   popupTemplate.setAttribute("src", "'" + templateUrl(template) + "'");
   var popupScope = $scope.$new();
@@ -10,7 +11,7 @@ function showPopup($scope, $compile, template, scopeBinder) {
   var popupLinker = $compile(popupTemplate);
   var popupElement = popupLinker(popupScope);
   popupScope.$on("finished", function() {
-    $(popupElement).trigger('reveal:close');
+    $(popupElement).foundation('reveal', 'close');
     popupScope.$destroy();
     popupElement.remove();
   });
@@ -18,5 +19,6 @@ function showPopup($scope, $compile, template, scopeBinder) {
     popupScope.$emit("finished");
   };
   document.body.appendChild(popupElement[0]);
-  $(popupElement).reveal();
+  $(popupElement).foundation(); // init reveal settings
+  $(popupElement).foundation('reveal', 'open');
 }

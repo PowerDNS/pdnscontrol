@@ -68,6 +68,15 @@ body {
     margin-top: 1em;
     font-family: 'Open Sans', 'Sans', serif;
 }
+html, body {
+    font-size: 11pt;
+}
+/* override button font, as foundation sets it explicitly */
+button, .button {
+    font-family: 'Open Sans', 'Sans', serif;
+    font-size: 11pt;
+}
+
 
 h1 { font-family: 'Bontemps', serif; font-weight: normal; }
 h2 { font-family: 'Bontemps', serif; font-weight: normal; }
@@ -166,8 +175,19 @@ a:hover {
 #header {
 }
 
-.server-list ul.button-group {
+.server-list ul.button-group, .server-list button, .server-list a.button {
     margin-bottom: 0;
+}
+.server-list input[type="checkbox"] {
+    margin-bottom: 0;
+}
+
+.header-actions button, .header-actions a.button {
+    margin-bottom: 0;
+}
+
+.button-group:last-child {
+    margin-right: 0;
 }
 
 #btnServerAdd:hover span:after {
@@ -254,13 +274,7 @@ table.dataTable tbody tr:nth-child(even) {
     font-style: italic;
 }
 
-footer.row {
-    margin-top: 1em;
-    margin-bottom: 1em;
-}
 footer {
-    border-top: 1px solid #ddd;
-    padding-top: 4px;
     font-size: 10px;
 }
 

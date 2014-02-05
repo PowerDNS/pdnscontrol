@@ -1,7 +1,7 @@
 <div class="row">
-  <div class="twelve columns">
+  <div class="small-12 columns">
     <div class="panel server-list">
-      <table id="servers" class="twelve" ng-init="selected_all=true">
+      <table id="servers" class="small-12" ng-init="selected_all=true">
         <input ng-show="servers.length" type="text" ng-model="filter" class="search-query" placeholder="Filter">
         <thead>
           <tr>
@@ -30,7 +30,7 @@
         </tbody>
       </table>
       <div class="row">
-        <div class="seven columns">
+        <div class="small-7 columns">
           <div class="button-bar" ng-show="servers.length">
             <ul class="button-group">
               <li><button ng-click="popup_flush_cache()" class="button">Flush cache</button></li>
@@ -41,7 +41,7 @@
             </ul>
           </div>
         </div>
-        <div class="five columns">
+        <div class="small-5 columns">
           <ul class="button-group right">
             <li>
               <a class="button" href="/servers/new"><span class="foundicon-plus"></span></a>
@@ -55,7 +55,7 @@
 </div>
 
 <div class="row">
-  <div class="twelve columns">
+  <div class="small-12 columns">
     <h3>Aggregate statistics</h3>
 
 

@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="twelve columns">
+  <div class="small-12 columns">
     <a href="/server/{{server.name}}"><h2 class="server-name">{{server.name}}</h2></a>
     <h3>{{zone.name}} <spinner class="right" id="zone-spinner" spin="{{loading}}"></spinner>
       <a href="/server/{{server.name}}/zone/{{zone.name}}/edit" class="title-edit"><span class="foundicon-edit"></span></a>
@@ -8,13 +8,13 @@
 </div>
 
 <div class="row" ng-show="errors.length">
-  <div class="twelve columns errors">
+  <div class="small-12 columns errors">
     <div ng-repeat="error in errors" class="alert-box alert">{{error}}</div>
   </div>
 </div>
 
 <div class="row">
-  <div class="six columns" style="min-height: 30px;">
+  <div class="small-6 columns" style="min-height: 30px;">
     <span ng-show="isChangeAllowed">
       <button class="button tiny alert" ng-click="delete_selected()" ng-class="{disabled: !isDeletePossible(), alert: isDeletePossible()}"><span class="foundicon-trash"></span></button>
       <button class="button tiny" ng-click="add()"><span class="foundicon-plus"></span></button>
@@ -26,7 +26,7 @@
       </span>
     </span>
   </div>
-  <div class="six columns text-right">
+  <div class="small-6 columns text-right">
     <button class="button tiny" ng-click="notify_slaves()" ng-show="isNotifyAllowed"><span class="foundicon-cloud"></span> Notify slaves</button>
     <button class="button tiny" ng-click="update_from_master()" ng-show="isUpdateFromMasterAllowed"><span class="foundicon-refresh"></span> Update from master</button>
     &nbsp;
@@ -35,7 +35,7 @@
 </div>
 
 <div class="row">
-  <div class="twelve columns">
+  <div class="small-12 columns">
     <div class="gridStyle" ng-grid="recordsGridOptions">
     </div>
   </div>
@@ -43,7 +43,7 @@
 
 
 <div class="row">
-  <div class="twelve columns">
+  <div class="small-12 columns">
 <pre>
 DEBUG:
 

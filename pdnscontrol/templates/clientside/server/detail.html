@@ -1,8 +1,19 @@
 <div class="row">
-  <div class="eleven columns">
+  <div class="six columns">
     <h2 class="server-name">{{server.name}}
       <a href="/server/{{server.name}}/edit" class="title-edit"><span class="foundicon-edit"></span></a>
     </h2>
+  </div>
+  <div class="six columns">
+    <div class="button-bar right">
+    <ul class="button-group">
+      <li><button class="button" ng-click="popup_flush_cache()">Flush cache</button></li>
+    </ul>
+    <ul class="button-group">
+      <li><button class="button" ng-click="popup_restart()">Restart</button></li>
+      <li><button class="alert button" ng-click="popup_shutdown()">Shutdown</button></li>
+    </ul>
+    </div>
   </div>
 </div>
 <div class="row">
@@ -11,11 +22,6 @@
     <div ng-show="load_error" class="load_error alert-box alert">{{load_error}}</div>
   </div>
   <div class="twelve columns">
-    <ul class="button-group three-up even">
-      <li><button class="alert button" ng-click="popup_shutdown()">Shutdown</button></li>
-      <li><button class="button" ng-click="popup_restart()">Restart</button></li>
-      <li><button class="button" ng-click="popup_flush_cache()">Flush cache</button></li>
-    </ul>
     <searchlog servers="[server]"></searchlog>
 
   </div>

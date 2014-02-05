@@ -11,11 +11,10 @@
     <div ng-show="load_error" class="load_error alert-box alert">{{load_error}}</div>
   </div>
   <div class="twelve columns">
-    <ul class="button-group four-up even">
+    <ul class="button-group three-up even">
       <li><button class="alert button" ng-click="popup_shutdown()">Shutdown</button></li>
       <li><button class="button" ng-click="popup_restart()">Restart</button></li>
       <li><button class="button" ng-click="popup_flush_cache()">Flush cache</button></li>
-      <li><button class="button" ng-click="popup_deploy()">Deploy</button></li>
     </ul>
     <searchlog servers="[server]"></searchlog>
 

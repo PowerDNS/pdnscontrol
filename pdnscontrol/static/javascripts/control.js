@@ -390,11 +390,6 @@ function ServerListCtrl($scope, $compile, Restangular) {
       }
     });
   };
-
-  $scope.popup_deploy = function() {
-    showPopup($scope, $compile, 'server/deploy', function(scope) {
-    });
-  };
 }
 
 function ServerCreateCtrl($scope, $location, Restangular) {
@@ -538,11 +533,6 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
           scope.loading = false;
         });
       }
-    });
-  }
-
-  $scope.popup_deploy = function() {
-    showPopup($scope, $compile, 'server/deploy', function(scope) {
     });
   }
 }

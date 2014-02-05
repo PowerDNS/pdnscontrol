@@ -81,7 +81,7 @@ angular.module('models', ['restangular']).
         });
       }
 
-      server.config.mustDo = function(key) {
+      server.mustDo = function(key) {
         var val = server.config[key];
         return (val!=="no") && (val!=="off");
       };

@@ -9,10 +9,7 @@
 
 <div class="row" ng-show="errors.length">
   <div class="twelve columns errors">
-    <h5>Errors</h5>
-    <ul class="disc">
-      <li ng-repeat="error in errors">{{error}}</li>
-    </ul>
+    <div ng-repeat="error in errors" class="alert-box alert">{{error}}</div>
   </div>
 </div>
 

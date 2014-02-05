@@ -148,7 +148,7 @@ def zone_index(server):
         return forward_remote_response(r)
     else:
         # legacy URL schema
-        remote_url = urlparse.urljoin(server.pdns_url, '?command=domains')
+        remote_url = urlparse.urljoin(server.pdns_url, '/jsonstat?command=domains')
         data = fetch_json(remote_url)
         if type(data) == dict:
             data = data['domains']
@@ -217,7 +217,7 @@ def server_loggrep(server):
     needle = request.values.get('needle')
 
     remote_url = server.pdns_url
-    remote_url += '?command=log-grep&needle=' + needle
+    remote_url += '/jsonstat?command=log-grep&needle=' + needle
 
     data = fetch_json(remote_url)
 
@@ -235,7 +235,7 @@ def server_flushcache(server):
     domain = request.values.get('domain', '')
 
     remote_url = server.pdns_url
-    remote_url += '?command=flush-cache&domain=' + domain
+    remote_url += '/jsonstat?command=flush-cache&domain=' + domain
 
     data = fetch_json(remote_url)
 
@@ -254,7 +254,7 @@ def server_control(server):
     data = {'parameters': request.values.get('command', '')}
 
     remote_url = server.pdns_url
-    remote_url += '?command=pdns-control'
+    remote_url += '/jsonstat?command=pdns-control'
 
     r = fetch_remote(remote_url, method=request.method, data=data)
     return forward_remote_response(r)
@@ -307,7 +307,7 @@ def server_action(server, action):
                 remote_action = 'get'
             elif action == 'config':
                 remote_action = 'config'
-        remote_url = urlparse.urljoin(server.pdns_url, '?command=' + remote_action)
+        remote_url = urlparse.urljoin(server.pdns_url, '/jsonstat?command=' + remote_action)
 
     data = fetch_json(remote_url)
 

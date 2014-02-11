@@ -139,30 +139,7 @@ def server_zone_rrset(server, zone):
 @api_auth_required
 @roles_required('view')
 def zone_index(server):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
-
-    if server.daemon_type == 'Authoritative':
-        r = fetch_remote(server.pdns_url + '/servers/localhost/zones', method=request.method, data=request.data)
-        return forward_remote_response(r)
-    else:
-        # legacy URL schema
-        remote_url = urlparse.urljoin(server.pdns_url, '/jsonstat?command=domains')
-        data = fetch_json(remote_url)
-        if type(data) == dict:
-            data = data['domains']
-        for zone in data:
-            if 'type' in zone:
-                zone['kind'] = zone['type']
-                del zone['type']
-            if 'servers' in zone:
-                zone['forwarders'] = zone['servers']
-                del zone['servers']
-            zone['_id'] = zone['name']
-            zone['server'] = server.name
-
-        return jsonarify(data)
+    return forward_request(server, '/servers/localhost/zones')
 
 
 @mod.route('/servers/<server>/zones', methods=['POST'])
@@ -176,20 +153,7 @@ def zone_create(server):
 @api_auth_required
 @roles_required('view')
 def zone_get(server, zone):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
-
-    remote_url = server.pdns_url
-    if server.daemon_type == 'Authoritative':
-        remote_url += '/servers/localhost/zones/' + zone
-    else:
-        # legacy URL schema
-        # XXX broken, but why?
-        remote_url += '?command=zone&zone=' + zone
-
-    r = fetch_remote(remote_url, 'GET')
-    return forward_remote_response(r)
+    return forward_request(server, '/servers/localhost/zones/' + zone)
 
 
 @mod.route('/servers/<server>/zones/<zone>', methods=['PUT', 'DELETE'])

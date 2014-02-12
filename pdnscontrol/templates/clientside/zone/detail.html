@@ -30,7 +30,7 @@
     <button class="button tiny" ng-click="notify_slaves()" ng-show="isNotifyAllowed"><span class="foundicon-cloud"></span> Notify slaves</button>
     <button class="button tiny" ng-click="update_from_master()" ng-show="isUpdateFromMasterAllowed"><span class="foundicon-refresh"></span> Update from master</button>
     &nbsp;
-    <button class="button tiny" ng-click="export()"><span class="foundicon-paper-clip"></span> Export</button>
+    <button class="button tiny" ng-click="export()" ng-show="canExport"><span class="foundicon-paper-clip"></span> Export</button>
   </div>
 </div>
 

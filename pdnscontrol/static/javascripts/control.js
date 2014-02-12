@@ -424,13 +424,13 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
     data: 'zones',
     enableRowSelection: false,
     columnDefs: [
-      {field: 'name', displayName: 'Name', cellTemplate: '<div class="ngCellText"><a href="/server/{{server._id}}/zone/{{row.entity._id}}">{{row.entity[col.field]}}</div></a>'},
-      {field: 'kind', displayName: 'Kind'}
+      {field: 'name', displayName: 'Name', cellTemplate: '<div class="ngCellText"><a href="/server/{{server._id}}/zone/{{row.entity._id}}">{{row.entity[col.field]}}</a> <a href="/server/{{server._id}}/zone/{{row.entity._id}}"><span class="foundicon-edit"/></a></div>'},
+      {field: 'kind', displayName: 'Kind', width: '100'}
     ]
   };
   if ($scope.server.daemon_type == 'Recursor') {
-    $scope.zonesGridOptions.columnDefs.push({field: 'forwarders', displayName: 'Forwarders'});
-    $scope.zonesGridOptions.columnDefs.push({field: 'rdbit', displayName: 'Recursion Desired', cellFilter: 'checkmark'});
+    $scope.zonesGridOptions.columnDefs.push({field: 'forwarders', displayName: 'Forwarders', width: '200', cellFilter: 'array_join'});
+    $scope.zonesGridOptions.columnDefs.push({field: 'recursion_desired', displayName: 'Recursion Desired', width: '150', cellFilter: 'checkmark'});
   } else {
     $scope.zonesGridOptions.columnDefs.push({field: 'masters', displayName: 'Masters', cellTemplate: '<div class="ngCellText">{{row.entity[col.field] | array_join }}</div>'});
     $scope.zonesGridOptions.columnDefs.push({field: 'serial', displayName: 'Serial'});
@@ -847,74 +847,39 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
 }
 
 function ZoneCreateCtrl($scope, $location, Restangular, server) {
-  $scope.server = server;
-  $scope.master = server.one('zones');
-  $scope.master.kind = 'Native';
-  $scope.master.masters_o = [];
-  $scope.master.nameservers_o = [{'nameserver': ''}, {'nameserver': ''}];
-  $scope.zone = Restangular.copy($scope.master);
-  $scope.errors = [];
-
-  $scope.isClean = function() {
-    return angular.equals($scope.master, $scope.zone);
-  };
-
-  $scope.destroy = function() {
-    $scope.master.remove().then(function() {
-      $location.path('/server/' + $scope.server.name);
-    });
-  };
-
-  $scope.save = function() {
-    $scope.zone.masters = _.compact(_.map($scope.zone.masters_o, function(o) { return o['master']; } ));
-    $scope.zone.nameservers = _.compact(_.map($scope.zone.nameservers_o, function(o) { return o['nameserver']; } ));
-    $scope.zone.post().then(function(resultObject) {
-      $location.path('/server/' + $scope.server.name + '/zone/' + resultObject.id);
-    }, function(response) {
-      if (response.status == 422) {
-        $scope.errors = [];
-        _.each(response.data.errors, function(field, desc) {
-          $scope.zoneForm.$setValidity("zoneForm." + field + ".$invalid", false);
-        });
-        if (response.data.error) {
-          $scope.errors.push(response.data.error);
-        }
-      } else {
-        alert('Server reported unexpected error ' + response.status);
-      }
-    });
-  };
-
-  $scope.addMaster = function() {
-    $scope.zone.masters_o.push({'master': ''});
-  };
-
-  $scope.removeMaster = function(index) {
-    $scope.zone.masters_o.splice(index, 1);
-  };
-
-  $scope.canAddMaster = function() {
-    return $scope.zone.masters_o.length < 9;
-  };
-
-  $scope.showMasters = function() {
-    return $scope.zone.kind == 'Slave';
-  };
-
-  $scope.addNameserver = function() {
-    $scope.zone.nameservers_o.push({'nameserver': ''});
-  };
-
-  $scope.removeNameserver = function(index) {
-    $scope.zone.nameservers_o.splice(index, 1);
-  };
+  return ZoneEditCtrl($scope, $location, Restangular, server, server.one('zones'));
 }
 
 function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
   $scope.server = server;
   $scope.master = zone;
-  $scope.master.masters_o = _.map($scope.master.masters, function(o) { return {'master': o}; });
-  $scope.master.nameservers_o = _.map($scope.master.nameservers, function(o) { return {'nameserver': o}; });
+  $scope.errors = [];
+
+  if (server.daemon_type == 'Recursor') {
+    $scope.zone_types = ['Native', 'Forwarded'];
+    $scope.arrays = ['server'];
+    if (!$scope.master._url) {
+      $scope.master.kind = 'Native';
+      $scope.master.recursion_desired = false;
+      // suggest filling out forward-to servers
+      $scope.master.servers_o = $scope.master.servers_o || [{'server': ''}, {'server': ''}];
+    } else {
+      $scope.master.servers_o = _.map($scope.master.servers, function(o) { return {'server': o}; });
+    }
+  } else {
+    $scope.zone_types = ['Native', 'Master', 'Slave'];
+    $scope.arrays = ['master', 'nameserver'];
+    if (!$scope.master._url) {
+      $scope.master.kind = 'Native';
+      // suggest filling out nameservers
+      $scope.master.nameservers_o = [{'nameserver': ''}, {'nameserver': ''}];
+      // suggest filling out masters
+      $scope.master.masters_o     = [{'master': ''}, {'master': ''}];
+    } else {
+      $scope.master.nameservers_o = _.map($scope.master.nameservers, function(o) { return {'nameserver': o}; });
+      $scope.master.masters_o     = _.map($scope.master.masters, function(o) { return {'master': o}; });
+    }
+  }
   $scope.zone = Restangular.copy($scope.master);
 
   $scope.isClean = function() {
@@ -927,14 +892,6 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
     });
   };
 
-  $scope.save = function() {
-    $scope.zone.masters = _.compact(_.map($scope.zone.masters_o, function(o) { return o['master']; } ));
-    $scope.zone.nameservers = _.compact(_.map($scope.zone.nameservers_o, function(o) { return o['nameserver']; } ));
-    $scope.zone.put().then(function() {
-      $location.path('/server/' + $scope.server.name + '/zone/' + $scope.zone.id);
-    });
-  };
-
   $scope.addMaster = function() {
     $scope.zone.masters_o.push({'master': ''});
   };
@@ -944,6 +901,8 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
   };
 
   $scope.canAddMaster = function() {
+    if (!$scope.showMasters())
+      return false;
     return $scope.zone.masters_o.length < 9;
   };
 
@@ -957,5 +916,58 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
 
   $scope.removeNameserver = function(index) {
     $scope.zone.nameservers_o.splice(index, 1);
+  };
+
+  $scope.showNameservers = function() {
+    return (!($scope.master._url)) && (server.daemon_type == 'Authoritative');
+  };
+
+  $scope.addServer = function() {
+    $scope.zone.servers_o.push({'server': ''});
+  };
+
+  $scope.removeServer = function(index) {
+    $scope.zone.servers_o.splice(index, 1);
+  };
+
+  $scope.canAddServer = function() {
+    return $scope.zone.servers_o.length < 9;
+  };
+
+  $scope.showForwarders = function() {
+    return $scope.zone.kind == 'Forwarded';
+  };
+
+  $scope.save = function() {
+    var i;
+    for (i = 0; i < $scope.arrays.length; i++) {
+      var name = $scope.arrays[i];
+      var plural = name+'s';
+      $scope.zone[plural] = _.compact(_.map($scope.zone[plural+'_o'], function(o) { return o[name]; } ));
+    }
+
+    if (!!$scope.master._url) {
+      // existing zone
+      $scope.zone.put().then(function() {
+        $location.path('/server/' + $scope.server.name + '/zone/' + $scope.zone.id);
+      });
+    } else {
+      // new zone
+      $scope.zone.post().then(function(resultObject) {
+        $location.path('/server/' + $scope.server.name + '/zone/' + resultObject.id);
+      }, function(response) {
+        if (response.status == 422) {
+          $scope.errors = [];
+          _.each(response.data.errors, function(field, desc) {
+            $scope.zoneForm.$setValidity("zoneForm." + field + ".$invalid", false);
+          });
+          if (response.data.error) {
+            $scope.errors.push(response.data.error);
+          }
+        } else {
+          alert('Server reported unexpected error ' + response.status);
+        }
+      });
+    }
   };
 }

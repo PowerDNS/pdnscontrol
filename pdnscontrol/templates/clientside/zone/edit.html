@@ -26,78 +26,99 @@
 <div class="row">
   <div class="small-12 columns">
     <label ng-class="{error: zoneForm.kind.$invalid}" for="zonetype">Zone Type</label>
-    <select ng-model="zone.kind" required id="zonetype">
-      <option value="Native">Native</option>
-      <option value="Master">Master</option>
-      <option value="Slave">Slave</option>
-    </select>
+    <select ng-model="zone.kind" required id="zonetype" ng-options="label for label in zone_types"></select>
   </div>
 </div>
 
-<div class="row">
+<div class="row" ng-show="showNameservers()">
   <div class="small-12 columns">
 
-  <fieldset ng-show="!zone._url">
+  <fieldset>
     <legend ng-class="{error: zoneForm.nameservers.$invalid}">Nameservers</legend>
 
     <div class="row">
-      <div class="large-6 columns" ng-repeat="nameserver in zone.nameservers_o">
+      <div class="small-12 medium-6 columns" ng-repeat="nameserver in zone.nameservers_o">
         <div class="row collapse">
-          <div class="small-9 columns">
+          <div class="small-10 medium-11 columns">
             <input type="text" ng-model="nameserver.nameserver" placeholder="ns1.example.org">
           </div>
-          <div class="small-2 columns">
-            <a href="#" ng-click="removeNameserver($index)" class="button postfix">Delete</a>
+          <div class="small-2 medium-1 columns">
+            <a href="#" ng-click="removeNameserver($index)" class="button postfix"><span class="foundicon-trash"></span></a>
           </div>
         </div>
       </div>
 
-      <div class="large-6 columns">
-        <div class="row collapse">
-          <div class="small-2 columns">
-            <a href="" ng-click="addNameserver()" class="button">Add</a>
-          </div>
-        </div>
+      <div class="small-2 medium-1 columns">
+        <a href="#" ng-click="addNameserver()" class="button postfix"><span class="foundicon-plus"></span></a>
       </div>
     </div>
   </fieldset>
   </div>
 </div>
 
-<div class="row">
+<div class="row" ng-show="showMasters()">
   <div class="small-12 columns">
 
-  <fieldset ng-show="showMasters()">
+  <fieldset>
     <legend ng-class="{error: zoneForm.masters.$invalid}">Masters</legend>
 
     <div class="row">
-      <div class="large-6 columns" ng-repeat="master in zone.masters_o">
+      <div class="small-12 medium-6 columns" ng-repeat="master in zone.masters_o">
         <div class="row collapse">
-          <div class="small-11 columns">
+          <div class="small-10 medium-11 columns">
             <input type="text" ng-model="master.master" placeholder="192.0.2.1">
           </div>
-          <div class="small-1 columns">
+          <div class="small-2 medium-1 columns">
             <a href="#" ng-click="removeMaster($index)" class="button postfix"><span class="foundicon-trash"></span></a>
           </div>
         </div>
       </div>
 
-      <div class="large-6 columns" ng-show="canAddMaster()">
-        <div class="row collapse">
-          <div class="small-2 columns">
-            <a href="" ng-click="addMaster()" class="button small"><span class="foundicon-plus"></span></a>
-          </div>
-        </div>
+      <div class="small-2 medium-1 columns" ng-show="canAddMaster()">
+        <a href="#" ng-click="addMaster()" class="button postfix"><span class="foundicon-plus"></span></a>
       </div>
     </div>
   </fieldset>
   </div>
 </div>
 
+<div class="row" ng-show="showForwarders()">
+  <div class="small-12 columns">
+    <label>Forwarding options</label>
+    <input type="checkbox" ng-model="zone.recursion_desired" id="recursion_desired">
+    <label for="recursion_desired">Recursion Desired</label>
+  </div>
+</div>
+
+<div class="row" ng-show="showForwarders()">
+  <div class="small-12 columns">
+  <fieldset>
+    <legend ng-class="{error: zoneForm.servers.$invalid}">Forward to</legend>
+
+    <div class="row">
+      <div class="small-12 medium-6 columns" ng-repeat="server in zone.servers_o">
+        <div class="row collapse">
+          <div class="small-10 medium-11 columns">
+            <input type="text" ng-model="server.server" placeholder="192.0.2.1">
+          </div>
+          <div class="small-2 medium-1 columns">
+            <a href="#" ng-click="removeServer($index)" class="button postfix"><span class="foundicon-trash"></span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="small-2 medium-1 columns">
+        <a href="#" ng-click="addServer()" class="button postfix"><span class="foundicon-plus"></span></a>
+      </div>
+    </div>
+  </fieldset>
+  </div>
+</div>
+
+<br>
+
 <div class="row">
   <div class="small-12 columns">
-
-    <br>
 
     <a href="/server/{{server.name}}/zone/{{master.name}}" class="button" ng-show="zone._url">Cancel</a>
     <a href="/server/{{server.name}}" class="button" ng-show="!zone._url">Cancel</a>

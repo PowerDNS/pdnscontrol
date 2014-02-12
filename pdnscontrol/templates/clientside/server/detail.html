@@ -27,7 +27,7 @@
   </div>
   <div class="small-12 columns">
     <tabs>
-      <pane title="Graphs">
+      <pane tabtitle="Graphs">
         <div ng-switch on="server.daemon_type">
         <div ng-switch-when="Authoritative">
           <graphite g-source="{{server.graphite_name}}" g-title="UDP Queries" g-area-mode="first">
@@ -85,18 +85,18 @@
         </div>
         </div>
       </pane>
-      <pane title="Statistics">
+      <pane tabtitle="Statistics">
         <div class="gridStyle" ng-grid="statisticsGridOptions">
         </div>
       </pane>
-      <pane title="Zones">
+      <pane tabtitle="Zones">
         <!-- search -->
         <a href="/server/{{server.name}}/zones/new" class="zone-new"><span class="foundicon-plus"></span> Add Zone</a>
 
         <div class="gridStyle" ng-grid="zonesGridOptions">
         </div>
       </pane>
-      <pane title="Configuration">
+      <pane tabtitle="Configuration">
         <div class="gridStyle" ng-grid="configurationGridOptions">
         </div>
       </pane>

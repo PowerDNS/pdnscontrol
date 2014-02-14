@@ -13,6 +13,10 @@ function ZoneResolver(Restangular, $route) {
   return Restangular.one('servers', $route.current.params.serverName).one('zones', $route.current.params.zoneId).get();
 }
 
+function ConfigResolver(Restangular, $route) {
+  return Restangular.one('servers', $route.current.params.serverName).one('config', $route.current.params.configName).get();
+}
+
 ////////////////////////////////////////////////////////////////////////
 // Routing
 ////////////////////////////////////////////////////////////////////////
@@ -33,6 +37,13 @@ ControlApp.
         controller:ServerEditCtrl, templateUrl: templateUrl('server/edit'),
         resolve: {
           server: ServerResolver
+        }
+      }).
+      when('/server/:serverName/config/:configName/edit', {
+        controller:ConfigEditCtrl, templateUrl: templateUrl('config/edit'),
+        resolve: {
+          server: ServerResolver,
+          config: ConfigResolver
         }
       }).
       when('/server/:serverName/zone/:zoneId', {
@@ -446,11 +457,15 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   }
   loadServerData();
 
+  $scope.canEditConfig = function(varname) {
+    return varname == 'allow-from';
+  };
+
   $scope.configurationGridOptions = {
     data: 'configuration',
     enableRowSelection: false,
     columnDefs: [
-      {field: '0', displayName: 'Name'},
+      {field: '0', displayName: 'Name', width: '300', cellTemplate: '<div class="ngCellText">{{row.entity[col.field]}} <a href="/server/{{server._id}}/config/{{row.entity[col.field]}}/edit" ng-show="canEditConfig(row.entity[col.field])"><span class="foundicon-edit"/></a></div>'},
       {field: '1', displayName: 'Value'}
     ]
   };
@@ -558,6 +573,36 @@ function ServerEditCtrl($scope, $location, Restangular, server) {
   };
 }
 
+////////////////////////////////////////////////////////////////////////
+// (Server) Config
+////////////////////////////////////////////////////////////////////////
+function ConfigEditCtrl($scope, $compile, $location, Restangular, server, config) {
+  $scope.server = server;
+  $scope.master = config;
+  $scope.master.value_o = _.map($scope.master.value, function(o) { return {'value': o}; });
+  $scope.config = Restangular.copy($scope.master);
+  $scope.placeholder = "192.0.2.1/24";
+
+  $scope.addOne = function() {
+    $scope.config.value_o.push({'value': ''});
+  };
+
+  $scope.removeOne = function(index) {
+    $scope.config.value_o.splice(index, 1);
+  };
+
+  $scope.save = function() {
+    $scope.config.value = _.compact(_.pluck($scope.config.value_o, 'value'));
+    $scope.config.put().then(function() {
+      $location.path('/server/' + $scope.server.name + '#config');
+    }, function(resp) {
+      // TODO: better error message
+      alert('Save failed.');
+    });
+  };
+
+  $scope.addOne();
+}
 
 ////////////////////////////////////////////////////////////////////////
 // Zones

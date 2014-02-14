@@ -238,6 +238,20 @@ def server_config(server):
     return forward_request(server, '/servers/localhost/config')
 
 
+@mod.route('/servers/<server>/config/<config>', methods=['GET'])
+@api_auth_required
+@roles_required('stats')
+def server_config_detail(server, config):
+    return forward_request(server, '/servers/localhost/config/' + config)
+
+
+@mod.route('/servers/<server>/config/<config>', methods=['PUT'])
+@api_auth_required
+@roles_required('edit')
+def server_config_edit(server, config):
+    return forward_request(server, '/servers/localhost/config/' + config)
+
+
 @mod.route('/servers/<server>/<action>', methods=['GET','POST'])
 @api_auth_required
 @roles_required('stats')

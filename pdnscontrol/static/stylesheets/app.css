@@ -182,6 +182,10 @@ a:hover {
     margin-bottom: 0;
 }
 
+input[type="checkbox"].inline {
+    margin-bottom: 0;
+}
+
 .header-actions button, .header-actions a.button {
     margin-bottom: 0;
 }
@@ -269,7 +273,7 @@ table.dataTable tbody tr:nth-child(even) {
     height: 500px
 }
 
-.gridStyle .zoneName {
+.zoneName {
     color: #888;
     font-style: italic;
 }
@@ -285,4 +289,32 @@ footer {
 
 .flashes .error {
     padding: 1em; border: 2px solid red; margin-bottom: 1em;
+}
+
+@-webkit-keyframes loading {
+    0% { opacity: 0.1; }
+    50% { opacity: 1; }
+    100% { opacity: 0.1; }
+}
+@-moz-keyframes loading {
+    0% { opacity: 0.1; }
+    50% { opacity: 1; }
+    100% { opacity: 0.1; }
+}
+@-o-keyframes loading {
+    0% { opacity: 0.1; }
+    50% { opacity: 1; }
+    100% { opacity: 0.1; }
+}
+@keyframes loading {
+    0% { opacity: 0.1; }
+    50% { opacity: 1; }
+    100% { opacity: 0.1; }
+}
+
+.changeInProgress {
+    animation:         loading 2s linear infinite;
+    -webkit-animation: loading 2s linear infinite; /* Safari 4+ */
+    -moz-animation:    loading 2s linear infinite; /* Fx 5+ */
+    -o-animation:      loading 3s linear infinite;
 }

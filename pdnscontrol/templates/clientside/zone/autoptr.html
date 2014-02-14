@@ -1,0 +1,62 @@
+<h2>Automatic PTRs</h2>
+
+<p>Possible automatic PTRs have been found:</p>
+
+<div class="row" ng-show="errors.length">
+  <div class="small-12 columns errors">
+    <div ng-repeat="error in errors" class="alert-box alert">{{error}}</div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns">
+    <table width=100%>
+      <thead>
+        <tr>
+          <th width=20></th>
+          <th>RR</th>
+          <th>Type</th>
+          <th>Content</th>
+        </tr>
+      </thead>
+      <tbody ng-repeat="ptr in newPTRs">
+        <tr>
+          <td>
+            <input type="checkbox" ng-model="ptr.create" ng-show="!inProgress" class="inline">
+            <span ng-show="ptr.done">
+              <i class="foundicon-checkmark"></i>
+            </span>
+            <span ng-show="ptr.failed">
+              <i class="foundicon-remove"></i>
+            </span>
+            <span ng-show="!ptr.done && !ptr.failed && inProgress" class="changeInProgress">
+              <i class="foundicon-tools"></i>
+            </span>
+          </td>
+          <td>
+            {{ptr.rrname}}<span class="zoneName">.{{ptr.zonename}}</span>
+          </td>
+          <td>
+            IN PTR
+          </td>
+          <td>
+            <b>{{ptr.record.name}}</b>
+          </td>
+        </tr>
+        <tr ng-repeat="rr in ptr.replacedRecords">
+          <td></td><td>Replaces:</td>
+          <td>IN PTR</td>
+          <td>{{rr.content}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns">
+    <button class="button" ng-click="doIt()" ng-disabled="!canSave()" ng-show="errors.length == 0">Save</button>
+    <button class="button" ng-click="close()" ng-disabled="inProgress" ng-show="errors.length == 0">No, thanks</button>
+    <button class="button" ng-click="close()" ng-show="errors.length > 0">Okay</button>
+  </div>
+</div>

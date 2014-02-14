@@ -563,7 +563,23 @@ function ServerEditCtrl($scope, $location, Restangular, server) {
 // Zones
 ////////////////////////////////////////////////////////////////////////
 
-function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) {
+function revNameIPv4(ip) {
+  return ip.split('.').reverse().join('.') + ".in-addr.arpa";
+}
+
+function revNameIPv6(ip) {
+  var rev, chunks;
+  chunks = ip.split(':');
+  rev = _.flatten(_.map(chunks, function(e) {
+    if (e == "") {
+      return Array(10-chunks.length).join('0000');
+    }
+    return Array(5-e.length).join("0") + e;
+  })).join('').split('').reverse().join('.');
+  return rev + '.ip6.arpa';
+}
+
+function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, server, zone) {
   var typeEditTemplate;
 
   $scope.server = server;
@@ -587,6 +603,185 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
       return (type && type.allowDelete !== undefined) ? type.allowDelete : true;
     });
   };
+
+  function matchAutoPtrsToZones(possiblePtrs) {
+    // NOTE: $scope.zones MUST already be filled
+    var ptr;
+    var matchedPtrs = [];
+    var zoneCache = {};
+    var pendingRequests = 0;
+    window.__R = Restangular;
+    window.__S = server;
+
+    function autoPtrZoneLoadMaybeComplete() {
+      if (pendingRequests > 0) {
+        $timeout(autoPtrZoneLoadMaybeComplete, 50);
+      } else {
+        // have all data, see if we actually need to change any records
+        var finalPtrSet = [];
+        while (ptr = matchedPtrs.pop()) {
+          ptr.replacedRecords = _.filter(zoneCache[ptr.zonename].records, function(rec) {
+            return rec.name == ptr.revName && rec.type == 'PTR';
+          });
+          if (ptr.replacedRecords.length != 1 || ptr.replacedRecords[0].content != ptr.record.name) {
+            finalPtrSet.push(ptr);
+          }
+        }
+        autoPtrShowPopup(finalPtrSet);
+      }
+    }
+
+    // See if we have a reverse zone for each possible PTR.
+    // If not, we discard it.
+    // Also start fetching the reverse zones already.
+    _.each(possiblePtrs, function(ptr) {
+      var matchingZones = _.sortBy(_.filter($scope.zones, function(z) { return ptr.revName.indexOf(z.name) != -1; }), function(z) { return z.name }).reverse();
+      if (matchingZones.length == 0) {
+        return;
+      }
+      ptr.zone = _.first(matchingZones);
+      ptr.zonename = ptr.zone.name;
+      if (!zoneCache[ptr.zonename]) {
+        pendingRequests++;
+        zoneCache[ptr.zonename] = ptr.zone;
+        zoneCache[ptr.zonename].get().then(function(o) {
+          zoneCache[ptr.zonename] = o;
+          pendingRequests--;
+        }, function(error) {
+          pendingRequests--;
+          alert(error);
+        });
+      }
+      ptr.rrname = ptr.revName.replace('.'+ptr.zonename, '');
+      matchedPtrs.push(ptr);
+    });
+
+    autoPtrZoneLoadMaybeComplete();
+  }
+
+  function autoPtrShowPopup(newPTRs) {
+    if (newPTRs.length == 0) {
+      // nothing to do
+      return;
+    }
+
+    _.each(newPTRs, function(ptr) {
+      ptr.done = false;
+      ptr.failed = false;
+      ptr.create = true;
+    });
+
+    showPopup($scope, $compile, 'zone/autoptr', function(scope) {
+      scope.newPTRs = newPTRs;
+      scope.inProgress = false;
+      scope.errors = [];
+      scope.canSave = function() {
+        return !scope.inProgress && _.findWhere(scope.newPTRs, {create: true});
+      };
+
+      scope.doIt = function() {
+        scope.inProgress = true;
+
+        function maybeComplete() {
+          var done = _.where(newPTRs, {done: true}).length;
+          var failed = _.where(newPTRs, {done: true}).length;
+          if (done == newPTRs.length) {
+            // done
+            scope.inProgress = false;
+            scope.close();
+            return;
+          }
+          if ((done + failed) == newPTRs.length) {
+            scope.inProgress = false;
+          }
+        }
+
+        _.each(newPTRs, function(ptr) {
+          if (!ptr.create) {
+            newPTRs.remove(ptr);
+          }
+        });
+
+        _.each(newPTRs, function(ptr) {
+          var change = {
+            changetype: 'replace',
+            name: ptr.revName,
+            type: 'PTR',
+            records: [{
+              name: ptr.revName,
+              content: ptr.record.name,
+              type: 'PTR',
+              ttl: ptr.record.ttl,
+              priority: 0,
+              disabled: false
+            }]
+          };
+
+          ptr.zone.customOperation(
+            'patch',
+            'rrset',
+            {},
+            {'Content-Type': 'application/json'},
+            change
+          ).then(function(response) {
+            ptr.done = true;
+            if (response.error) {
+              scope.errors.push(response.error);
+            }
+            maybeComplete();
+          }, function(errorResponse) {
+            ptr.failed = true;
+            scope.errors.push(errorResponse.data.error || 'Unknown server error');
+            maybeComplete();
+          });
+        });
+      }
+    });
+  }
+
+  function doAutoPtr(zoneChanges) {
+    var possiblePtrs = [];
+    var change;
+    // build possible PTR records from changes
+    while (change = zoneChanges.pop()) {
+      if (change.changetype != 'replace') {
+        continue;
+      }
+      var rec;
+      while (rec = change.records.pop()) {
+        if (rec.disabled) {
+          continue;
+        }
+        // build name of PTR record
+        var revName;
+        if (change.type == 'A') {
+          revName = revNameIPv4(rec.content);
+        } else if (change.type == 'AAAA') {
+          // TODO: correctly implement this
+          revName = revNameIPv6(rec.content);
+        } else {
+          continue;
+        }
+        possiblePtrs.push({record: rec, revName: revName});
+      }
+    }
+
+    if (!possiblePtrs) {
+      // skip fetching zones, etc.
+      return;
+    }
+
+    if (!$scope.zones) {
+      $scope.zones = server.all('zones').getList().then(function(zones) {
+        $scope.zones = zones;
+        matchAutoPtrsToZones(possiblePtrs);
+      }, function(response) {
+        alert('Checking for possible Automatic PTRs failed: Loading zones failed.\n' + response.content);
+      });
+    } else {
+      matchAutoPtrsToZones(possiblePtrs);
+    }
+  }
 
   $scope.save = function() {
     function pluckNameTypes(source) {
@@ -654,6 +849,8 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
       }
     });
 
+    var changesCopy = _.compact(changes);
+
     function sendNextChange(changes) {
       var change = changes.pop();
       if (change === undefined) {
@@ -661,6 +858,7 @@ function ZoneDetailCtrl($scope, $compile, $location, Restangular, server, zone) 
         // sort master and current so equals will return true.
         $scope.zone.records = _.sortBy($scope.zone.records, rrCmpSerialize);
         $scope.master.records = _.sortBy($scope.master.records, rrCmpSerialize);
+        doAutoPtr(changesCopy);
         return;
       }
 

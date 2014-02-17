@@ -1,0 +1,54 @@
+<form name="configForm">
+<div class="row">
+<div class="small-12 columns">
+  <a href="/server/{{server.name}}"><h2 class="server-name">{{server.name}}</h2></a>
+  <h3 class="zone-name">{{master.name}}</h3>
+</div>
+</div>
+
+<div class="row" ng-show="errors.length">
+  <div class="small-12 columns errors">
+    <h5>Errors</h5>
+    <ul class="disc">
+      <li ng-repeat="error in errors">{{error}}</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns">
+
+  <fieldset>
+    <legend ng-class="{error: configForm.values.$invalid}">Data</legend>
+
+    <div class="row">
+      <div class="small-12 medium-6 columns" ng-repeat="value in config.value_o">
+        <div class="row collapse">
+          <div class="small-10 medium-11 columns">
+            <input type="text" ng-model="value.value" placeholder="{{ placeholder }}">
+          </div>
+          <div class="small-2 medium-1 columns">
+            <a href="#" ng-click="removeOne($index)" class="button postfix"><span class="foundicon-trash"></span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="small-2 medium-1 columns">
+        <a href="#" ng-click="addOne()" class="button postfix"><span class="foundicon-plus"></span></a>
+      </div>
+    </div>
+  </fieldset>
+  </div>
+</div>
+
+<br>
+
+<div class="row">
+  <div class="small-12 columns">
+
+    <a href="/server/{{server.name}}#config" class="button">Cancel</a>
+    <button ng-click="save()" ng-disabled="isClean()" class="button">Save</button>
+
+  </div>
+</div>
+</form>

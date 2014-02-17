@@ -802,7 +802,6 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
         if (change.type == 'A') {
           revName = revNameIPv4(rec.content);
         } else if (change.type == 'AAAA') {
-          // TODO: correctly implement this
           revName = revNameIPv6(rec.content);
         } else {
           continue;

@@ -1060,7 +1060,18 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     }
     return val;
   };
-  nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{zone.name}}</span></div>';
+  $scope.stripLabel = function(val) {
+    var val = val;
+    if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) == '.'+$scope.zone.name) {
+      val = $scope.zone.name;
+    } else if (val == $scope.zone.name) {
+      val = $scope.zone.name;
+    } else {
+      val = ''; // zone name missing
+    }
+    return val;
+  };
+  nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{stripLabel(row.getProperty(col.field))}}</span></div>';
   nameEditTemplate = '';
 
   $scope.mySelections = [];

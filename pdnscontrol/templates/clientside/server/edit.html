@@ -43,7 +43,7 @@
 
   <a href="/server/{{master.name}}" class="button" ng-show="server._url">Cancel</a>
   <a href="/" class="button" ng-show="!server._url">Cancel</a>
-  <button ng-click="save()" ng-disabled="isClean() || serverForm.$invalid" class="button">Save</button>
+  <button ng-click="save()" ng-disabled="isClean() || serverForm.$invalid" class="button success">Save</button>
   <button ng-click="destroy()" ng-show="server._url" class="button alert right">Delete</button>
 
 </div>

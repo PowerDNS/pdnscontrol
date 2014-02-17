@@ -61,9 +61,8 @@ def server_index():
 @api_auth_required
 @roles_required('edit')
 def server_create():
-    data = request.json['server']
     obj = Server()
-    obj.mass_assign(data)
+    obj.mass_assign(request.json)
     if not obj.is_valid:
         return jsonify(errors=obj.validation_errors), 422
     db.session.add(obj)
@@ -116,11 +115,10 @@ def server_delete(server):
 @api_auth_required
 @roles_required('edit')
 def server_edit(server):
-    data = request.json
     obj = Server.query.filter_by(name=server).first()
     if not obj:
         return jsonify(errors={'name':"Not found"}), 404
-    obj.mass_assign(data)
+    obj.mass_assign(request.json)
     if not obj.is_valid:
         return jsonify(errors=obj.validation_errors), 422
     db.session.add(obj)

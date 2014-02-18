@@ -1,11 +1,12 @@
 from flask import request, current_app
-import json
+from flask import json
 import requests
 import urllib
 import urlparse
 import sys
 
 from pdnscontrol import app
+
 
 def jsonpify(*args, **kwargs):
     callback = request.args['callback']

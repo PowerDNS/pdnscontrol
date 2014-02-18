@@ -1,0 +1,23 @@
+<div class="row">
+  <div class="small-12 medium-8 columns">
+    <h2>Me</h2>
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns">
+    <ul class="vcard">
+      <li class="fn">{{ me.name }}</li>
+      <li class="email">{{ me.email }}</li>
+    </ul>
+
+    <dl>
+      <dt>Current Login</dt>
+      <dd>{{ me.current_login_at }}, from {{ me.current_login_ip }}</dd>
+      <dt>Last Login</dt>
+      <dd>{{ me.last_login_at }}, from {{ me.last_login_ip }}</dd>
+    </dl>
+
+    <a href="{[ url_for_security('change_password') ]}" target="_self">Change Password</a>
+  </div>
+</div>

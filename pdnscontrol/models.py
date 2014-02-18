@@ -55,7 +55,7 @@ class RestModel(object):
         self._validation_errors = None
 
 
-class User(db.Model, UserMixin):
+class User(db.Model, UserMixin, RestModel):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.Unicode(255))
@@ -69,6 +69,8 @@ class User(db.Model, UserMixin):
     last_login_ip = db.Column(db.Unicode(64))
     current_login_ip = db.Column(db.Unicode(64))
     login_count = db.Column(db.Integer)
+    __public_fields__ = ['name', 'email', 'active', 'confirmed_at', 'last_login_at', 'current_login_at', 'last_login_ip', 'current_login_ip']
+    __readonly_fields__ = ['confirmed_at', 'last_login_at', 'current_login_at', 'last_login_ip', 'current_login_ip']
 
     def __repr__(self):
         return '<User %r>' % self.email

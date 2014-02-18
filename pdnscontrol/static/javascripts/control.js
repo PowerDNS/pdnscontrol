@@ -40,6 +40,10 @@ function ConfigResolver(Restangular, $route) {
   return Restangular.one('servers', $route.current.params.serverName).one('config', $route.current.params.configName).get();
 }
 
+function MeResolver(Restangular, $route) {
+  return Restangular.one('me').get();
+}
+
 ////////////////////////////////////////////////////////////////////////
 // Routing
 ////////////////////////////////////////////////////////////////////////
@@ -89,7 +93,15 @@ ControlApp.
           server: ServerResolver
         }
       }).
-      when('/servers/new', {controller: ServerCreateCtrl, templateUrl: templateUrl('server/edit')}).
+      when('/servers/new', {
+        controller: ServerCreateCtrl, templateUrl: templateUrl('server/edit')
+      }).
+      when('/me', {
+        controller: MeDetailCtrl, templateUrl: templateUrl('me/detail'),
+        resolve: {
+          me: MeResolver
+        }
+      }).
       otherwise({redirectTo: '/'});
   });
 
@@ -1253,4 +1265,15 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
       });
     }
   };
+}
+
+////////////////////////////////////////////////////////////////////////
+// Me -- currently logged in user
+////////////////////////////////////////////////////////////////////////
+
+function MeDetailCtrl($scope, $location, Restangular, me) {
+  $scope.me = me;
+  $scope.master = me;
+  $scope.errors = [];
+
 }

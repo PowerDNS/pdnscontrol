@@ -57,7 +57,7 @@ ServerData.Config = {
   {% if user.name %}
   <div class="row">
     <div class="small-5 columns left" id="current_user">
-      Logged in as {[ user.name ]} &mdash; <a href="/logout">Log out</a>
+      Logged in as <a href="/me">{[ user.name ]}</a> &mdash; <a href="{[ url_for_security('logout') ]}">Log out</a>
     </div>
   </div>
   {% endif %}

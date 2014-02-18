@@ -5,7 +5,7 @@ import sys
 from functools import wraps
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
-from flask.ext.security import roles_required, http_auth_required
+from flask.ext.security import roles_required, http_auth_required, current_user
 
 from pdnscontrol.utils import jsonpify, jsonarify, fetch_remote, fetch_json
 from pdnscontrol.models import db, Server
@@ -267,7 +267,7 @@ def server_action(server, action):
     if action in manager_actions:
         if request.method != 'POST':
             return "must call action %s using POST" % (action,), 403
-        if not Auth.getCurrentUser().has_role('edit'):
+        if not current_user.has_role('edit'):
             return 'Not authorized', 401
 
     remote_url = None
@@ -291,3 +291,10 @@ def server_action(server, action):
         return jsonify({action: data})
     else:
         return jsonify(data)
+
+
+@mod.route('/me', methods=['GET'])
+@api_auth_required
+def me_detail():
+    data = current_user.to_dict()
+    return jsonify(data)

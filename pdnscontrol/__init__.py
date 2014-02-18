@@ -18,9 +18,15 @@ class Control(Flask):
                          variable_end_string=']}')
 
 app = Control(__name__, instance_relative_config=True)
-app.config['SECURITY_TRACKABLE'] = True
 app.config.from_object('pdnscontrol.default_settings')
 app.config.from_pyfile('pdnscontrol.conf')
+
+app.config['SECURITY_TRACKABLE'] = True
+app.config['SECURITY_CHANGEABLE'] = True
+app.config['SECURITY_URL_PREFIX'] = '/auth'
+app.config['SECURITY_CHANGE_URL'] = '/change-password'
+app.config['SECURITY_SEND_PASSWORD_CHANGE_EMAIL'] = False
+
 app.config['SQLALCHEMY_DATABASE_URI'] = app.config['DATABASE_URI']
 
 if not app.config['DATABASE_URI']:

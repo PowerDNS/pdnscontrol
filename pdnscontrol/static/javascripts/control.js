@@ -959,6 +959,12 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
         ),
         $scope.zone.name+".zone"
       );
+    }, function(errorResponse) {
+      if (errorResponse.data && errorResponse.data.error) {
+        alert(errorResponse.data.error);
+      } else {
+        alert('Unknown error from server, status '+errorResponse.status);
+      }
     });
   };
 

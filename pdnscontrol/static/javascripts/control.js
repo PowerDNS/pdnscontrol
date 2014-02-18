@@ -1,6 +1,29 @@
 // Controlling Application
 var ControlApp = angular.module('control', ['models', 'components', 'graphite', 'ngGrid']);
 
+ControlApp.provider(
+  "$exceptionHandler",{
+    $get: function(exceptionHandlingService){
+      return(exceptionHandlingService);
+    }
+  }
+);
+
+ControlApp.factory(
+  "exceptionHandlingService",
+  ["$log","$window",
+   function($log, $window){
+     function error(exception, cause){
+       // preserve the default behaviour which will log the error
+       // to the console, and allow the application to continue running.
+       $log.error.apply($log, arguments);
+
+       alert('Something went wrong.\n' + exception.toString());
+     }
+     return(error);
+   }]
+);
+
 ////////////////////////////////////////////////////////////////////////
 // Shared object resolver functions
 ////////////////////////////////////////////////////////////////////////

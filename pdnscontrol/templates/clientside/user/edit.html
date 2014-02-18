@@ -1,4 +1,4 @@
-<form name="userForm" ng-submit="save()">
+<form name="userForm">
 
 <div class="row">
   <div class="small-12 columns">
@@ -18,14 +18,14 @@
 
 <div class="row">
   <div class="small-12 columns">
-    <label ng-class="{error: userForm.edituser_name.$invalid}" for="edituser_name">Name</label>
+    <label ng-class="{error: userForm.edituser_name.$invalid && !zoneForm.$pristine}" for="edituser_name">Name</label>
     <input type="text" name="edituser_name" ng-model="user.name" id="edituser_name" required>
   </div>
 </div>  
 
 <div class="row">
   <div class="small-12 columns">
-    <label ng-class="{error: userForm.edituser_email.$invalid}" for="edituser_email">Email</label>
+    <label ng-class="{error: userForm.edituser_email.$invalid && !zoneForm.$pristine}" for="edituser_email">Email</label>
     <input type="email" name="edituser_email" ng-model="user.email" id="edituser_email" required>
   </div>
 </div>  
@@ -39,14 +39,14 @@
 
 <div class="row">
   <div class="small-12 columns">
-    <label ng-class="{error: userForm.edituser_password.$invalid}" for="edituser_password">Password</label>
+    <label ng-class="{error: userForm.edituser_password.$invalid && !zoneForm.$pristine}" for="edituser_password">Password</label>
     <input type="password" password="edituser_password" ng-model="user.password" id="edituser_password" ng-required="!user._url">
   </div>
 </div>  
 
 <div class="row">
   <div class="small-12 columns">
-    <label ng-class="{error: userForm.edituser_password2.$invalid}" for="edituser_password">Password (repeat)</label>
+    <label ng-class="{error: userForm.edituser_password2.$invalid && !zoneForm.$pristine}" for="edituser_password">Password (repeat)</label>
     <input type="password" password="edituser_password2" ng-model="user.password2" id="edituser_password2" ng-required="!user._url || !!user.password">
   </div>
 </div>  
@@ -97,10 +97,16 @@
   </div>
 </div>
 
+<br>
+
 <div class="row">
   <div class="small-12 columns">
-    <button ng-click="save()" type="submit" ng-disabled="!canSubmit()" class="button success">Save</button>
-    <button ng-click="cancel()" class="button">Cancel</button>
+    <button type="submit" ng-click="save()" ng-disabled="isClean() || userForm.$invalid" class="button success">Save</button>
+    <button type="button" ng-click="cancel()" class="button">Cancel</button>
   </div>
 </div>
 </form>
+
+<script>
+$('#edituser_name').focus();
+</script>

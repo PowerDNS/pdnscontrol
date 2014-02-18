@@ -7,14 +7,14 @@
 </div>
 <div class="row">
   <div class="small-12 columns">
-    <label ng-class="{error: serverForm.name.$invalid}" for="name">Server Name</label>
+    <label ng-class="{error: serverForm.name.$invalid && !serverForm.$pristine}" for="name">Server Name</label>
     <input type="text" name="name" ng-model="server.name" id="name" required>
   </div>
 </div>
 
 <div class="row">
   <div class="small-12 columns">
-    <label ng-class="{error: serverForm.daemon_type.$invalid}">Server Type</label>
+    <label ng-class="{error: serverForm.daemon_type.$invalid && !serverForm.$pristine}">Server Type</label>
     <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Authoritative" id="daemon_typeAuth" required>
     <label for="daemon_typeAuth">Authoritative</label>
     <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Recursor" id="daemon_typeRecursor">
@@ -24,28 +24,30 @@
 
 <div class="row">
   <div class="small-12 columns">
-  <label ng-class="{error: serverForm.stats_url.$invalid}" for="api_url">API URL</label>
+  <label ng-class="{error: serverForm.stats_url.$invalid && !serverForm.$pristine}" for="api_url">API URL</label>
   <input type="url" name="stats_url" ng-model="server.stats_url" placeholder="http://admin:password@127.0.0.1:8081/" required id="api_url">
   </div>
 </div>
 
 <div class="row">
   <div class="small-12 columns">
-  <label ng-class="{error: serverForm.manager_url.$invalid}" for="manager_url">Manager URL</label>
+  <label ng-class="{error: serverForm.manager_url.$invalid && !serverForm.$pristine}" for="manager_url">Manager URL</label>
   <input type="url" name="manager_url" ng-model="server.manager_url" placeholder="http://admin:password@127.0.0.1:8181/" required id="manager_url">
   </div>
 </div>
 
+<br>
 
 <div class="row">
   <div class="small-12 columns">
-  <br>
-
-  <a href="/server/{{master.name}}" class="button" ng-show="server._url">Cancel</a>
-  <a href="/" class="button" ng-show="!server._url">Cancel</a>
-  <button ng-click="save()" ng-disabled="isClean() || serverForm.$invalid" class="button success">Save</button>
-  <button ng-click="destroy()" ng-show="server._url" class="button alert right">Delete</button>
+  <button type="submit" ng-click="save()" ng-disabled="isClean() || serverForm.$invalid" class="button success">Save</button>
+  <button type="button" ng-click="cancel()" class="button">Cancel</a>
+  <button type="button" ng-click="destroy()" ng-show="server._url" class="button alert right">Delete</button>
 
 </div>
 </div>
 </form>
+
+<script>
+$('#name').focus();
+</script>

@@ -464,7 +464,9 @@ function ServerListCtrl($scope, $compile, Restangular) {
 }
 
 function ServerCreateCtrl($scope, $location, Restangular) {
-  window.CC = this;
+  // set defaults
+  $scope.server = {'daemon_type': 'Authoritative'};
+
   $scope.save = function() {
     Restangular.all("servers").post($scope.server).then(function(response) {
       $location.path('/server/' + $scope.server.name);
@@ -478,18 +480,18 @@ function ServerCreateCtrl($scope, $location, Restangular) {
       }
     });
   }
+
+  $scope.cancel = function() {
+    $location.path('/');
+  }
+
+  $scope.isClean = function() {
+    return false;
+  };
 }
 
 function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   $scope.server = server;
-
-  $scope.flush_cache = function() {
-    alert('flush!');
-  };
-
-  $scope.shutdown = function() {
-    alert('shutdown');
-  };
 
   $scope.zonesGridOptions = {
     data: 'zones',
@@ -631,6 +633,10 @@ function ServerEditCtrl($scope, $location, Restangular, server) {
       $location.path('/server/' + $scope.server.name);
     });
   };
+
+  $scope.cancel = function() {
+    $location.path('/server/' + $scope.server.name);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -655,11 +661,15 @@ function ConfigEditCtrl($scope, $compile, $location, Restangular, server, config
     $scope.config.value = _.compact(_.pluck($scope.config.value_o, 'value'));
     $scope.config.put().then(function() {
       $location.path('/server/' + $scope.server.name + '#config');
-    }, function(resp) {
-      // TODO: better error message
-      alert('Save failed.');
+    }, function(errorResponse) {
+      var msg = errorResponse.data.error || 'Save failed.';
+      alert(msg);
     });
   };
+
+  $scope.cancel = function() {
+    $location.path('/server/' + $scope.server.name + '#config');
+  }
 
   $scope.addOne();
 }
@@ -1258,6 +1268,16 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
     return $scope.zone.kind == 'Forwarded';
   };
 
+  $scope.cancel = function() {
+    var url = '/server/' + $scope.server.name;
+    if (!!$scope.master._url) {
+      url += '/zone/' + $scope.zone.id;
+    } else {
+      url += '#zones';
+    }
+    $location.path(url);
+  }
+
   $scope.save = function() {
     var i;
     for (i = 0; i < $scope.arrays.length; i++) {
@@ -1349,10 +1369,6 @@ function UserEditCtrl($scope, $location, Restangular, user) {
   $scope.removeRole = function(index) {
     $scope.user.roles_o.splice(index, 1);
   };
-
-  $scope.canSubmit = function() {
-    return !$scope.isClean() && !$scope.userForm.$invalid;
-  }
 
   $scope.save = function() {
     var i;

@@ -18,14 +18,14 @@
 
 <div class="row">
   <div class="small-12 columns">
-    <label ng-class="{error: zoneForm.name.$invalid}" for="zonename">Zone Name</label>
+    <label ng-class="{error: zoneForm.name.$invalid && !zoneForm.$pristine}" for="zonename">Zone Name</label>
     <input type="text" name="name" ng-model="zone.name" required id="zonename">
   </div>
 </div>
 
 <div class="row">
   <div class="small-12 columns">
-    <label ng-class="{error: zoneForm.kind.$invalid}" for="zonetype">Zone Type</label>
+    <label ng-class="{error: zoneForm.kind.$invalid && !zoneForm.$pristine}" for="zonetype">Zone Type</label>
     <select ng-model="zone.kind" required id="zonetype" ng-options="label for label in zone_types"></select>
   </div>
 </div>
@@ -34,7 +34,7 @@
   <div class="small-12 columns">
 
   <fieldset>
-    <legend ng-class="{error: zoneForm.nameservers.$invalid}">Nameservers</legend>
+    <legend ng-class="{error: zoneForm.nameservers.$invalid && !zoneForm.$pristine}">Nameservers</legend>
 
     <div class="row">
       <div class="small-12 medium-6 columns" ng-repeat="nameserver in zone.nameservers_o">
@@ -60,7 +60,7 @@
   <div class="small-12 columns">
 
   <fieldset>
-    <legend ng-class="{error: zoneForm.masters.$invalid}">Masters</legend>
+    <legend ng-class="{error: zoneForm.masters.$invalid && !zoneForm.$pristine}">Masters</legend>
 
     <div class="row">
       <div class="small-12 medium-6 columns" ng-repeat="master in zone.masters_o">
@@ -93,7 +93,7 @@
 <div class="row" ng-show="showForwarders()">
   <div class="small-12 columns">
   <fieldset>
-    <legend ng-class="{error: zoneForm.servers.$invalid}">Forward to</legend>
+    <legend ng-class="{error: zoneForm.servers.$invalid && !zoneForm.$pristine}">Forward to</legend>
 
     <div class="row">
       <div class="small-12 medium-6 columns" ng-repeat="server in zone.servers_o">
@@ -119,12 +119,13 @@
 
 <div class="row">
   <div class="small-12 columns">
-
-    <a href="/server/{{server.name}}/zone/{{master.name}}" class="button" ng-show="zone._url">Cancel</a>
-    <a href="/server/{{server.name}}" class="button" ng-show="!zone._url">Cancel</a>
-    <button ng-click="save()" ng-disabled="isClean() || zoneForm.$invalid" class="button success">Save</button>
-    <button ng-click="destroy()" ng-show="zone._url" class="button alert right">Delete</button>
-
+    <button type="submit" ng-click="save()" ng-disabled="isClean() || zoneForm.$invalid" class="button success">Save</button>
+    <button type="button" ng-click="cancel()" class="button">Cancel</a>
+    <button type="button" ng-click="destroy()" ng-show="zone._url" class="button alert right">Delete</button>
   </div>
 </div>
 </form>
+
+<script>
+$('#zonename').focus();
+</script>

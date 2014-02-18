@@ -87,7 +87,7 @@ h6 { font-family: 'Bontemps', serif; font-weight: normal; }
 
 .logo {
     vertical-align: bottom;
-    margin-bottom: 14px; 
+    margin-bottom: 7px;
     margin-top: 7px;
     border: 0;
     height: 20px;
@@ -170,6 +170,7 @@ a:hover {
 
 #current_user {
     font-size: small;
+    margin-bottom: 1em;
 }
 
 #header {

@@ -5,7 +5,12 @@
 <script src="{[ ASSET_URL ]}"></script>
 {% endassets %}
 
-<div ng-view ng-app="control">Loading...</div>
+<div ng-view>Loading...</div>
 
 {% endblock %}
 
+{% block topbar_left %}
+<li ng-repeat="bc in breadcrumbs.filtered()">
+  <a href="{{bc.path}}">{{bc.name}}</a>
+</li>
+{% endblock %}

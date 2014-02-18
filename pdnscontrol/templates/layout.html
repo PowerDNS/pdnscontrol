@@ -15,7 +15,7 @@
   <![endif]-->
 
 </head>
-<body>
+<body ng-app="control">
 
 <script>
 var ServerData = {};
@@ -46,21 +46,37 @@ ServerData.Config = {
   {% endassets %}
 
 {% block header %}
-  <div class="row" id="header">
-    <div class="small-7 columns">
-      <a href="{[ request.url_root ]}" id="appname">PowerDNS Control Server</a>
-    </div>
-    <div class="small-5 columns">
-      <a target="_blank" href="http://www.powerdns.com/"><div class="logo"></div></a>
-    </div>
-  </div>
-  {% if user.name %}
-  <div class="row">
-    <div class="small-5 columns left" id="current_user">
-      Logged in as <a href="/me">{[ user.name ]}</a> &mdash; <a href="{[ url_for_security('logout') ]}">Log out</a>
-    </div>
-  </div>
-  {% endif %}
+<nav class="top-bar" data-topbar ng-controller="NavCtrl">
+  <ul class="title-area">
+    <li class="name">
+      <h1><a href="{[ request.url_root ]}">PowerDNS Control</a></h1>
+    </li>
+    <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
+  </ul>
+
+  <section class="top-bar-section">
+    <!-- Right Nav Section -->
+    <ul class="right">
+      {% if 'view-users' in user_roles %}
+      <li><a href="/users">Manage Users</a></li>
+      {% endif %}
+
+      {% if user.name %}
+      <li class="has-dropdown">
+        <a href="/me">{[ user.name ]}</a>
+        <ul class="dropdown">
+          <li><a href="{[ url_for_security('logout') ]}" target="_self">Log out</a></li>
+        </ul>
+      </li>
+      {% endif %}
+    </ul>
+
+    <!-- Left Nav Section -->
+    <ul class="left">
+      {%- block topbar_left %}{% endblock -%}
+    </ul>
+  </section>
+</nav>
 {% endblock %}
 
 {%- block body %}{% endblock -%}
@@ -76,6 +92,9 @@ ServerData.Config = {
 </div>
 {% endblock %}
 
+<script>
+  $(document).foundation();
+</script>
 </body>
 </html>
  

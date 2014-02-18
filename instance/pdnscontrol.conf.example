@@ -1,5 +1,4 @@
 
-
 # Encryption key for client-side sessions.
 # Please generate a new one, f.e. using this:
 #   python -c 'print repr(open("/dev/urandom","rb").read(42))'
@@ -9,6 +8,13 @@
 # Example: DATABASE_URI = 'postgresql://user:password@localhost:5432/pdnscontrol'
 #
 # DATABASE_URI = ''
+
+# SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'
+
+# Salt key for password hashing.
+# Please generate a new one, f.e. using this:
+#   python -c 'print repr(open("/dev/urandom","rb").read(16))'
+# SECURITY_PASSWORD_SALT = ''
 
 # PREFERRED_URL_SCHEME = 'http'
 # LOG_FILE = 'app.log'

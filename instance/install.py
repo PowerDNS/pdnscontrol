@@ -14,6 +14,8 @@ role_admin = user_datastore.find_or_create_role(name=u'admin')
 role_edit = user_datastore.find_or_create_role(name=u'edit')
 role_stats = user_datastore.find_or_create_role(name=u'stats')
 role_view = user_datastore.find_or_create_role(name=u'view')
+role_edit_users = user_datastore.find_or_create_role(name=u'edit-users')
+role_view_users = user_datastore.find_or_create_role(name=u'view-users')
 
 admin_password = u'changeme'
 admin_email = u'admin@example.org'
@@ -22,6 +24,8 @@ user_datastore.add_role_to_user(admin, role_admin)
 user_datastore.add_role_to_user(admin, role_stats)
 user_datastore.add_role_to_user(admin, role_edit)
 user_datastore.add_role_to_user(admin, role_view)
+user_datastore.add_role_to_user(admin, role_edit_users)
+user_datastore.add_role_to_user(admin, role_list_users)
 
 graphite_password = u'notsecure'
 graphite = user_datastore.create_user(email=u'graphite@example.org', name=u'Stats Fetcher', password=graphite_password)

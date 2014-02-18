@@ -18,6 +18,7 @@ class Control(Flask):
                          variable_end_string=']}')
 
 app = Control(__name__, instance_relative_config=True)
+
 app.config.from_object('pdnscontrol.default_settings')
 app.config.from_pyfile('pdnscontrol.conf')
 

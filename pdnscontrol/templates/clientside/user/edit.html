@@ -1,0 +1,106 @@
+<form name="userForm" ng-submit="save()">
+
+<div class="row">
+  <div class="small-12 columns">
+    <h2 ng-show="user._url">User "{{master.name}}"</h2>
+    <h2 ng-show="!user._url">Add User</h2>
+  </div>
+</div>
+
+<div class="row" ng-show="errors.length">
+  <div class="small-12 columns errors">
+    <h5>Errors</h5>
+    <ul class="disc">
+      <li ng-repeat="error in errors">{{error}}</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns">
+    <label ng-class="{error: userForm.edituser_name.$invalid}" for="edituser_name">Name</label>
+    <input type="text" name="edituser_name" ng-model="user.name" id="edituser_name" required>
+  </div>
+</div>  
+
+<div class="row">
+  <div class="small-12 columns">
+    <label ng-class="{error: userForm.edituser_email.$invalid}" for="edituser_email">Email</label>
+    <input type="email" name="edituser_email" ng-model="user.email" id="edituser_email" required>
+  </div>
+</div>  
+
+<div class="row">
+  <div class="small-12 columns">
+    <label for="enabled">Enabled (allowed to login)</label>
+    <input ng-model="user.active" name="enabled" type="checkbox">
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns">
+    <label ng-class="{error: userForm.edituser_password.$invalid}" for="edituser_password">Password</label>
+    <input type="password" password="edituser_password" ng-model="user.password" id="edituser_password" ng-required="!user._url">
+  </div>
+</div>  
+
+<div class="row">
+  <div class="small-12 columns">
+    <label ng-class="{error: userForm.edituser_password2.$invalid}" for="edituser_password">Password (repeat)</label>
+    <input type="password" password="edituser_password2" ng-model="user.password2" id="edituser_password2" ng-required="!user._url || !!user.password">
+  </div>
+</div>  
+
+<div class="row">
+  <div class="small-12 columns">
+  <fieldset>
+    <legend>Roles</legend>
+
+    <div class="row">
+      <div class="small-12 medium-6 columns" ng-repeat="role in user.roles_o">
+        <div class="row collapse">
+          <div class="small-10 medium-11 columns">
+            <select ng-model="role.role">
+              <option value="view-users">View Users</option>
+              <option value="edit-users">Edit Users</option>
+              <option value="stats">Read Server statistics</option>
+              <option value="view">View Servers, Zones, Configuration</option>
+              <option value="edit">Edit Servers, Zones, Configuration</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="small-2 medium-1 columns">
+            <a href="#" ng-click="removeRole($index)" class="button postfix"><span class="foundicon-trash"></span></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="small-2 medium-1 columns">
+        <a href="#" ng-click="addRole()" class="button postfix"><span class="foundicon-plus"></span></a>
+      </div>
+    </div>
+  </fieldset>
+
+  </div>
+</div>
+
+<div class="row" ng-show="user._url">
+  <div class="small-12 columns">
+    <dl>
+      <dt>Current Login</dt>
+      <dd ng-show="!!user.current_login_at">{{ user.current_login_at }}, from {{ user.current_login_ip }}</dd>
+      <dd ng-show="!user.current_login_at">Never</dd>
+      <dt>Last Login</dt>
+      <dd ng-show="!!user.last_login_at">{{ user.last_login_at }}, from {{ user.last_login_ip }}</dd>
+      <dd ng-show="!user.last_login_at">Never</dd>
+    </dl>
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns">
+    <button ng-click="save()" type="submit" ng-disabled="!canSubmit()" class="button success">Save</button>
+    <button ng-click="cancel()" class="button">Cancel</button>
+  </div>
+</div>
+</form>

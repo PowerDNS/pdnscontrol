@@ -7,7 +7,7 @@ import urlparse
 from pdnscontrol import app
 from pdnscontrol.utils import fetch_json
 
-__all__ = ['db', 'Server', 'user_datastore']
+__all__ = ['db', 'Server', 'User', 'user_datastore']
 
 db = SQLAlchemy(app)
 
@@ -74,6 +74,37 @@ class User(db.Model, UserMixin, RestModel):
 
     def __repr__(self):
         return '<User %r>' % self.email
+
+    def to_dict(self):
+        d = RestModel.to_dict(self)
+        d['roles'] = [role.name for role in self.roles]
+        return d
+
+    def mass_assign(self, data):
+        RestModel.mass_assign(self, data)
+        if 'roles' in data:
+            roles = set(sorted(data['roles']))
+            old_roles = set(sorted([role.name for role in self.roles]))
+            for role in roles-old_roles:
+                self.roles.append(user_datastore.find_role(role))
+            for role in old_roles-roles:
+                self.roles.remove(user_datastore.find_role(role))
+        self.mark_validation_dirty()
+
+    @staticmethod
+    def all():
+        users = []
+        for obj in User.query.all():
+            user = obj.to_dict()
+            users.append(user)
+        return users
+
+    def validate(self):
+        errors = {}
+        for fn in ['name', 'email']:
+            if getattr(self, fn) in ['', None]:
+                errors[fn] = '%s must be set'
+        return errors
 
 
 class UserRole(db.Model, RoleMixin):

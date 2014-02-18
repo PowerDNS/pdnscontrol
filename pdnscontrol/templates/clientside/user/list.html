@@ -1,0 +1,32 @@
+<div class="row">
+  <div class="small-6 columns">
+    <h3>Users</h3>
+  </div>
+  <div class="small-6 columns text-right right">
+    <a href="/users/new" ng-show="canEditUsers"><span class="foundicon-plus"/> Add User</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns">
+    <table class="small-12">
+      <thead>
+        <tr>
+          <th ng-click="orderProp = 'name'">Name</th>
+          <th ng-click="orderProp = 'email'">E-Mail</th>
+          <th ng-click="orderProp = 'last_login_at'">Last Login</th>
+          <th>Enabled</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="user in users | filter:filter | orderBy:orderProp">
+          <td ng-show="canEditUsers"><a href="/user/{{user._id}}/edit">{{user.name}}</a> <a href="/user/{{user._id}}/edit"><span class="foundicon-edit"/></a></td>
+          <td ng-show="!canEditUsers">{{user.name}}</td>
+          <td>{{user.email}}</a></td>
+          <td>{{user.last_login_at}}</td>
+          <td>{{user.active|checkmark}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>  

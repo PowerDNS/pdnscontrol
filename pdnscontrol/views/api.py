@@ -6,9 +6,10 @@ from functools import wraps
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
 from flask.ext.security import roles_required, http_auth_required, current_user
+from flask.ext.security.utils import encrypt_password
 
 from pdnscontrol.utils import jsonpify, jsonarify, fetch_remote, fetch_json
-from pdnscontrol.models import db, Server
+from pdnscontrol.models import db, Server, User
 
 mod = Blueprint('api', __name__)
 
@@ -298,3 +299,55 @@ def server_action(server, action):
 def me_detail():
     data = current_user.to_dict()
     return jsonify(data)
+
+
+@mod.route('/users', methods=['GET'])
+@api_auth_required
+@roles_required('view-users')
+def users_list():
+    ary = User.all()
+    return jsonarify(ary)
+
+
+@mod.route('/users', methods=['POST'])
+@api_auth_required
+@roles_required('edit-users')
+def user_create():
+    obj = User()
+    obj.mass_assign(request.json)
+    if not obj.is_valid:
+        return jsonify(errors=obj.validation_errors), 422
+    if request.json.get('password', '') not in ['', None]:
+        obj.password = encrypt_password(request.json['password'])
+    db.session.add(obj)
+    db.session.commit()
+    return jsonify(**obj.to_dict())
+
+
+@mod.route('/users/<int:user>', methods=['GET'])
+@api_auth_required
+@roles_required('view-users')
+def user_get(user):
+    obj = User.query.filter_by(id=user).first()
+    if not obj:
+        return jsonify(errors={'name':"Not found"}), 404
+
+    user = obj.to_dict()
+    return jsonify(**user)
+
+
+@mod.route('/users/<int:user>', methods=['PUT'])
+@api_auth_required
+@roles_required('edit-users')
+def user_edit(user):
+    obj = User.query.filter_by(id=user).first()
+    if not obj:
+        return jsonify(errors={'name':"Not found"}), 404
+    obj.mass_assign(request.json)
+    if not obj.is_valid:
+        return jsonify(errors=obj.validation_errors), 422
+    if request.json.get('password', '') not in ['', None]:
+        obj.password = encrypt_password(request.json['password'])
+    db.session.add(obj)
+    db.session.commit()
+    return jsonify(**obj.to_dict())

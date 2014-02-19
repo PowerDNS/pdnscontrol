@@ -1,8 +1,8 @@
 var GraphiteModule = angular.module('graphite', []);
-GraphiteModule.directive('graphite', function() {
+GraphiteModule.directive('graphite', function($timeout) {
   return {
     restrict: 'E',
-    template: '<div><img ng-src="{{url}}"><div ng-transclude></div></div>',
+    template: '<div><img ng-src="{{url}}" class="graphite-graph"><div ng-transclude></div></div>',
     transclude: true,
     replace: true,
     scope: true,
@@ -62,6 +62,16 @@ GraphiteModule.directive('graphite', function() {
       scope.$on('graph_target_changed', function() {
         updateUrl();
       });
+      if (attrs.gRefresh && attrs.gRefresh > 0) {
+        function setupRefresh() {
+          $timeout(function() {
+            // refresh graphs
+            setupRefresh();
+            updateUrl();
+          }, attrs.gRefresh*1000);
+        }
+        setupRefresh();
+      }
     }
   }
 });

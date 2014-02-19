@@ -66,13 +66,13 @@
 
 
     <h4>Authoritative Servers</h4>
-    <graphite g-source="" g-area-mode="first">
+    <graphite g-source="" g-area-mode="first" g-refresh="30">
       <graph target="{{auth_queries()}}" title="Queries" />
       <graph target="{{auth_answers()}}" title="Answers" />
     </graphite>
 
     <h4>Recursor Servers</h4>
-    <graphite g-source="" g-area-mode="first">
+    <graphite g-source="" g-area-mode="first" g-refresh="30">
       <graph target="{{recursor_queries()}}" title="Queries" />
       <graph target="{{recursor_answers()}}" title="Answers" />
     </graphite>

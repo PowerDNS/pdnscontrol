@@ -21,15 +21,6 @@
     overflow: auto;
 }
 
-#appname {
-    font-size: 27px;
-    font-weight: bold;
-    display: block;
-}
-a#appname {
-    color: #666;
-}
-
 h2.server-name {
     margin-top: 0;
     margin-bottom: 0;
@@ -63,14 +54,6 @@ a:hover {
     margin-bottom: 0; /* override foundation */
 }
 
-#current_user {
-    font-size: small;
-    margin-bottom: 1em;
-}
-
-#header {
-}
-
 .server-list input[type="checkbox"] {
     margin-bottom: 0;
 }
@@ -85,10 +68,6 @@ input[type="checkbox"].inline {
 
 .button-group:last-child {
     margin-right: 0;
-}
-
-#btnServerAdd:hover span:after {
-    content: " Add";
 }
 
 /* used by search log */

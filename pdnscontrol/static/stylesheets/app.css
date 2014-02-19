@@ -5095,14 +5095,6 @@ form.inline-form {
 footer {
   font-size: 10px; }
 
-.flashes li {
-  list-style-type: none; }
-
-.flashes .error {
-  padding: 1em;
-  border: 2px solid red;
-  margin-bottom: 1em; }
-
 @-webkit-keyframes loading {
   0% {
     opacity: 0.1; }

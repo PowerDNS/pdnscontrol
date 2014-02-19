@@ -16,10 +16,11 @@
       <spinner spin="{{loading}}"></spinner>
       <div class="inline-block">
         <span ng-show="!results">
-          <button class="small button success alert" type="submit">Shut down</button> <button class="small button cancel" ng-click="close()">Cancel</button>
+          <button type="submit" class="small button success alert">Shut down</button>
+          <button type="button" class="small button cancel" ng-click="close()">Cancel</button>
         </span>
         <span ng-show="results.length>0">
-          <button class="small button cancel" ng-click="close()">Close</button>
+          <button type="button" class="small button cancel" ng-click="close()">Close</button>
         </span>
       </div>
     </div>

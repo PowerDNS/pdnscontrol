@@ -724,7 +724,7 @@ function ConfigEditCtrl($scope, $compile, $location, Restangular, server, config
   $scope.save = function() {
     $scope.config.value = _.compact(_.pluck($scope.config.value_o, 'value'));
     $scope.config.put().then(function() {
-      $location.path('/server/' + $scope.server.name + '#config');
+      $location.path('/server/' + $scope.server.name);
     }, function(errorResponse) {
       var msg = errorResponse.data.error || 'Save failed.';
       alert(msg);
@@ -732,7 +732,7 @@ function ConfigEditCtrl($scope, $compile, $location, Restangular, server, config
   };
 
   $scope.cancel = function() {
-    $location.path('/server/' + $scope.server.name + '#config');
+    $location.path('/server/' + $scope.server.name);
   }
 
   $scope.addOne();
@@ -1336,8 +1336,6 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
     var url = '/server/' + $scope.server.name;
     if (!!$scope.master._url) {
       url += '/zone/' + $scope.zone.id;
-    } else {
-      url += '#zones';
     }
     $location.path(url);
   }

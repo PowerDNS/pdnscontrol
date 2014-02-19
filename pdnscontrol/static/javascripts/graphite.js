@@ -15,9 +15,13 @@ GraphiteModule.directive('graphite', function() {
           return;
 
         var opts = _.defaults({
-          'title': attrs.gTitle,
           'areaMode': attrs.gAreaMode || 'none'
         }, ServerData.Config.graphite_default_opts);
+
+        // optional title
+        if (attrs.gTitle) {
+          opts.title = attrs.gTitle;
+        }
 
         // automatically choose width, if possible
         var width = parseInt($(elm).parent().width());

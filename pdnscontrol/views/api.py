@@ -2,13 +2,12 @@ import urlparse
 import urllib
 import time
 import sys
-from functools import wraps
 from flask import Blueprint, render_template, request, url_for, redirect, session, g
 from flask import current_app, jsonify, make_response
-from flask.ext.security import roles_required, http_auth_required, current_user
+from flask.ext.security import roles_required, current_user
 from flask.ext.security.utils import encrypt_password
 
-from pdnscontrol.utils import jsonpify, jsonarify, fetch_remote, fetch_json
+from pdnscontrol.utils import jsonpify, jsonarify, fetch_remote, fetch_json, api_auth_required
 from pdnscontrol.models import db, Server, User
 
 mod = Blueprint('api', __name__)
@@ -35,19 +34,6 @@ def forward_request(server, remote_url):
         accept=request.headers.get('Accept')
     )
     return forward_remote_response(response)
-
-
-def api_auth_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        auth = request.authorization
-        if auth:
-            @http_auth_required
-            def call():
-                return f(*args, **kwargs)
-            return call()
-        return f(*args, **kwargs)
-    return decorated_function
 
 
 @mod.route('/servers', methods=['GET'])

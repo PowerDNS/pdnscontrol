@@ -70,9 +70,10 @@ def not_found(error):
     return 'Not found', 404
 
 from pdnscontrol.utils import inject_config
-from pdnscontrol.views import pages, admin, api
+from pdnscontrol.views import pages, admin, api, graphite
 app.register_blueprint(pages.mod)
 app.register_blueprint(api.mod, url_prefix='/api')
+app.register_blueprint(graphite.mod, url_prefix='/graphite')
 app.register_blueprint(admin.mod, url_prefix='/admin')
 
 from .models import user_datastore

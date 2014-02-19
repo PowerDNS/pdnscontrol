@@ -19,7 +19,7 @@
 # PREFERRED_URL_SCHEME = 'http'
 # LOG_FILE = 'app.log'
 
-# GRAPHITE_SERVER = '/graphite/render/'
+# GRAPHITE_SERVER = 'http://127.0.0.1:8085/graphite/render/'
 # IGNORE_SSL_ERRORS = False
 
 # USE_X_SENDFILE = False

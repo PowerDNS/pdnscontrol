@@ -1,5 +1,7 @@
 from flask import request, current_app
 from flask import json
+from flask.ext.security import http_auth_required
+from functools import wraps
 import requests
 import urllib
 import urlparse
@@ -27,6 +29,19 @@ def inject_config():
     return dict(config=current_app.config)
 
 
+def api_auth_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth = request.authorization
+        if auth:
+            @http_auth_required
+            def call():
+                return f(*args, **kwargs)
+            return call()
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 def auth_from_url(url):
     auth = None
     parsed_url = urlparse.urlparse(url).netloc
@@ -36,7 +51,7 @@ def auth_from_url(url):
     return auth
 
 
-def fetch_remote(remote_url, method='GET', data=None, accept=None):
+def fetch_remote(remote_url, method='GET', data=None, accept=None, params=None):
     if data is not None and type(data) != str:
         data = json.dumps(data)
 
@@ -57,7 +72,8 @@ def fetch_remote(remote_url, method='GET', data=None, accept=None):
         verify=verify,
         auth=auth_from_url(remote_url),
         timeout=current_app.config['REMOTE_TIMEOUT'],
-        data=data
+        data=data,
+        params=params
         )
     try:
         if r.status_code not in (200, 400, 422):

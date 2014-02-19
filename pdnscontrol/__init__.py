@@ -49,20 +49,17 @@ js_bower = [
     'foundation/js/vendor/placeholder.js',
     'foundation/js/foundation.js',
     'foundation/js/foundation/foundation.reveal.js',
-    'foundation/js/foundation/foundation.topbar.js'
+    'foundation/js/foundation/foundation.topbar.js',
+    'underscore/underscore.js',
+    'spin.js/spin.js',
+    'blob/Blob.js',
+    'FileSaver/FileSaver.js',
+    'angular/angular.js',
+    'restangular/dist/restangular.js',
+    'ng-grid/build/ng-grid.debug.js',
+    'moment/moment.js'
 ]
-js_addtl = [
-    'moment.min.js',
-    'underscore.js',
-    'purl.js',
-    'spin.js',
-    'angular.js',
-    'restangular.js',
-    'ng-grid.js',
-    'Blob.js',
-    'FileSaver.js'
-]
-js_libs_files = ['bower_components/'+x for x in js_bower] + ['javascripts/'+x for x in js_addtl]
+js_libs_files = ['bower_components/'+x for x in js_bower]
 asset_env.register('js_libs', *js_libs_files, output='gen/js-libs-%(version)s.js')
 js_pdnscontrol_files = ["javascripts/util.js", "javascripts/components.js", "javascripts/popup.js", "javascripts/graphite.js", "javascripts/models.js", "javascripts/control.js"]
 asset_env.register('js_pdnscontrol', *js_pdnscontrol_files, output='gen/js-pdnscontrol-%(version)s.js')

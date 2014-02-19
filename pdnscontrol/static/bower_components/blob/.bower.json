@@ -1,0 +1,14 @@
+{
+  "name": "Blob",
+  "main": "./Blob.js",
+  "dependencies": {},
+  "homepage": "https://github.com/eligrey/Blob.js",
+  "_release": "4d085bb2e5",
+  "_resolution": {
+    "type": "commit",
+    "commit": "4d085bb2e5be6ac6f2ddfad187fc0a53d89aca56"
+  },
+  "_source": "git://github.com/eligrey/Blob.js.git",
+  "_target": "4d085bb2e5be6ac6f2ddfad187fc0a53d89aca56",
+  "_originalSource": "blob"
+}

@@ -2715,8 +2715,8 @@ dialog, .reveal-modal {
   left: 50%;
   z-index: 99;
   height: auto;
-  margin-left: -40%;
-  width: 80%;
+  margin-left: -47.5%;
+  width: 95%;
   background-color: white;
   padding: 1.33333rem;
   border: solid 1px #666666;
@@ -3106,12 +3106,12 @@ table {
       display: block;
       background: #efefef;
       color: #222222;
-      padding-top: 1.06667rem;
-      padding-right: 2.13333rem;
-      padding-bottom: 1.13333rem;
-      padding-left: 2.13333rem;
+      padding-top: 1rem;
+      padding-right: 2rem;
+      padding-bottom: 1.06667rem;
+      padding-left: 2rem;
       font-family: 'Open Sans', 'Sans', serif;
-      font-size: 1.06667rem; }
+      font-size: 1rem; }
       .tabs dd > a:hover {
         background: #e1e1e1; }
     .tabs dd.active a {
@@ -5017,22 +5017,6 @@ h2.server-name {
 .title-edit {
   font-size: 12pt; }
 
-table.dataTable tr.odd {
-  background-color: #f0dcc1; }
-
-table.dataTable tr.odd td.sorting_1 {
-  background-color: #e6c498; }
-
-table.dataTable tr.even td.sorting_1 {
-  background-color: #fff9eb; }
-
-html {
-  overflow-y: scroll; }
-
-.reveal-modal.fixedWidth1000 {
-  width: 950px;
-  margin-left: -475px; }
-
 .spinner {
   margin-right: 1em;
   width: 80px; }
@@ -5088,16 +5072,6 @@ form.inline-form {
 .link-button:hover {
   color: #e3a000; }
 
-table.dataTable td[contenteditable=true]:focus {
-  background: yellow; }
-
-/* these are used for data tables built by hand */
-table.dataTable tbody tr:nth-child(odd) {
-  background-color: #f0dcc1; }
-
-table.dataTable tbody tr:nth-child(even) {
-  background-color: white; }
-
 .empty .actions button {
   display: none; }
 
@@ -5106,32 +5080,6 @@ table.dataTable tbody tr:nth-child(even) {
   width: auto;
   height: auto;
   padding: 0; }
-
-.header-cell {
-  font-weight: bold; }
-
-.header-cell span {
-  display: inline-block;
-  height: 100%;
-  width: 80%;
-  cursor: pointer; }
-
-
-.header-cell.sorted-by.sort-ascending:before {
-  content: "\f017";
-  /* down-arrow */
-  font-family: "GeneralFoundicons";
-  font-weight: normal;
-  font-style: normal;
-  text-decoration: inherit; }
-
-.header-cell.sorted-by.sort-descending:before {
-  content: "\f016";
-  /* up-arrow */
-  font-family: "GeneralFoundicons";
-  font-weight: normal;
-  font-style: normal;
-  text-decoration: inherit; }
 
 .hidden {
   display: none; }

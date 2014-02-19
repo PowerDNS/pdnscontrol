@@ -4,7 +4,7 @@
 function showPopup($scope, $compile, template, scopeBinder) {
   var popupTemplate = document.createElement("ng-include");
   popupTemplate.setAttribute("data-reveal", "");
-  popupTemplate.setAttribute("class", "reveal-modal fixedWidth1000");
+  popupTemplate.setAttribute("class", "reveal-modal");
   popupTemplate.setAttribute("src", "'" + templateUrl(template) + "'");
   var popupScope = $scope.$new();
   scopeBinder(popupScope);

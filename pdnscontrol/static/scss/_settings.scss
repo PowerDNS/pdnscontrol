@@ -16,7 +16,8 @@
 // Since the typical default browser font-size is 16px, that makes the calculation for grid size.
 // If you want your base font-size to be different and not have it affect the grid breakpoints,
 // set $rem-base to $base-font-size and make sure $base-font-size is a px value.
-// $base-font-size: 100%;
+$base-font-size: 15px;
+$rem-base: $base-font-size;
 
 // The $base-line-height is 100% while $base-font-size is 150%
 // $base-line-height: 150%;
@@ -31,14 +32,14 @@
 // $include-html-grid-classes: $include-html-classes;
 // $include-xl-html-grid-classes: false;
 
-// $row-width: rem-calc(1000);
+$row-width: rem-calc(970);
 // $column-gutter: rem-calc(30);
 // $total-columns: 12;
 
 // We use these to control various global styles
 // $body-bg: #fff;
 // $body-font-color: #222;
-// $body-font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
+$body-font-family: 'Open Sans', 'Sans', serif;
 // $body-font-weight: normal;
 // $body-font-style: normal;
 
@@ -113,13 +114,13 @@
 // $include-html-type-classes: $include-html-classes;
 
 // We use these to control header font styles
-// $header-font-family: $body-font-family;
-// $header-font-weight: 300;
+$header-font-family: 'Bontemps';
+$header-font-weight: normal;
 // $header-font-style: normal;
 // $header-font-color: #222;
 // $header-line-height: 1.4;
 // $header-top-margin: .2rem;
-// $header-bottom-margin: .5rem;
+$header-bottom-margin: .3rem;
 // $header-text-rendering: optimizeLegibility;
 
 // We use these to control header font sizes
@@ -312,10 +313,10 @@
 // $include-html-button-classes: $include-html-classes;
 
 // We use these to build padding for buttons.
-// $button-tny: rem-calc(10);
-// $button-sml: rem-calc(14);
-// $button-med: rem-calc(16);
-// $button-lrg: rem-calc(18);
+$button-tny: rem-calc(8);
+$button-sml: rem-calc(10);
+$button-med: rem-calc(12);
+$button-lrg: rem-calc(14);
 
 // We use this to control the display property.
 // $button-display: inline-block;

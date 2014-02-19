@@ -1,0 +1,251 @@
+
+body {
+    font-family: 'Open Sans', 'Sans', serif;
+}
+html, body {
+    font-size: 11pt;
+}
+/* override button font, as foundation sets it explicitly */
+button, .button {
+    font-family: 'Open Sans', 'Sans', serif;
+    font-size: 11pt;
+}
+
+
+h1 { font-family: 'Bontemps', serif; font-weight: normal; }
+h2 { font-family: 'Bontemps', serif; font-weight: normal; }
+h3 { font-family: 'Bontemps', serif; font-weight: normal; }
+h4 { font-family: 'Bontemps', serif; font-weight: normal; }
+h5 { font-family: 'Bontemps', serif; font-weight: normal; }
+h6 { font-family: 'Bontemps', serif; font-weight: normal; }
+
+.logo {
+    vertical-align: bottom;
+    margin-bottom: 7px;
+    margin-top: 7px;
+    border: 0;
+    height: 20px;
+    width: 154px;
+    float: right;
+    background: url(../images/powerdns-logo-154px.png);
+}
+
+.output pre {
+    margin-bottom: 2em;
+    margin-top: 0.8em;
+    background: #eee;
+    padding: 5px 5px 5px 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    border-bottom: 2px solid #bbb;
+    border-right: 2px solid #bbb;
+    overflow: auto;
+}
+
+#appname {
+    font-size: 27px;
+    font-weight: bold;
+    display: block;
+}
+a#appname {
+    color: #666;
+}
+
+h2.server-name {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.title-edit {
+    font-size: 12pt;
+}
+
+table.dataTable tr.odd {
+    background-color: hsl(34, 61%, 85%);
+}
+table.dataTable tr.odd td.sorting_1 {
+    background-color: hsl(34, 61%, 75%);
+}
+table.dataTable tr.even td.sorting_1 {
+    background-color: hsl(43, 100%, 96%);
+}
+
+html {
+    overflow-y: scroll;
+}
+
+.reveal-modal.fixedWidth1000 {
+    width: 950px;
+    margin-left: -475px;
+}
+
+.spinner {
+    margin-right: 1em;
+    width: 80px;
+}
+
+.inline-block {
+    display: inline-block;
+}
+
+a {
+    color: #0959c2;
+}
+a:hover {
+    color: #3B8EC8;
+}
+.tabs dd.active, .tabs li.active {
+    border-top: 3px solid #3B8EC8;
+}
+.tabs {
+    margin-bottom: 0; /* override foundation */
+}
+
+#current_user {
+    font-size: small;
+    margin-bottom: 1em;
+}
+
+#header {
+}
+
+.server-list input[type="checkbox"] {
+    margin-bottom: 0;
+}
+
+input[type="checkbox"].inline {
+    margin-bottom: 0;
+}
+
+.header-actions button, .header-actions a.button {
+    margin-bottom: 0;
+}
+
+.button-group:last-child {
+    margin-right: 0;
+}
+
+#btnServerAdd:hover span:after {
+    content: " Add";
+}
+
+/* used by search log */
+form.inline-form {
+    margin: 0;
+}
+
+/* hack for foundicons. transforms a button into something that
+ * resembles a link. */
+.link-button {
+    border: none;
+    background: none;
+    color: #E38000;
+    cursor: pointer;
+}
+.link-button:hover {
+    color: #E3A000;
+}
+
+table.dataTable td[contenteditable=true]:focus {
+    background: yellow;
+}
+
+/* these are used for data tables built by hand */
+table.dataTable tbody tr:nth-child(odd) {
+    background-color: hsl(34, 61%, 85%);
+}
+table.dataTable tbody tr:nth-child(even) {
+    background-color: white;
+}
+
+.empty .actions button {
+    display: none;
+}
+
+.newRecord input, .newRecord select {
+    display: inline;
+    width: auto;
+    height: auto;
+    padding: 0;
+}
+
+.header-cell {
+    font-weight: bold;
+}
+.header-cell span {
+    display: inline-block;
+    height: 100%;
+    width: 80%;
+    cursor: pointer;
+}
+.header-cell.sorted-by {
+}
+.header-cell.sorted-by.sort-ascending:before {
+    content: "\f017"; /* down-arrow */
+    font-family: "GeneralFoundicons";
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: inherit;
+}
+.header-cell.sorted-by.sort-descending:before {
+    content: "\f016"; /* up-arrow */
+    font-family: "GeneralFoundicons";
+    font-weight: normal;
+    font-style: normal;
+    text-decoration: inherit;
+}
+
+.hidden {
+    display: none;
+}
+
+.gridStyle {
+    border: 1px solid rgb(212,212,212);
+    height: 500px
+}
+
+.zoneName {
+    color: #888;
+    font-style: italic;
+}
+
+footer {
+    font-size: 10px;
+}
+
+
+.flashes li {
+    list-style-type: none;
+}
+
+.flashes .error {
+    padding: 1em; border: 2px solid red; margin-bottom: 1em;
+}
+
+@-webkit-keyframes loading {
+    0% { opacity: 0.1; }
+    50% { opacity: 1; }
+    100% { opacity: 0.1; }
+}
+@-moz-keyframes loading {
+    0% { opacity: 0.1; }
+    50% { opacity: 1; }
+    100% { opacity: 0.1; }
+}
+@-o-keyframes loading {
+    0% { opacity: 0.1; }
+    50% { opacity: 1; }
+    100% { opacity: 0.1; }
+}
+@keyframes loading {
+    0% { opacity: 0.1; }
+    50% { opacity: 1; }
+    100% { opacity: 0.1; }
+}
+
+.changeInProgress {
+    animation:         loading 2s linear infinite;
+    -webkit-animation: loading 2s linear infinite; /* Safari 4+ */
+    -moz-animation:    loading 2s linear infinite; /* Fx 5+ */
+    -o-animation:      loading 3s linear infinite;
+}

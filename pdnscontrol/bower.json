@@ -1,0 +1,6 @@
+{
+  "name": "pdnscontrol",
+  "dependencies": {
+    "foundation": "zurb/bower-foundation"
+  }
+}

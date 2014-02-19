@@ -40,9 +40,29 @@ asset_env = flask.ext.assets.Environment(app)
 asset_env.auto_build = app.debug
 asset_env.debug = app.debug
 
-styles_files = ["stylesheets/normalize.css", "stylesheets/foundation.min.css", "stylesheets/general_foundicons.css", "stylesheets/ng-grid.css", "stylesheets/app.css"]
-asset_env.register('styles', *styles_files, output='gen/styles-%(version)s.css')
-js_libs_files = ["javascripts/vendor/modernizr.js", "javascripts/vendor/jquery.js", "javascripts/vendor/fastclick.js", "javascripts/foundation/foundation.js", "javascripts/foundation/foundation.reveal.js", "javascripts/foundation/foundation.topbar.js", "javascripts/moment.min.js", "javascripts/underscore.js", "javascripts/purl.js", "javascripts/spin.js", "javascripts/angular.js", "javascripts/restangular.js", "javascripts/ng-grid.js", "javascripts/Blob.js", "javascripts/FileSaver.js"]
+asset_env.register('styles', 'stylesheets/app.css', output='gen/styles-%(version)s.css')
+js_bower = [
+    'sizzle/dist/sizzle.js',
+    'jquery/dist/jquery.js',
+    'modernizr/modernizr.js',
+    'fastclick/lib/fastclick.js',
+    'foundation/js/vendor/placeholder.js',
+    'foundation/js/foundation.js',
+    'foundation/js/foundation/foundation.reveal.js',
+    'foundation/js/foundation/foundation.topbar.js'
+]
+js_addtl = [
+    'moment.min.js',
+    'underscore.js',
+    'purl.js',
+    'spin.js',
+    'angular.js',
+    'restangular.js',
+    'ng-grid.js',
+    'Blob.js',
+    'FileSaver.js'
+]
+js_libs_files = ['bower_components/'+x for x in js_bower] + ['javascripts/'+x for x in js_addtl]
 asset_env.register('js_libs', *js_libs_files, output='gen/js-libs-%(version)s.js')
 js_pdnscontrol_files = ["javascripts/util.js", "javascripts/components.js", "javascripts/popup.js", "javascripts/graphite.js", "javascripts/models.js", "javascripts/control.js"]
 asset_env.register('js_pdnscontrol', *js_pdnscontrol_files, output='gen/js-pdnscontrol-%(version)s.js')

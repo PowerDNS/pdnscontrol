@@ -1,4 +1,17 @@
 <div class="row">
+  <div class="small-6 columns">
+    <h1>Servers</h1>
+  </div>
+  <div class="small-6 columns text-right right">
+    <ul class="button-group right">
+      <li>
+        <a class="button" href="/servers/new"><span class="foundicon-plus"></span></a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
   <div class="small-12 columns">
     <div class="server-list">
       <table id="servers" class="small-12" ng-init="selected_all=true">
@@ -40,13 +53,6 @@
               <li><button ng-click="popup_shutdown()" class="alert button">Shutdown</button></li>
             </ul>
           </div>
-        </div>
-        <div class="small-5 columns">
-          <ul class="button-group right">
-            <li>
-              <a class="button" href="/servers/new"><span class="foundicon-plus"></span></a>
-            </li>
-          </ul>
         </div>
       </div>
     </div>

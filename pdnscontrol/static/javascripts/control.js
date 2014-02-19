@@ -461,7 +461,7 @@ function ServerListCtrl($scope, $compile, Restangular) {
   };
 
   $scope.popup_shutdown = function() {
-    showPopup($scope, $compile, 'server/shutdown_multi.html', function(scope) {
+    showPopup($scope, $compile, 'server/shutdown_multi', function(scope) {
       scope.loading = false;
       scope.affected_servers = $scope.selected_servers();
       scope.doIt = function() {

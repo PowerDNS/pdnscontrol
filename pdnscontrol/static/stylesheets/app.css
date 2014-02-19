@@ -175,9 +175,6 @@ a:hover {
 #header {
 }
 
-.server-list ul.button-group, .server-list button, .server-list a.button {
-    margin-bottom: 0;
-}
 .server-list input[type="checkbox"] {
     margin-bottom: 0;
 }

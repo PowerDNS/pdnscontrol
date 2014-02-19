@@ -2,7 +2,7 @@
 
   <h3>Restart</h3>
   <div class="row">
-    Servers: <span ng-repeat="server in affected_servers">{{server.name}} </span>
+    Servers: <span ng-repeat="server in affected_servers">{{server.name}}<span ng-show="!$last">,</span> </span>
     <br>
   </div>
   <div class="row">

@@ -2,7 +2,7 @@
 
   <h3>Flush Cache</h3>
   <div class="row">
-    On servers: <span ng-repeat="server in affected_servers">{{server.name}} </span>
+    On servers: <span ng-repeat="server in affected_servers">{{server.name}}<span ng-show="!$last">,</span> </span>
     <br>
   </div>
   <div class="row">

@@ -280,8 +280,6 @@ ControlApp.factory('breadcrumbs', ['$rootScope', '$location', function($rootScop
   //we want to update breadcrumbs only when a route is actually changed
   //as $location.path() will get updated imediatelly (even if route change fails!)
   $rootScope.$on('$routeChangeSuccess', function(event, current){
-    console.log('routeChangeSuccess');
-
     var pathElements = $location.path().split('/'), result = [], i;
     var breadcrumbPath = function (index) {
       return '/' + (pathElements.slice(0, index + 1)).join('/');
@@ -318,11 +316,16 @@ function NavCtrl($scope, breadcrumbs) {
 
     filtered.length = 0;
     if (raw[0]) {
-      if (raw[0].name == 'server' && raw[1]) {
-        filtered.push(raw[1]);
-        if (raw[2] && raw[3]) {
-          filtered.push(raw[3]);
+      if (raw[0].name == 'server' || raw[0].name == '') {
+        filtered.push({name: 'Servers', path: '/servers'});
+        if (raw[1]) {
+          filtered.push(raw[1]);
+          if (raw[2] && raw[3]) {
+            filtered.push(raw[3]);
+          }
         }
+      } else if (raw[0].name == 'user' || raw[0].name == 'users') {
+        filtered.push({name: 'Users', path: '/users'});
       }
     }
     rawCache = raw;

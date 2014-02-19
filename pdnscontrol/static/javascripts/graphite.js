@@ -7,7 +7,6 @@ GraphiteModule.directive('graphite', function() {
     replace: true,
     scope: true,
     link: function(scope, elm, attrs, controller) {
-
       function updateUrl() {
         var invalid = false;
 
@@ -19,6 +18,12 @@ GraphiteModule.directive('graphite', function() {
           'title': attrs.gTitle,
           'areaMode': attrs.gAreaMode || 'none'
         }, ServerData.Config.graphite_default_opts);
+
+        // automatically choose width, if possible
+        var width = parseInt($(elm).parent().width());
+        if (width > 0) {
+          opts['width'] = width;
+        }
 
         url = _.reduce(_.pairs(opts), function(memo, pair) {
           return memo + '&' + pair[0] + '=' + encodeURIComponent(pair[1]);

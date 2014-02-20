@@ -57,7 +57,8 @@ js_bower = [
     'angular/angular.js',
     'restangular/dist/restangular.js',
     'ng-grid/build/ng-grid.debug.js',
-    'moment/moment.js'
+    'moment/moment.js',
+    'jstz-detect/jstz.js'
 ]
 js_libs_files = ['bower_components/'+x for x in js_bower]
 asset_env.register('js_libs', *js_libs_files, output='gen/js-libs-%(version)s.js')

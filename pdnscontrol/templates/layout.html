@@ -44,6 +44,9 @@ ServerData.Config = {
   {% assets "js_libs" %}
   <script src="{[ ASSET_URL ]}"></script>
   {% endassets %}
+<script>
+ServerData.Config.graphite_default_opts.tz = (jstz.determine()).name();
+</script>
 
 {% block header %}
 <nav class="top-bar" data-topbar ng-controller="NavCtrl">

@@ -1,0 +1,14 @@
+{
+  "name": "jstz-detect",
+  "homepage": "https://github.com/bower-packages/bower-jstz",
+  "version": "1.0.5",
+  "_release": "1.0.5",
+  "_resolution": {
+    "type": "version",
+    "tag": "1.0.5",
+    "commit": "c7d5d00fb16d7b63f6f59036f8e533127844bc15"
+  },
+  "_source": "git://github.com/bower-packages/bower-jstz.git",
+  "_target": "1.0.5",
+  "_originalSource": "jstz-detect"
+}

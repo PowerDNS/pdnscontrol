@@ -687,9 +687,11 @@ function ServerEditCtrl($scope, $location, Restangular, server) {
   };
 
   $scope.destroy = function() {
-    $scope.master.remove().then(function() {
-      $location.path('/');
-    });
+    if (confirm('Do you really want to remove the server named "' + $scope.master.name + '" from pdnscontrol?')) {
+      $scope.master.remove().then(function() {
+        $location.path('/');
+      });
+    }
   };
 
   $scope.save = function() {
@@ -1281,9 +1283,11 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
   };
 
   $scope.destroy = function() {
-    $scope.master.remove().then(function() {
-      $location.path('/server/' + $scope.server.name);
-    });
+    if (confirm('Do you really want to delete the entire zone named "' + $scope.master.name + '"?')) {
+      $scope.master.remove().then(function() {
+        $location.path('/server/' + $scope.server.name);
+      });
+    }
   };
 
   $scope.addMaster = function() {

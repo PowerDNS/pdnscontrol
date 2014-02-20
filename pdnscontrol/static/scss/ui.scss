@@ -116,6 +116,20 @@ footer {
     font-size: 10px;
 }
 
+.graphite-times {
+    font-size: 80%;
+    /* flush right end with graph border */
+    padding-right: 9px;
+
+    .active {
+        font-weight: bold;
+    }
+}
+
+.graphite-graph {
+    /* disable space between graphite-times and img */
+    line-height: 100%;
+}
 
 @-webkit-keyframes loading {
     0% { opacity: 0.1; }

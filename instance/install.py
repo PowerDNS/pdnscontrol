@@ -8,7 +8,10 @@ print "The database has been created."
 
 if user_datastore.find_role(u'admin') is not None:
     print "The database has been set up already."
-    sys.exit(1)
+    if sys.argv[-1] == '--existing-ok':
+        sys.exit(0)
+    else:
+        sys.exit(1)
 
 role_admin = user_datastore.find_or_create_role(name=u'admin')
 role_edit = user_datastore.find_or_create_role(name=u'edit')

@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block topbar_left %}
-<li ng-repeat="bc in breadcrumbs.filtered()">
+<li ng-repeat="bc in breadcrumbs.filtered()" class="ng-cloak">
   <a href="{{bc.path}}">{{bc.name}}</a>
 </li>
 {% endblock %}

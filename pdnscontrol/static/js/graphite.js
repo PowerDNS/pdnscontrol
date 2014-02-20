@@ -94,6 +94,15 @@ GraphiteModule.directive('graphite', function($timeout) {
       scope.$on('graph_target_changed', updateUrl);
       if (attrs.gRefresh && attrs.gRefresh > 0) {
         function setupRefresh() {
+          // if page visibility API is present, don't poll if page is in background
+          if (typeof document.hidden !== "undefined" && document.hidden) {
+            // register handler so we resume updating when we're becoming visible again.
+            $(document).one('visibilitychange', function() {
+              updateUrl();
+              setupRefresh();
+            });
+            return;
+          }
           $timeout(function() {
             // refresh graphs
             setupRefresh();

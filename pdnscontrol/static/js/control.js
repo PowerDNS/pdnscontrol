@@ -4,7 +4,8 @@ var ControlApp = angular.module('control', [
   'components',
   'graphite',
   'ngGrid',
-  'services.breadcrumbs'
+  'services.breadcrumbs',
+  'services.httpRequestTracker'
 ]);
 
 ControlApp.provider(
@@ -279,7 +280,11 @@ ControlApp.directive('spinner', function() {
 // Base UI
 ////////////////////////////////////////////////////////////////////////
 
-function NavCtrl($scope, breadcrumbs) {
+function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
+  $scope.hasPendingRequests = function() {
+    return httpRequestTracker.hasPendingRequests();
+  };
+
   $scope.breadcrumbs = breadcrumbs;
   var filtered = [];
   var rawCache;

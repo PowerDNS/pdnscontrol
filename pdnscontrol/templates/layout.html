@@ -51,7 +51,7 @@ ServerData.Config.graphite_default_opts.tz = (jstz.determine()).name();
 {% block header %}
 <nav class="top-bar" data-topbar ng-controller="NavCtrl">
   <ul class="title-area">
-    <li class="name">
+    <li class="name requestsPendingIndicator" ng-class="{active: hasPendingRequests()}">
       <h1><a href="{[ request.url_root ]}">PowerDNS Control</a></h1>
     </li>
     <li class="toggle-topbar menu-icon"><a href="#">Menu</a></li>
@@ -62,6 +62,7 @@ ServerData.Config.graphite_default_opts.tz = (jstz.determine()).name();
     <ul class="right">
       {% if 'view-users' in user_roles %}
       <li><a href="/users">Manage Users</a></li>
+      <li class="divider"></li>
       {% endif %}
 
       {% if user.name %}

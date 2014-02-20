@@ -126,35 +126,49 @@ footer {
     }
 }
 
+.top-bar-section .has-indicator {
+    height: 45px;
+    padding-top: 8px;
+}
+
 .graphite-graph {
     /* disable space between graphite-times and img */
     line-height: 100%;
 }
 
-@-webkit-keyframes loading {
-    0% { opacity: 0.1; }
-    50% { opacity: 1; }
-    100% { opacity: 0.1; }
-}
-@-moz-keyframes loading {
-    0% { opacity: 0.1; }
-    50% { opacity: 1; }
-    100% { opacity: 0.1; }
-}
-@-o-keyframes loading {
-    0% { opacity: 0.1; }
-    50% { opacity: 1; }
-    100% { opacity: 0.1; }
-}
-@keyframes loading {
-    0% { opacity: 0.1; }
-    50% { opacity: 1; }
-    100% { opacity: 0.1; }
+@include keyframes(changeInProgress) {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.1;
+  }
 }
 
 .changeInProgress {
-    animation:         loading 2s linear infinite;
-    -webkit-animation: loading 2s linear infinite; /* Safari 4+ */
-    -moz-animation:    loading 2s linear infinite; /* Fx 5+ */
-    -o-animation:      loading 3s linear infinite;
+    @include animation(changeInProgress 3s linear infinite);
+}
+
+/* global request pending animation */
+
+@include keyframes(requestsPending) {
+  0% {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    border-bottom-color: rgba(255, 255, 255, 1);
+  }
+  100% {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.requestsPendingIndicator {
+  border-bottom: 8px solid transparent;
+}
+.requestsPendingIndicator.active {
+  @include animation(requestsPending 2s linear infinite);
 }

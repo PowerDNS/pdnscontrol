@@ -69,6 +69,7 @@ js_app = [
     "graphite.js",
     "models.js",
     "breadcrumbs.js",
+    "httpRequestTracker.js",
     "control.js"
 ]
 js_app_files = ['js/'+x for x in js_app]

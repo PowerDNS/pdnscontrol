@@ -4,7 +4,7 @@ module.exports = function(grunt) {
 
     sass: {
       options: {
-        includePaths: ['static/bower_components/foundation/scss']
+        includePaths: ['static/bower_components/foundation/scss', 'static/bower_components/bourbon/app/assets/stylesheets']
       },
       dist: {
         options: {

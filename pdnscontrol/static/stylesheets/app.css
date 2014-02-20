@@ -4981,163 +4981,6 @@ th.hide-for-touch {
 .ngFooterTotalItems {
   padding: 2px; }
 
-.logo {
-  vertical-align: bottom;
-  margin-bottom: 7px;
-  margin-top: 7px;
-  border: 0;
-  height: 20px;
-  width: 154px;
-  float: right;
-  background: url(../images/powerdns-logo-154px.png); }
-
-.output pre {
-  margin-bottom: 2em;
-  margin-top: 0.8em;
-  background: #eeeeee;
-  padding: 5px 5px 5px 5px;
-  border-radius: 5px;
-  border: 1px solid #cccccc;
-  border-bottom: 2px solid #bbbbbb;
-  border-right: 2px solid #bbbbbb;
-  overflow: auto; }
-
-h2.server-name {
-  margin-top: 0;
-  margin-bottom: 0; }
-
-.title-edit {
-  font-size: 12pt; }
-
-.spinner {
-  margin-right: 1em;
-  width: 80px; }
-
-.inline-block {
-  display: inline-block; }
-
-a {
-  color: #0959c2; }
-
-a:hover {
-  color: #3b8ec8; }
-
-.tabs dd.active, .tabs li.active {
-  border-top: 3px solid #3b8ec8; }
-
-.tabs {
-  margin-bottom: 0;
-  /* override foundation */ }
-
-.server-list input[type="checkbox"] {
-  margin-bottom: 0; }
-
-input[type="checkbox"].inline {
-  margin-bottom: 0; }
-
-.header-actions button, .header-actions a.button {
-  margin-bottom: 0; }
-
-.button-group:last-child {
-  margin-right: 0; }
-
-/* used by search log */
-form.inline-form {
-  margin: 0; }
-
-/* hack for foundicons. transforms a button into something that
- * resembles a link. */
-.link-button {
-  border: none;
-  background: none;
-  color: #e38000;
-  cursor: pointer; }
-
-.link-button:hover {
-  color: #e3a000; }
-
-.empty .actions button {
-  display: none; }
-
-.newRecord input, .newRecord select {
-  display: inline;
-  width: auto;
-  height: auto;
-  padding: 0; }
-
-.hidden {
-  display: none; }
-
-.gridStyle {
-  border: 1px solid #d4d4d4;
-  height: 500px; }
-
-.zoneName {
-  color: #888888;
-  font-style: italic; }
-
-footer {
-  font-size: 10px; }
-
-.graphite-times {
-  font-size: 80%;
-  /* flush right end with graph border */
-  padding-right: 9px; }
-  .graphite-times .active {
-    font-weight: bold; }
-
-.graphite-graph {
-  /* disable space between graphite-times and img */
-  line-height: 100%; }
-
-@-webkit-keyframes loading {
-  0% {
-    opacity: 0.1; }
-
-  50% {
-    opacity: 1; }
-
-  100% {
-    opacity: 0.1; } }
-
-@-moz-keyframes loading {
-  0% {
-    opacity: 0.1; }
-
-  50% {
-    opacity: 1; }
-
-  100% {
-    opacity: 0.1; } }
-
-@-o-keyframes loading {
-  0% {
-    opacity: 0.1; }
-
-  50% {
-    opacity: 1; }
-
-  100% {
-    opacity: 0.1; } }
-
-@keyframes loading {
-  0% {
-    opacity: 0.1; }
-
-  50% {
-    opacity: 1; }
-
-  100% {
-    opacity: 0.1; } }
-
-.changeInProgress {
-  animation: loading 2s linear infinite;
-  -webkit-animation: loading 2s linear infinite;
-  /* Safari 4+ */
-  -moz-animation: loading 2s linear infinite;
-  /* Fx 5+ */
-  -o-animation: loading 3s linear infinite; }
-
 /* font-face */
 @font-face {
   font-family: "GeneralFoundicons";
@@ -5304,3 +5147,210 @@ footer {
 
 .foundicon-search:before {
   content: "\f02e"; }
+
+.logo {
+  vertical-align: bottom;
+  margin-bottom: 7px;
+  margin-top: 7px;
+  border: 0;
+  height: 20px;
+  width: 154px;
+  float: right;
+  background: url(../images/powerdns-logo-154px.png); }
+
+.output pre {
+  margin-bottom: 2em;
+  margin-top: 0.8em;
+  background: #eeeeee;
+  padding: 5px 5px 5px 5px;
+  border-radius: 5px;
+  border: 1px solid #cccccc;
+  border-bottom: 2px solid #bbbbbb;
+  border-right: 2px solid #bbbbbb;
+  overflow: auto; }
+
+h2.server-name {
+  margin-top: 0;
+  margin-bottom: 0; }
+
+.title-edit {
+  font-size: 12pt; }
+
+.spinner {
+  margin-right: 1em;
+  width: 80px; }
+
+.inline-block {
+  display: inline-block; }
+
+a {
+  color: #0959c2; }
+
+a:hover {
+  color: #3b8ec8; }
+
+.tabs dd.active, .tabs li.active {
+  border-top: 3px solid #3b8ec8; }
+
+.tabs {
+  margin-bottom: 0;
+  /* override foundation */ }
+
+.server-list input[type="checkbox"] {
+  margin-bottom: 0; }
+
+input[type="checkbox"].inline {
+  margin-bottom: 0; }
+
+.header-actions button, .header-actions a.button {
+  margin-bottom: 0; }
+
+.button-group:last-child {
+  margin-right: 0; }
+
+/* used by search log */
+form.inline-form {
+  margin: 0; }
+
+/* hack for foundicons. transforms a button into something that
+ * resembles a link. */
+.link-button {
+  border: none;
+  background: none;
+  color: #e38000;
+  cursor: pointer; }
+
+.link-button:hover {
+  color: #e3a000; }
+
+.empty .actions button {
+  display: none; }
+
+.newRecord input, .newRecord select {
+  display: inline;
+  width: auto;
+  height: auto;
+  padding: 0; }
+
+.hidden {
+  display: none; }
+
+.gridStyle {
+  border: 1px solid #d4d4d4;
+  height: 500px; }
+
+.zoneName {
+  color: #888888;
+  font-style: italic; }
+
+footer {
+  font-size: 10px; }
+
+.graphite-times {
+  font-size: 80%;
+  /* flush right end with graph border */
+  padding-right: 9px; }
+  .graphite-times .active {
+    font-weight: bold; }
+
+.top-bar-section .has-indicator {
+  height: 45px;
+  padding-top: 8px; }
+
+.graphite-graph {
+  /* disable space between graphite-times and img */
+  line-height: 100%; }
+
+@-webkit-keyframes changeInProgress {
+  0% {
+    opacity: 0.1; }
+
+  50% {
+    opacity: 1; }
+
+  100% {
+    opacity: 0.1; } }
+
+@-moz-keyframes changeInProgress {
+  0% {
+    opacity: 0.1; }
+
+  50% {
+    opacity: 1; }
+
+  100% {
+    opacity: 0.1; } }
+
+@-o-keyframes changeInProgress {
+  0% {
+    opacity: 0.1; }
+
+  50% {
+    opacity: 1; }
+
+  100% {
+    opacity: 0.1; } }
+
+@keyframes changeInProgress {
+  0% {
+    opacity: 0.1; }
+
+  50% {
+    opacity: 1; }
+
+  100% {
+    opacity: 0.1; } }
+
+.changeInProgress {
+  -webkit-animation: changeInProgress 3s linear infinite;
+  -moz-animation: changeInProgress 3s linear infinite;
+  animation: changeInProgress 3s linear infinite; }
+
+/* global request pending animation */
+@-webkit-keyframes requestsPending {
+  0% {
+    border-bottom-color: rgba(255, 255, 255, 0.1); }
+
+  50% {
+    border-bottom-color: white; }
+
+  100% {
+    border-bottom-color: rgba(255, 255, 255, 0.1); } }
+
+@-moz-keyframes requestsPending {
+  0% {
+    border-bottom-color: rgba(255, 255, 255, 0.1); }
+
+  50% {
+    border-bottom-color: white; }
+
+  100% {
+    border-bottom-color: rgba(255, 255, 255, 0.1); } }
+
+@-o-keyframes requestsPending {
+  0% {
+    border-bottom-color: rgba(255, 255, 255, 0.1); }
+
+  50% {
+    border-bottom-color: white; }
+
+  100% {
+    border-bottom-color: rgba(255, 255, 255, 0.1); } }
+
+@keyframes requestsPending {
+  0% {
+    border-bottom-color: rgba(255, 255, 255, 0.1); }
+
+  50% {
+    border-bottom-color: white; }
+
+  100% {
+    border-bottom-color: rgba(255, 255, 255, 0.1); } }
+
+.requestsPendingIndicator {
+  border-bottom: 8px solid transparent; }
+
+.requestsPendingIndicator.active {
+  -webkit-animation: requestsPending 2s linear infinite;
+  -moz-animation: requestsPending 2s linear infinite;
+  animation: requestsPending 2s linear infinite; }

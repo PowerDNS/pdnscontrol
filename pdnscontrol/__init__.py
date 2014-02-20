@@ -71,7 +71,7 @@ js_app = [
     "breadcrumbs.js",
     "control.js"
 ]
-js_app_files = ['javascripts/'+x for x in js_app]
+js_app_files = ['js/'+x for x in js_app]
 asset_env.register('js_pdnscontrol', *js_app_files, output='gen/js-app-%(version)s.js')
 
 

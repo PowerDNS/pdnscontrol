@@ -41,7 +41,7 @@ asset_env.auto_build = app.debug
 asset_env.debug = app.debug
 
 asset_env.register('styles', 'stylesheets/app.css', output='gen/styles-%(version)s.css')
-js_bower = [
+js_libs = [
     'sizzle/dist/sizzle.js',
     'jquery/dist/jquery.js',
     'modernizr/modernizr.js',
@@ -60,10 +60,19 @@ js_bower = [
     'moment/moment.js',
     'jstz-detect/jstz.js'
 ]
-js_libs_files = ['bower_components/'+x for x in js_bower]
+js_libs_files = ['bower_components/'+x for x in js_libs]
 asset_env.register('js_libs', *js_libs_files, output='gen/js-libs-%(version)s.js')
-js_pdnscontrol_files = ["javascripts/util.js", "javascripts/components.js", "javascripts/popup.js", "javascripts/graphite.js", "javascripts/models.js", "javascripts/control.js"]
-asset_env.register('js_pdnscontrol', *js_pdnscontrol_files, output='gen/js-pdnscontrol-%(version)s.js')
+js_app = [
+    "util.js",
+    "components.js",
+    "popup.js",
+    "graphite.js",
+    "models.js",
+    "breadcrumbs.js",
+    "control.js"
+]
+js_app_files = ['javascripts/'+x for x in js_app]
+asset_env.register('js_pdnscontrol', *js_app_files, output='gen/js-app-%(version)s.js')
 
 
 @app.errorhandler(404)

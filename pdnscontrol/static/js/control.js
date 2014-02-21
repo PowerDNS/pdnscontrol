@@ -546,7 +546,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
     ]
   };
   if ($scope.server.daemon_type == 'Recursor') {
-    $scope.zonesGridOptions.columnDefs.push({field: 'forwarders', displayName: 'Forwarders', width: '200', cellFilter: 'array_join'});
+    $scope.zonesGridOptions.columnDefs.push({field: 'servers', displayName: 'Forwarders', width: '200', cellFilter: 'array_join'});
     $scope.zonesGridOptions.columnDefs.push({field: 'recursion_desired', displayName: 'Recursion Desired', width: '150', cellFilter: 'checkmark'});
   } else {
     $scope.zonesGridOptions.columnDefs.push({field: 'masters', displayName: 'Masters', cellTemplate: '<div class="ngCellText">{{row.entity[col.field] | array_join }}</div>'});

@@ -15,8 +15,8 @@ Features:
 ## Requirements
 
 * Python 2.6 or Python 2.7
-* PowerDNS Authoritative 3.2-pre (svn 2905+)
-* PowerDNS Recursor 3.5-pre (svn 2905+)
+* PowerDNS Authoritative 3.4-pre
+* PowerDNS Recursor 3.6-pre
 * Graphite
 * PostgreSQL 8.3 or newer database
 * Cron
@@ -73,6 +73,5 @@ Lives in `pdnsmgrd`. Look at pdnsmgrd/README.markdown for documentation.
 
 The current code is known to run on these platforms:
 
-* Debian squeeze (Python 2.6)
-* Debian sid (Python 2.7)
-* Ubuntu Lucid Lynx (Python 2.6)
+* CentOS 6 (Python 2.7)
+* Debian wheezy (Python 2.7)

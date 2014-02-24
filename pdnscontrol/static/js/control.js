@@ -210,8 +210,8 @@ ControlApp.directive('searchlog', function() {
           };
 
           _.each(servers, function(server) {
-            server.log_grep({needle: $scope.query}).then(function(response) {
-              popupScope.logData.push.apply(popupScope.logData, _.map(response.content, function(line) {
+            server.search_log({q: $scope.query}).then(function(response) {
+              popupScope.logData.push.apply(popupScope.logData, _.map(response, function(line) {
                 var date_hostname = line.split(' ', 2);
                 var message = line.substring(date_hostname[0].length + date_hostname[1].length + 2);
                 return {
@@ -221,7 +221,7 @@ ControlApp.directive('searchlog', function() {
                 };
               }));
             }, function(response) {
-              $scope.load_error += 'Search failed for server X';
+              $scope.load_error += 'Search failed for server ' + server.name + '. ';
             });
           });
 

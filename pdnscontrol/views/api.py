@@ -22,7 +22,7 @@ def forward_remote_response(response):
         )
 
 
-def forward_request(server, remote_url):
+def forward_request(server, remote_url, params=None):
     server = db.session.query(Server).filter_by(name=server).first()
     if server is None:
         return jsonify(errors={'name':"Not found"}), 404
@@ -31,7 +31,8 @@ def forward_request(server, remote_url):
         server.pdns_url + remote_url,
         method=request.method,
         data=request.data,
-        accept=request.headers.get('Accept')
+        accept=request.headers.get('Accept'),
+        params=params
     )
     return forward_remote_response(response)
 
@@ -155,22 +156,12 @@ def zone_export(server, zone):
     return forward_request(server, '/servers/localhost/zones/' + zone + '/export')
 
 
-@mod.route('/servers/<server>/log-grep')
+@mod.route('/servers/<server>/search-log')
 @api_auth_required
 @roles_required('edit')
 def server_loggrep(server):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
-
-    needle = request.values.get('needle')
-
-    remote_url = server.pdns_url
-    remote_url += '/jsonstat?command=log-grep&needle=' + needle
-
-    data = fetch_json(remote_url)
-
-    return jsonify({'needle': needle, 'content': data})
+    q = request.values.get('q')
+    return forward_request(server, '/servers/localhost/search-log', {'q': q})
 
 
 @mod.route('/servers/<server>/flush-cache', methods=['POST'])

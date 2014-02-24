@@ -172,3 +172,8 @@ footer {
 .requestsPendingIndicator.active {
   @include animation(requestsPending 2s linear infinite);
 }
+
+/* override ngGrid CSS */
+.ngHeaderButton {
+  background: inherit;
+}

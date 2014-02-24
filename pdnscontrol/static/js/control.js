@@ -1206,6 +1206,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     showSelectionCheckbox: $scope.isChangeAllowed,
     selectWithCheckboxOnly: true,
     showFilter: true,
+    menuTemplate: templateUrl('grid/menuTemplate'),
     sortInfo: { fields: ['name', 'type', 'priority', 'content'], directions: ['ASC', 'ASC', 'ASC', 'ASC'] },
     selectedItems: $scope.mySelections,
     columnDefs: [

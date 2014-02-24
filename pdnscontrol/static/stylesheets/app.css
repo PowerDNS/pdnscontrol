@@ -5354,3 +5354,7 @@ footer {
   -webkit-animation: requestsPending 2s linear infinite;
   -moz-animation: requestsPending 2s linear infinite;
   animation: requestsPending 2s linear infinite; }
+
+/* override ngGrid CSS */
+.ngHeaderButton {
+  background: inherit; }

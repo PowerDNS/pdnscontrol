@@ -540,6 +540,8 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   $scope.zonesGridOptions = {
     data: 'zones',
     enableRowSelection: false,
+    showFilter: true,
+    menuTemplate: templateUrl('grid/menuTemplate'),
     columnDefs: [
       {field: 'name', displayName: 'Name', cellTemplate: '<div class="ngCellText"><a href="/server/{{server._id}}/zone/{{row.entity._id}}">{{row.entity[col.field]}}</a> <a href="/server/{{server._id}}/zone/{{row.entity._id}}"><span class="foundicon-edit"/></a></div>'},
       {field: 'kind', displayName: 'Kind', width: '100'}
@@ -570,6 +572,8 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   $scope.configurationGridOptions = {
     data: 'configuration',
     enableRowSelection: false,
+    showFilter: true,
+    menuTemplate: templateUrl('grid/menuTemplate'),
     columnDefs: [
       {field: '0', displayName: 'Name', width: '300', cellTemplate: '<div class="ngCellText">{{row.entity[col.field]}} <a href="/server/{{server._id}}/config/{{row.entity[col.field]}}/edit" ng-show="canEditConfig(row.entity[col.field])"><span class="foundicon-edit"/></a></div>'},
       {field: '1', displayName: 'Value'}
@@ -582,6 +586,8 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   $scope.statisticsGridOptions = {
     data: 'statistics',
     enableRowSelection: false,
+    showFilter: true,
+    menuTemplate: templateUrl('grid/menuTemplate'),
     columnDefs: [
       {field: '0', displayName: 'Name'},
       {field: '1', displayName: 'Value'}

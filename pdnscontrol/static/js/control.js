@@ -187,7 +187,6 @@ ControlApp.directive('searchlog', function() {
     },
     controller: ['$scope', '$compile', function($scope, $compile) {
       $scope.query = '';
-      $scope.load_error = '';
       $scope.submit = function() {
         if ($scope.query.length == 0) {
           return;
@@ -199,6 +198,7 @@ ControlApp.directive('searchlog', function() {
         }
         showPopup($scope, $compile, 'server/search_log', function(popupScope) {
           popupScope.logData = [];
+          popupScope.errors = [];
           popupScope.logSearchGrid = {
             data: 'logData',
             enableRowSelection: false,
@@ -221,7 +221,7 @@ ControlApp.directive('searchlog', function() {
                 };
               }));
             }, function(response) {
-              $scope.load_error += 'Search failed for server ' + server.name + '. ';
+              popupScope.errors.push({'server': server.name, 'cause': (response.data && response.data.error)});
             });
           });
 

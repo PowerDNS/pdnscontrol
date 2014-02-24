@@ -1,5 +1,10 @@
 <h3>Log Search for "{{query}}"</h3>
-<div class="row output">
+<div class="row output" ng-show="errors.length > 0">
+  <ul>
+    <li ng-repeat="error in errors"><b>{{error.server}}:</b> {{error.cause || "unknown"}}</li>
+  </ul>
+</div>
+<div class="row output" ng-show="errors.length != servers.length">
   <div class="gridStyle" ng-grid="logSearchGrid">
   </div>
 </div>

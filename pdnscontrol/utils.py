@@ -51,9 +51,12 @@ def auth_from_url(url):
     return auth
 
 
-def fetch_remote(remote_url, method='GET', data=None, accept=None, params=None):
+def fetch_remote(remote_url, method='GET', data=None, accept=None, params=None, timeout=None):
     if data is not None and type(data) != str:
         data = json.dumps(data)
+
+    if timeout is None:
+        timeout = current_app.config['REMOTE_TIMEOUT']
 
     verify = not current_app.config['IGNORE_SSL_ERRORS']
 
@@ -71,7 +74,7 @@ def fetch_remote(remote_url, method='GET', data=None, accept=None, params=None):
         headers=headers,
         verify=verify,
         auth=auth_from_url(remote_url),
-        timeout=current_app.config['REMOTE_TIMEOUT'],
+        timeout=timeout,
         data=data,
         params=params
         )

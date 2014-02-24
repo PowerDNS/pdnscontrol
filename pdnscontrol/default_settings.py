@@ -12,6 +12,7 @@ PREFERRED_URL_SCHEME = 'http'
 LOG_FILE = 'app.log'
 
 GRAPHITE_SERVER = 'http://127.0.0.1:8085/graphite/render/'
+GRAPHITE_TIMEOUT = 30
 IGNORE_SSL_ERRORS = False
 REMOTE_TIMEOUT = 1.5
 

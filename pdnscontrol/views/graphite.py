@@ -17,7 +17,8 @@ def graphite():
             method=request.method,
             data=request.data,
             accept=request.headers.get('Accept'),
-            params=params
+            params=params,
+            timeout=current_app.config['GRAPHITE_TIMEOUT']
         )
         return make_response((
             response.content,

@@ -6,7 +6,9 @@ install:
 before_script:
  - ./.travis.task before_script
 script:
- - cd instance && python install.py
+ - cd instance
+ - ./install.py
+ - cd ..
  - ./manage.py assets build
 notifications:
   irc:

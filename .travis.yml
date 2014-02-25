@@ -1,0 +1,18 @@
+language: python
+python:
+  - "2.7"
+install:
+ - "pip install -r requirements.txt"
+before_script:
+ - ./.travis.task before_script
+script:
+ - cd instance && python install.py
+ - ./manage.py assets build
+notifications:
+  irc:
+    channels:
+      - "irc.oftc.net#powerdns-dev"
+    template:
+      - "%{author} @ %{repository} / %{branch} - Build:#%{build_number} : %{message} - Changes: %{compare_url} - Build details: %{build_url}"
+    use_notice: true
+    skip_join: true

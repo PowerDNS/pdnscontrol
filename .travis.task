@@ -1,0 +1,22 @@
+#!/usr/bin/env python
+import os
+import shutil
+import sys
+
+def create_instance_conf():
+    shutil.copyfile("instance/pdnscontrol.conf.example", "instance/pdnscontrol.conf")
+    with open("instance/pdnscontrol.conf", "a") as f:
+        db = 'sqlite:////' + os.getcwd() + '/instance/test.db'
+        tpl = """
+DATABASE_URI = '{db}'
+SECRET_KEY = 'test-key-do-not-use'
+        """
+        f.write(tpl.format(db=db))
+
+def before_script():
+    create_instance_conf()
+
+if sys.argv[-1] == 'before_script':
+    before_script()
+
+

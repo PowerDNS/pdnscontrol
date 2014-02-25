@@ -28,7 +28,7 @@ user_datastore.add_role_to_user(admin, role_stats)
 user_datastore.add_role_to_user(admin, role_edit)
 user_datastore.add_role_to_user(admin, role_view)
 user_datastore.add_role_to_user(admin, role_edit_users)
-user_datastore.add_role_to_user(admin, role_list_users)
+user_datastore.add_role_to_user(admin, role_view_users)
 
 graphite_password = u'notsecure'
 graphite = user_datastore.create_user(email=u'graphite@example.org', name=u'Stats Fetcher', password=graphite_password)

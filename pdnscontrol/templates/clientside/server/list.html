@@ -34,7 +34,7 @@
             <td><a href="/server/{{server.name}}">{{server.name}}</a></td>
             <td>{{server.listen_address()}}</td>
             <td>{{server.version}}</td>
-            <td>{{server.stats.uptime | relative_time}}</td>
+            <td><span class="app-tooltip" title="{{server.stats.uptime | absolutize_time | full_timestamp}}">{{server.stats.uptime | absolutize_time | rel_timestamp}}</span></td>
             <td>{{server.load}}</td>
           </tr>
           <span ng-show="!servers.length">

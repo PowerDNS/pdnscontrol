@@ -142,30 +142,41 @@ ControlApp.
 ////////////////////////////////////////////////////////////////////////
 
 ControlApp.
-  filter('relative_time', function() {
+  filter('absolutize_time', function() {
     return function(value) {
-      if (value === undefined) {
-        return 'unknown';
-      }
-      return moment.duration(1.0 * value, "seconds").humanize();
-    }
-  }).
-  filter('absolute_time', function() {
-    return function(value) {
-      if (value === undefined) {
+      if (!value) {
         return '';
       }
-      var m = moment().subtract('seconds', value);
-      return m.format('LLLL') + " (" + m.fromNow() + ")";
+      return moment().subtract('seconds', value);
     }
   }).
-  filter('absolute_date', function() {
+  filter('rel_timestamp', function() {
     return function(value) {
-      if (value === undefined) {
+      if (!value) {
         return 'unknown';
       }
       return moment(value).fromNow();
     }
+  }).
+  filter('full_and_rel_timestamp', function() {
+    return function(value) {
+      if (!value) {
+        return '';
+      }
+      var m = moment(value);
+      return m.format('LLLL') + " (" + m.fromNow() + ")";
+    }
+  }).
+  filter('full_timestamp', function() {
+    return function(value) {
+      if (!value) {
+        return '';
+      }
+      return moment(value).format('LLLL');
+    }
+  }).
+  filter('unixts_time', function() {
+    return moment.unix;
   }).
   filter('array_join', function() {
     return function(value) {

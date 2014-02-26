@@ -11,9 +11,9 @@
   <div ng-repeat="comment in comments">
   <div class="row">
     <div class="small-6 medium-6 columns">
-      <b>{{comment.account}}</b>
-      <span ng-show="!comment._new" class="app-tooltip" title="{{comment.modified_at | unixts_time | full_timestamp}}">at {{comment.modified_at | unixts_time | rel_timestamp}}</span>
-      <span ng-show="comment._new">(not saved yet)</span>
+      <b>{{comment.account}}</b>,
+      <span ng-show="!comment._new" class="app-tooltip" title="{{comment.modified_at | unixts_time | full_timestamp}}">{{comment.modified_at | unixts_time | rel_timestamp}}</span>
+      <span ng-show="comment._new">(new)</span>
     </div>
   </div>
   <div class="row">

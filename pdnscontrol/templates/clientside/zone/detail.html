@@ -23,7 +23,6 @@
 <div class="row">
   <div class="small-6 columns" style="min-height: 30px;">
     <span ng-show="isChangeAllowed">
-      <button class="button tiny alert" ng-click="delete_selected()" ng-class="{disabled: !isDeletePossible(), alert: isDeletePossible()}"><span class="foundicon-trash"></span></button>
       <button class="button tiny" ng-click="add()"><span class="foundicon-plus"></span></button>
       &nbsp;
       <button class="button tiny" ng-click="save()" ng-class="{disabled: isClean()}"><span class="foundicon-inbox"></span> Save</button>
@@ -43,7 +42,7 @@
 
 <div class="row">
   <div class="small-12 columns">
-    <div class="gridStyle" ng-grid="recordsGridOptions">
+    <div class="gridStyle" ng-grid="recordsGridOptions" ng-init="gridExtraStyle=calcGridExtraStyle()" ng-style="gridExtraStyle">
     </div>
   </div>
 </div>

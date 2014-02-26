@@ -53,6 +53,7 @@ $body-font-family: 'Open Sans', 'Sans', serif;
 
 // We use these as default colors throughout
 // $primary-color: #008CBA;
+$primary-color: #0959c2;
 // $secondary-color: #e7e7e7;
 // $alert-color: #f04124;
 // $success-color: #43AC6A;
@@ -161,7 +162,9 @@ $header-bottom-margin: .3rem;
 // We use these to style anchors
 // $anchor-text-decoration: none;
 // $anchor-font-color: $primary-color;
-// $anchor-font-color-hover: scale-color($primary-color, $lightness: -14%);
+// This is the default, but we need it in a variable for reuse.
+$anchor-font-color-lightness: -14%;
+$anchor-font-color-hover: scale-color($primary-color, $lightness: $anchor-font-color-lightness);
 
 // We use these to style the <hr> element
 // $hr-border-width: 1px;

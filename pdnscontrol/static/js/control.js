@@ -577,9 +577,20 @@ function ServerCreateCtrl($scope, $location, Restangular) {
 function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   $scope.server = server;
 
+  $scope.gridExtraStyle = function() {
+    try {
+      var h = $(window).height() - $(".tabs").offset()['top'] - $('footer').height() - $('.tabs').height();
+      h -= 70; // account for padding/border/margin and '+ Add Zone' link
+      return {height: h + "px"};
+    } catch (e) {
+      return {};
+    }
+  };
+
   $scope.zonesGridOptions = {
     data: 'zones',
     enableRowSelection: false,
+    enableColumnResize: true,
     showFilter: true,
     menuTemplate: templateUrl('grid/menuTemplate'),
     columnDefs: [
@@ -589,10 +600,10 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   };
   if ($scope.server.daemon_type == 'Recursor') {
     $scope.zonesGridOptions.columnDefs.push({field: 'servers', displayName: 'Forwarders', width: '200', cellFilter: 'array_join'});
-    $scope.zonesGridOptions.columnDefs.push({field: 'recursion_desired', displayName: 'Recursion Desired', width: '150', cellFilter: 'checkmark'});
+    $scope.zonesGridOptions.columnDefs.push({field: 'recursion_desired', displayName: 'Recurse', width: '150', cellFilter: 'checkmark'});
   } else {
-    $scope.zonesGridOptions.columnDefs.push({field: 'masters', displayName: 'Masters', cellTemplate: '<div class="ngCellText">{{row.entity[col.field] | array_join }}</div>'});
-    $scope.zonesGridOptions.columnDefs.push({field: 'serial', displayName: 'Serial'});
+    $scope.zonesGridOptions.columnDefs.push({field: 'serial', displayName: 'Serial', width: '120'});
+    $scope.zonesGridOptions.columnDefs.push({field: 'masters', displayName: 'Masters', cellTemplate: '<div class="ngCellText">{{row.entity[col.field] | array_join }}</div>', width: '250'});
   }
 
   function loadServerData() {
@@ -612,29 +623,33 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   $scope.configurationGridOptions = {
     data: 'configuration',
     enableRowSelection: false,
+    enableColumnResize: true,
     showFilter: true,
     menuTemplate: templateUrl('grid/menuTemplate'),
     columnDefs: [
-      {field: '0', displayName: 'Name', width: '300', cellTemplate: '<div class="ngCellText">{{row.entity[col.field]}} <a href="/server/{{server._id}}/config/{{row.entity[col.field]}}/edit" ng-show="canEditConfig(row.entity[col.field])"><span class="foundicon-edit"/></a></div>'},
-      {field: '1', displayName: 'Value'}
+      {field: 'k', displayName: 'Name', width: '300', cellTemplate: '<div class="ngCellText">{{row.entity[col.field]}} <a href="/server/{{server._id}}/config/{{row.entity[col.field]}}/edit" ng-show="canEditConfig(row.entity[col.field])"><span class="foundicon-edit"/></a></div>'},
+      {field: 'v', displayName: 'Value'}
     ]
   };
   $scope.$watch('server.config', function() {
-    $scope.configuration = _.pairs($scope.server.config);
+    // _.pairs is not good enough, ngGrid can't sort on Arrays.
+    $scope.configuration = simpleListToKVList($scope.server.config);
   });
 
   $scope.statisticsGridOptions = {
     data: 'statistics',
     enableRowSelection: false,
+    enableColumnResize: true,
     showFilter: true,
     menuTemplate: templateUrl('grid/menuTemplate'),
     columnDefs: [
-      {field: '0', displayName: 'Name'},
-      {field: '1', displayName: 'Value'}
+      {field: 'k', displayName: 'Name', width: '300'},
+      {field: 'v', displayName: 'Value'}
     ]
   };
   $scope.$watch('server.stats', function() {
-    $scope.statistics = _.pairs($scope.server.stats);
+    // _.pairs is not good enough, ngGrid can't sort on Arrays.
+    $scope.statistics = simpleListToKVList($scope.server.stats);
   });
 
   $scope.popup_flush_cache = function() {
@@ -1159,8 +1174,6 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     sendNextChange(changes);
   };
 
-  var typesWithPriority = ['MX', 'SRV'];
-
   $scope.export = function() {
     $scope.zone.customOperation(
       'get',
@@ -1187,19 +1200,18 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     });
   };
 
+  function focusRow(gridOptions, rowToSelect) {
+    gridOptions.selectItem(rowToSelect, true);
+    var grid = gridOptions.ngGrid;
+    grid.$viewport.scrollTop(grid.rowMap[rowToSelect] * grid.config.rowHeight);
+  }
+
   $scope.add = function() {
     // TODO: get default ttl from somewhere
     $scope.zone.records.push({name: $scope.zone.name, type: '', priority: 0, ttl: 3600, content: '', disabled: false, _new: true});
-  };
-
-  $scope.delete_selected = function() {
-    var row;
-    while(row = $scope.mySelections.pop()) {
-      var idx = $scope.zone.records.indexOf(row);
-      if (idx != -1) {
-        $scope.zone.records.splice(idx, 1);
-      }
-    }
+    $timeout(function() {
+      focusRow($scope.recordsGridOptions, $scope.zone.records.length-1);
+    }, 100);
   };
 
   $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() == 'MASTER' && server.mustDo('master')) || ($scope.zone.kind.toUpperCase() == 'SLAVE' && server.mustDo('slave-renotify'));
@@ -1303,6 +1315,12 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{stripLabel(row.getProperty(col.field))}}</span></div>';
   nameEditTemplate = '';
 
+  var typesWithPriority = ['MX', 'SRV'];
+  $scope.prioVisible = function(row) {
+    return (typesWithPriority.indexOf(row.getProperty('type')) != -1) || (row.getProperty('priority') > 0);
+  };
+  prioViewTemplate = '<div class="ngCellText"><span ng-show="prioVisible(row)">{{row.getProperty(col.field)}}</span></div>';
+
   $scope.updateCommentCache = function() {
     $scope.commentCache = toRRsetMap($scope.zone.comments || []);
   };
@@ -1321,36 +1339,42 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
       $scope.record = record;
     });
   };
-  commentsTemplate = '<div class="ngCellText"><a href="#" ng-click="editComment(row)"><i class="foundicon-paper-clip"></i> {{commentCount(row)}}</a></div>';
+  $scope.deleteRow = function(ngRow) {
+    $scope.zone.records.splice($scope.zone.records.indexOf(ngRow.entity), 1);
+  };
+
+  $scope.calcGridExtraStyle = function() {
+    // HACK: 100px are whatever?
+    return {height: ($(window).height() - $(".gridStyle").offset()['top'] - 100) + "px"};
+  };
 
   $scope.mySelections = [];
   $scope.recordsGridOptions = {
     data: 'zone.records',
     enableRowSelection: true,
     enableCellEditOnFocus: false,
-    enableCellSelection: true,
+    enableCellSelection: false,
     enableCellEdit: $scope.isChangeAllowed,
-    showSelectionCheckbox: $scope.isChangeAllowed,
-    selectWithCheckboxOnly: true,
+    enableColumnResize: true,
+    showSelectionCheckbox: false,
     showFilter: true,
     menuTemplate: templateUrl('grid/menuTemplate'),
     sortInfo: { fields: ['name', 'type', 'priority', 'content'], directions: ['ASC', 'ASC', 'ASC', 'ASC'] },
     selectedItems: $scope.mySelections,
     columnDefs: [
-      {field: 'name', displayName: 'Name', enableCellEdit: $scope.isChangeAllowed, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate},
+      {field: 'name', displayName: 'Name', enableCellEdit: $scope.isChangeAllowed, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate, resizable: true, width: '20%'},
       {field: 'disabled', displayName: 'Dis.', width: '40', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: checkboxEditTemplate, cellTemplate: checkboxViewTemplate },
       {field: 'type', displayName: 'Type', width: '60', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
       {field: 'ttl', displayName: 'TTL', width: '60', enableCellEdit: $scope.isChangeAllowed},
-      {field: 'priority', displayName: 'Prio', width: '40', enableCellEdit: $scope.isChangeAllowed},
+      {field: 'priority', displayName: 'Prio', width: '40', enableCellEdit: $scope.isChangeAllowed, cellTemplate: prioViewTemplate},
       {field: 'content', displayName: 'Data', enableCellEdit: $scope.isChangeAllowed},
     ]
   };
 
-  // show comment link only when supported by server
-  if ($scope.zone.comments) {
-    $scope.recordsGridOptions.columnDefs.push(
-      {field: 'comments', displayName: '', cellTemplate: commentsTemplate, width: '40', enableCellEdit: false}
-    );
+  $scope.commentsSupported = ($scope.zone.comments !== undefined);
+  if ($scope.isAllowedChange || $scope.commentsSupported) {
+    $scope.recordsGridOptions.columnDefs.splice(0, 0,
+      {field: '_', displayName: '', cellTemplate: templateUrl('zone/recordsgrid-rowmeta'), groupable: false, resizable: false, sortable: false, width: ($scope.isChangeAllowed ? 50 : 20)});
   }
 }
 
@@ -1393,7 +1417,11 @@ function ZoneCommentCtrl($scope, Restangular) {
     }
     $scope.$emit("finished");
   }
-  $scope.addComment();
+
+  // be nice and allow instant typing into a new comment
+  if ($scope.isChangeAllowed) {
+    $scope.addComment();
+  }
 }
 
 function ZoneCreateCtrl($scope, $location, Restangular, server) {

@@ -3,27 +3,30 @@
     <div class="small-10 medium-11 columns">
       <h2>Comments for {{record.name}}/{{record.type}}</h2>
     </div>
-    <div class="small-2 medium-1 columns">
+    <div class="small-2 medium-1 columns" ng-show="isChangeAllowed">
       <a href="#" ng-click="addComment()" class="button postfix"><span class="foundicon-plus"></span></a>
     </div>
   </div>
 
   <div ng-repeat="comment in comments">
-  <div class="row">
-    <div class="small-6 medium-6 columns">
-      <b>{{comment.account}}</b>,
-      <span ng-show="!comment._new" class="app-tooltip" title="{{comment.modified_at | unixts_time | full_timestamp}}">{{comment.modified_at | unixts_time | rel_timestamp}}</span>
-      <span ng-show="comment._new">(new)</span>
+    <div class="row">
+      <div class="small-6 medium-6 columns">
+        <b>{{comment.account}}</b>,
+        <span ng-show="!comment._new" class="app-tooltip" title="{{comment.modified_at | unixts_time | full_timestamp}}">{{comment.modified_at | unixts_time | rel_timestamp}}</span>
+        <span ng-show="comment._new">(new)</span>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="small-10 medium-11 columns">
-      <textarea type="text" class="comment_edit" ng-model="comment.content" placeholder="Your Comment" autofocus></textarea>
+    <div class="row" ng-show="isChangeAllowed">
+      <div class="small-10 medium-11 columns">
+        <textarea type="text" class="comment_edit" ng-model="comment.content" placeholder="Your Comment" autofocus maxlength="64000"></textarea>
+      </div>
+      <div class="small-2 medium-1 columns">
+        <a href="#" ng-click="removeComment($index)" class="button postfix"><span class="foundicon-trash"></span></a>
+      </div>
     </div>
-    <div class="small-2 medium-1 columns">
-      <a href="#" ng-click="removeComment($index)" class="button postfix"><span class="foundicon-trash"></span></a>
+    <div class="row" ng-show="!isChangeAllowed">
+      <p>{{comment.content}}</p>
     </div>
-  </div>
   </div>
 
   <div class="row">

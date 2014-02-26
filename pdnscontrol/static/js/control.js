@@ -809,8 +809,6 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     var matchedPtrs = [];
     var zoneCache = {};
     var pendingRequests = 0;
-    window.__R = Restangular;
-    window.__S = server;
 
     function autoPtrZoneLoadMaybeComplete() {
       if (pendingRequests > 0) {
@@ -1089,7 +1087,6 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
       });
     }
 
-    window.X = $scope;
     $scope.errors = [];
     sendNextChange(changes);
   };
@@ -1257,8 +1254,6 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     ]
   };
 
-  window.z = $scope.zone;
-  window.R = Restangular;
 }
 
 function ZoneCreateCtrl($scope, $location, Restangular, server) {

@@ -328,7 +328,10 @@ function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
 // Servers
 ////////////////////////////////////////////////////////////////////////
 
-function ServerListCtrl($scope, $compile, Restangular) {
+function ServerListCtrl($scope, $compile, $filter, Restangular) {
+  // init server-list filter
+  $scope.filter = "";
+
   Restangular.all("servers").getList().then(function(servers) {
     $scope.servers = servers;
     _.each($scope.servers, function(server) {
@@ -338,58 +341,78 @@ function ServerListCtrl($scope, $compile, Restangular) {
 
   $scope.orderProp = 'name';
 
+  var ngFilter = $filter('filter');
+  $scope.selected_servers = function() {
+    return ngFilter(_.filter($scope.servers, function(server) {
+      return server.selected;
+    }), $scope.filter);
+  };
   $scope.recursors = function() {
-    return _.filter($scope.servers, function(server) { return server.daemon_type == 'Recursor'; });
+    // TODO: apply 'filter' filter (name match)
+    return _.filter($scope.selected_servers(), function(server) {
+      return server.daemon_type == 'Recursor';
+    });
+  }
+  $scope.authoritatives = function() {
+    return _.filter($scope.selected_servers(), function(server) {
+      return server.daemon_type == 'Authoritative';
+    });
   }
 
   $scope.auth_answers = function() {
     var sources, servers;
-    servers = _.filter($scope.servers, function(server) { return server.daemon_type == 'Authoritative'; });
-
     sources = 'nonNegativeDerivative(%SOURCE%.udp-answers)';
 
+    servers = $scope.authoritatives();
     servers = _.map(servers, function(server) {
       var source = server.graphite_name;
       return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
     });
+    if (servers.length == 0) {
+      return '';
+    }
 
     return "sumSeries(" + servers.join(',') + ")";
   };
 
   $scope.auth_queries = function() {
     var sources, servers;
-    servers = _.filter($scope.servers, function(server) { return server.daemon_type == 'Authoritative'; });
-
     sources = 'nonNegativeDerivative(%SOURCE%.udp-queries)';
 
+    servers = $scope.authoritatives();
     servers = _.map(servers, function(server) {
       var source = server.graphite_name;
       return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
     });
+    if (servers.length == 0) {
+      return '';
+    }
 
     return "sumSeries(" + servers.join(',') + ")";
   };
 
   $scope.recursor_answers = function() {
     var sources, servers;
-    servers = _.filter($scope.servers, function(server) { return server.daemon_type == 'Recursor'; });
-
     sources = _.map(['answers0-1', 'answers1-10', 'answers10-100', 'answers100-1000', 'answers-slow', 'packetcache-hits'], function(val) {
       return 'nonNegativeDerivative(%SOURCE%.' + val + ')';
     }).join(',');
 
+    servers = $scope.recursors();
     servers = _.map(servers, function(server) {
       var source = server.graphite_name;
       return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
     });
+    if (servers.length == 0) {
+      return '';
+    }
 
     return "sumSeries(" + servers.join(',') + ")";
   };
 
   $scope.recursor_queries = function() {
     var sources, servers;
-    servers = _.filter($scope.servers, function(server) { return server.daemon_type == 'Recursor'; });
 
+    servers = $scope.recursors();
     sources = _.map(['answers0-1', 'answers1-10', 'answers10-100', 'answers100-1000', 'answers-slow', 'packetcache-hits'], function(val) {
       return 'nonNegativeDerivative(%SOURCE%.' + val + ')';
     }).join(',');
@@ -398,13 +421,11 @@ function ServerListCtrl($scope, $compile, Restangular) {
       var source = server.graphite_name;
       return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
     });
+    if (servers.length == 0) {
+      return '';
+    }
 
     return "sumSeries(" + servers.join(',') + ")";
-  };
-
-  $scope.selected_servers = function() {
-    // TODO: apply 'filter' filter (name match)
-    return _.filter($scope.servers, function(server) { return server.selected; });
   };
 
   $scope.toggleSelectedAll = function() {

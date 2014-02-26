@@ -11,6 +11,8 @@
   </div>
 </div>
 
+<span ng-show="servers">
+
 <div class="row">
   <div class="small-12 columns">
     <div class="server-list">
@@ -37,9 +39,11 @@
             <td><span class="app-tooltip" title="{{server.stats.uptime | absolutize_time | full_timestamp}}">{{server.stats.uptime | absolutize_time | rel_timestamp}}</span></td>
             <td>{{server.load}}</td>
           </tr>
-          <span ng-show="!servers.length">
-          You don't seem to have any servers defined yet. Add some!
-          </span>
+          <tr ng-show="!servers.length">
+            <td colspan="7">
+              You don't seem to have any servers defined yet. Add some!
+            </td>
+          </tr>
         </tbody>
       </table>
       <div class="row">
@@ -61,21 +65,33 @@
 </div>
 
 <div class="row">
-  <div class="small-12 columns">
+  <div class="small-12 columns" ng-show="selected_servers().length>0">
     <h3>Aggregate statistics</h3>
 
-
+    <span ng-show="authoritatives().length>0">
     <h4>Authoritative Servers</h4>
     <graphite g-source="" g-area-mode="first" g-refresh="60">
       <graph target="{{auth_queries()}}" title="Queries" />
       <graph target="{{auth_answers()}}" title="Answers" />
     </graphite>
+    </span>
 
+    <span ng-show="recursors().length>0">
     <h4>Recursor Servers</h4>
     <graphite g-source="" g-area-mode="first" g-refresh="60">
       <graph target="{{recursor_queries()}}" title="Queries" />
       <graph target="{{recursor_answers()}}" title="Answers" />
     </graphite>
+    </span>
 
   </div>
 </div>
+
+</span>
+<span ng-show="!servers">
+<div class="row">
+  <div class="small-3 small-centered columns">
+    Loading server list...
+  </div>
+</div>
+</span>

@@ -14,10 +14,10 @@ GraphiteModule.directive('graphite', function($timeout) {
     replace: true,
     scope: true,
     link: function(scope, elm, attrs, controller) {
-      function updateUrl() {
-        var invalid = false;
+      attrs.$set('gSalt', Math.random()*10000000);
 
-        var url = ServerData.Config.graphite_server + '?_salt=' + Math.random()*10000000;
+      function updateUrl() {
+        var url = ServerData.Config.graphite_server + '?_cache=180&_salt=' + attrs.gSalt;
         if (attrs.gSource === undefined)
           return;
 
@@ -41,13 +41,15 @@ GraphiteModule.directive('graphite', function($timeout) {
           return memo + '&' + pair[0] + '=' + encodeURIComponent(pair[1]);
         }, url);
 
+        var have_targets = false;
         url = _.reduce(elm.find('graph'), function(memo, graphEl) {
           graphEl = angular.element(graphEl);
           var target = graphEl.attr('target');
-          if (target.indexOf("{{") == 0) {
-            invalid = true;
-            return;
+          if (!target || target.indexOf("{{") == 0) {
+            return memo;
           }
+          have_targets = true;
+
           target = target.replace(/%SOURCE%/g, attrs.gSource);
           if (graphEl.attr('title')) {
             target = 'alias(' + target + ', \'' + graphEl.attr('title') + '\')';
@@ -59,8 +61,11 @@ GraphiteModule.directive('graphite', function($timeout) {
           return memo + '&target=' + encodeURIComponent(target);
         }, url);
 
-        if (!invalid) {
+        console.log('graph updateUrl', have_targets, url);
+        if (have_targets) {
           scope.url = url;
+        } else {
+          scope.url = '';
         }
 
         scope.from = attrs.gFrom;
@@ -93,23 +98,24 @@ GraphiteModule.directive('graphite', function($timeout) {
       attrs.$observe('gFrom', updateUrl);
       scope.$on('graph_target_changed', updateUrl);
       if (attrs.gRefresh && attrs.gRefresh > 0) {
-        function setupRefresh() {
+        function beginRefresh() {
+          attrs.$set('gSalt', Math.random()*10000000);
           // if page visibility API is present, don't poll if page is in background
           if (typeof document.hidden !== "undefined" && document.hidden) {
             // register handler so we resume updating when we're becoming visible again.
             $(document).one('visibilitychange', function() {
               updateUrl();
-              setupRefresh();
+              beginRefresh();
             });
             return;
           }
           $timeout(function() {
             // refresh graphs
-            setupRefresh();
+            beginRefresh();
             updateUrl();
           }, attrs.gRefresh*1000);
         }
-        setupRefresh();
+        beginRefresh();
       }
     }
   }

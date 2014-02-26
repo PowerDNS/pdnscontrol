@@ -1132,14 +1132,21 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
         }
 
         // replace data in master with saved data
-        _.each($scope.master.records, function(row) {
-          if (row.name == change.name && row.type == change.type) {
-            $scope.master.records.splice($scope.master.records.indexOf(row), 1);
+        _.each(['comments', 'records'], function(key) {
+          if (!change[key])
+            return;
+
+          var idx = $scope.master[key].length;
+          while(idx--) {
+            var row = $scope.master[key][idx];
+            if (row.name == change.name && row.type == change.type) {
+              $scope.master[key].splice(idx, 1);
+            }
           }
-        });
-        _.each(change.records, function(row) {
-          row._new = undefined;
-          $scope.master.records.push(_.extend({}, row));
+          _.each(change[key], function(row) {
+            row._new = undefined;
+            $scope.master[key].push(_.extend({}, row));
+          });
         });
 
         sendNextChange(changes);
@@ -1364,20 +1371,23 @@ function ZoneCommentCtrl($scope, Restangular) {
   $scope.removeComment = function(index) {
     $scope.comments.splice(index, 1);
   }
-  $scope.saveAndClose = function() {
+  $scope.close = function() {
     // remove previous comments for this RRset
     $scope.zone.comments = _.filter($scope.zone.comments, function(c) {
       return !(c.name == qname && c.type == qtype);
     });
     _.each($scope.comments, function(c) {
       if (c.content) {
+        if (!c.modified_at) {
+          c.modified_at = moment().unix();
+        }
         $scope.zone.comments.push(c);
       }
     });
     if ($scope.updateCommentCache) {
       $scope.updateCommentCache();
     }
-    $scope.close();
+    $scope.$emit("finished");
   }
   $scope.addComment();
 }

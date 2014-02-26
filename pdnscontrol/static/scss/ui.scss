@@ -177,3 +177,32 @@ footer {
 .ngHeaderButton {
   background: inherit;
 }
+
+/* our own tooltips, which don't need JS */
+/* Note: can't attach to table-cell, block or similar. */
+.app-tooltip {
+  display: inline;
+  position: relative;
+}
+.app-tooltip:hover:after {
+  content: attr(title);
+  background: #333;
+  background: rgba(0,0,0,.8);
+  color: white;
+  bottom: 28px;
+  left: -10px;
+  padding: 5px 8px;
+  width: 200px;
+  position: absolute;
+  z-index: 98;
+}
+.app-tooltip:hover:before {
+  content: "";
+  border: solid;
+  border-color: #333 transparent;
+  border-width: 6px 6px 0 6px;
+  bottom: 22px;
+  left: 0px;
+  position: absolute;
+  z-index: 99;
+}

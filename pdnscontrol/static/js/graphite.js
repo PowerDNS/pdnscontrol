@@ -61,7 +61,6 @@ GraphiteModule.directive('graphite', function($timeout) {
           return memo + '&target=' + encodeURIComponent(target);
         }, url);
 
-        console.log('graph updateUrl', have_targets, url);
         if (have_targets) {
           scope.url = url;
         } else {

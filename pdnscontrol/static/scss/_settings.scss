@@ -869,8 +869,7 @@ $button-lrg: rem-calc(14);
 // We use these to control the style of the modal itself.
 // $reveal-modal-bg: #fff;
 // $reveal-position-top: 50px;
-// pdnscontrol: We need the additional space:
-$reveal-default-width: 95%;
+$reveal-default-width: rem-calc(940);
 // $reveal-modal-padding: rem-calc(20);
 // $reveal-box-shadow: 0 0 10px rgba(#000,.4);
 

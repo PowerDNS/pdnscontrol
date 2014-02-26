@@ -175,6 +175,14 @@ ControlApp.
       return moment(value).format('LLLL');
     }
   }).
+  filter('short_timestamp', function() {
+    return function(value) {
+      if (!value) {
+        return '';
+      }
+      return moment(value).format('L HH:mm:ss');
+    }
+  }).
   filter('unixts_time', function() {
     return moment.unix;
   }).
@@ -214,7 +222,7 @@ ControlApp.directive('searchlog', function() {
             data: 'logData',
             enableRowSelection: false,
             columnDefs: [
-              {field: 'date', displayName: 'Date', width: 200, cellFilter: 'absolute_date'},
+              {field: 'date', displayName: 'Date', width: 200, cellFilter: 'short_timestamp'},
               {field: 'hostname', displayName: 'Hostname', width: '80'},
               {field: 'message', displayName: 'Message',}
             ]

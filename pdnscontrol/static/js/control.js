@@ -1229,6 +1229,10 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     });
   };
 
+  $scope.revert = function() {
+    $scope.zone = Restangular.copy($scope.master);
+  };
+
   var rrTypesSort = function(a,b) {
     var typeA = _.findWhere($scope.rrTypes, {name: a});
     var typeB = _.findWhere($scope.rrTypes, {name: b});

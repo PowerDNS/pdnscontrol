@@ -29,7 +29,7 @@
       <button class="button tiny" ng-click="save()" ng-class="{disabled: isClean()}"><span class="foundicon-inbox"></span> Save</button>
       &nbsp;
       <span ng-show="!isClean()">
-        Unsaved changes.
+        Unsaved changes. <a href="#" ng-click="revert()">Revert all.</a>
       </span>
     </span>
   </div>

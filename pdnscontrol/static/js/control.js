@@ -778,6 +778,92 @@ function revNameIPv6(ip) {
   return rev + '.ip6.arpa';
 }
 
+function toRRsetMap(input) {
+  var output = {};
+  var i, qname, qtype;
+  for (i = 0; i < input.length; i++) {
+    qname = input[i].name;
+    qtype = input[i].type;
+    output[qname] = output[qname] || {};
+    output[qname][qtype] = output[qname][qtype] || [];
+    if (input[i].content) {
+      // throws away empty comments
+      output[qname][qtype].push(input[i]);
+    }
+  }
+  return output;
+}
+
+function diffZone(master, current, key) {
+    function pluckNameTypes(source) {
+      return _.uniq(_.map(source, rrToNameType));
+    }
+    function rrToNameType(rr) {
+      return '' + escape(rr['name']) + '/' + escape(rr['type']);
+    }
+    function unpackNameType(nt) {
+      return _.map(nt.split('/'), unescape);
+    }
+    function compareNameTypeAndRR(rr, nt) {
+      return rrToNameType(rr) == nt;
+    }
+
+    var currentNameTypes = pluckNameTypes(current[key]);
+    var masterNameTypes = pluckNameTypes(master[key]);
+    var removedNameTypes = _.difference(masterNameTypes, currentNameTypes);
+    var addedNameTypes = _.difference(currentNameTypes, masterNameTypes);
+    var noNameChangeNameTypes = _.intersection(masterNameTypes, currentNameTypes);
+
+    var changes = [];
+
+    _.each(removedNameTypes, function(nt) {
+      var nt_ = unpackNameType(nt);
+      var change = {
+        changetype: 'replace',
+        name: nt_[0],
+        type: nt_[1],
+      };
+      change[key] = []; // required to do an actual delete
+      changes.push(change);
+    });
+
+    _.each(addedNameTypes, function(nt) {
+      var nt_ = unpackNameType(nt);
+      var change = {
+        changetype: 'replace',
+        name: nt_[0],
+        type: nt_[1]
+      };
+      change[key] = _.filter(current[key], function(rr) {
+        return compareNameTypeAndRR(rr, nt);
+      });
+      changes.push(change);
+    });
+
+    _.each(noNameChangeNameTypes, function(nt) {
+      var nt_ = unpackNameType(nt);
+      var entriesCurrent = _.filter(current[key], function(rr) {
+        return compareNameTypeAndRR(rr, nt);
+      });
+      var entriesMaster = _.filter(master[key], function(rr) {
+        return compareNameTypeAndRR(rr, nt);
+      });
+      var change;
+      if (!angular.equals(entriesCurrent.sort(), entriesMaster.sort())) {
+        change = {
+          changetype: 'replace',
+          name: nt_[0],
+          type: nt_[1]
+        };
+        change[key] = _.filter(current[key], function(rr) {
+          return compareNameTypeAndRR(rr, nt);
+        });
+        changes.push(change);
+      }
+    });
+  return changes;
+}
+
 function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, server, zone) {
   var typeEditTemplate;
 
@@ -785,7 +871,6 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   $scope.loading = false;
 
   $scope.master = zone;
-
   $scope.zone = Restangular.copy($scope.master);
 
   $scope.isClean = function() {
@@ -941,7 +1026,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     var change;
     // build possible PTR records from changes
     while (change = zoneChanges.pop()) {
-      if (change.changetype != 'replace') {
+      if (change.changetype != 'replace' || change.records.length == 0) {
         continue;
       }
       var rec;
@@ -980,72 +1065,38 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   }
 
   $scope.save = function() {
-    function pluckNameTypes(source) {
-      return _.uniq(_.map(source, rrToNameType));
-    }
-    function rrToNameType(rr) {
-      return '' + escape(rr['name']) + '/' + escape(rr['type']);
-    }
-    function unpackNameType(nt) {
-      return _.map(nt.split('/'), unescape);
-    }
-    function compareNameTypeAndRR(rr, nt) {
-      return rrToNameType(rr) == nt;
-    }
     function rrCmpSerialize(rr) {
       return '' + rr.name + '/' + rr.type + '/' + rr.ttl + '/' + rr.prio + '/' + rr.content + '/' + rr.disabled;
     }
+    function commentCmpSerialize(c) {
+      return '' + c.name + '/' + c.type + '/' + c.modified_at + '/' + c.account + '/' + c.content;
+    }
 
-    var currentNameTypes = pluckNameTypes($scope.zone.records);
-    var masterNameTypes = pluckNameTypes($scope.master.records);
-    var removedNameTypes = _.difference(masterNameTypes, currentNameTypes);
-    var addedNameTypes = _.difference(currentNameTypes, masterNameTypes);
-    var noNameChangeNameTypes = _.intersection(masterNameTypes, currentNameTypes);
+    var commentChanges = diffZone($scope.master, $scope.zone, 'comments');
+    var recordChanges = diffZone($scope.master, $scope.zone, 'records');
+    var changes = _.compact(recordChanges);
 
-    var changes = [];
-
-    _.each(removedNameTypes, function(nt) {
-      var nt_ = unpackNameType(nt);
-      changes.push({
-        changetype: 'delete',
-        name: nt_[0],
-        type: nt_[1]
-      });
-    });
-
-    _.each(addedNameTypes, function(nt) {
-      var nt_ = unpackNameType(nt);
-      changes.push({
-        changetype: 'replace',
-        name: nt_[0],
-        type: nt_[1],
-        records: _.filter($scope.zone.records, function(rr) {
-          return compareNameTypeAndRR(rr, nt);
-        })
-      });
-    });
-
-    _.each(noNameChangeNameTypes, function(nt) {
-      var nt_ = unpackNameType(nt);
-      var recordsCurrent = _.filter($scope.zone.records, function(rr) {
-        return compareNameTypeAndRR(rr, nt);
-      });
-      var recordsMaster = _.filter($scope.master.records, function(rr) {
-        return compareNameTypeAndRR(rr, nt);
-      });
-      if (!angular.equals(recordsCurrent.sort(), recordsMaster.sort())) {
-        changes.push({
-          changetype: 'replace',
-          name: nt_[0],
-          type: nt_[1],
-          records: _.filter($scope.zone.records, function(rr) {
-            return compareNameTypeAndRR(rr, nt);
-          })
-        });
+    // merge comment changes into record changes, if possible.
+    var changeIdx = changes.length;
+    while (changeIdx--) {
+      if (changes[changeIdx].changetype != 'replace') {
+        continue;
       }
-    });
-
-    var changesCopy = _.compact(changes);
+      var commentIdx = commentChanges.length
+      while (commentIdx--) {
+        if (commentChanges[commentIdx].name == changes[changeIdx].name &&
+            commentChanges[commentIdx].type == changes[changeIdx].type) {
+          changes[changeIdx].comments = commentChanges[commentIdx].comments;
+          commentChanges.splice(commentIdx, 1);
+        }
+      }
+    }
+    // everything left in commentChanges is now a comment-only change.
+    // merge both arrays into a single change list.
+    var change;
+    while (change = commentChanges.pop()) {
+      changes.push(change);
+    }
 
     function sendNextChange(changes) {
       var change = changes.pop();
@@ -1054,7 +1105,9 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
         // sort master and current so equals will return true.
         $scope.zone.records = _.sortBy($scope.zone.records, rrCmpSerialize);
         $scope.master.records = _.sortBy($scope.master.records, rrCmpSerialize);
-        doAutoPtr(changesCopy);
+        $scope.zone.comments = _.sortBy($scope.zone.comments, commentCmpSerialize);
+        $scope.master.comments = _.sortBy($scope.master.comments, commentCmpSerialize);
+        doAutoPtr(recordChanges);
         return;
       }
 
@@ -1231,6 +1284,26 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{stripLabel(row.getProperty(col.field))}}</span></div>';
   nameEditTemplate = '';
 
+  $scope.updateCommentCache = function() {
+    $scope.commentCache = toRRsetMap($scope.zone.comments || []);
+  };
+  $scope.updateCommentCache();
+
+  $scope.commentCount = function(ngRow) {
+    var record = ngRow.entity;
+    if (!$scope.commentCache[record.name]) {
+      return 0;
+    }
+    return ($scope.commentCache[record.name][record.type] || []).length;
+  };
+  $scope.editComment = function(ngRow) {
+    var record = ngRow.entity;
+    showPopup($scope, $compile, 'zone/edit_comment', function(scope) {
+      $scope.record = record;
+    });
+  };
+  commentsTemplate = '<div class="ngCellText"><a href="#" ng-click="editComment(row)"><i class="foundicon-paper-clip"></i> {{commentCount(row)}}</a></div>';
+
   $scope.mySelections = [];
   $scope.recordsGridOptions = {
     data: 'zone.records',
@@ -1254,6 +1327,51 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     ]
   };
 
+  // show comment link only when supported by server
+  if ($scope.zone.comments) {
+    $scope.recordsGridOptions.columnDefs.push(
+      {field: 'comments', displayName: '', cellTemplate: commentsTemplate, width: '40', enableCellEdit: false}
+    );
+  }
+}
+
+function ZoneCommentCtrl($scope, Restangular) {
+  var qname = $scope.record.name;
+  var qtype = $scope.record.type;
+
+  // make our own comment_map
+  var comment_map = toRRsetMap($scope.zone.comments || []);
+  comment_map[qname] = comment_map[qname] || {};
+  comment_map[qname][qtype] = comment_map[qname][qtype] || [];
+
+  $scope.master = comment_map[qname][qtype];
+  $scope.comments = Restangular.copy($scope.master);
+
+  $scope.isClean = function() {
+    return angular.equals($scope.master, $scope.comments);
+  }
+  $scope.addComment = function() {
+    $scope.comments.push({'content': '', 'account': ServerData.User.email, '_new': true, 'name': qname, 'type': qtype});
+  }
+  $scope.removeComment = function(index) {
+    $scope.comments.splice(index, 1);
+  }
+  $scope.saveAndClose = function() {
+    // remove previous comments for this RRset
+    $scope.zone.comments = _.filter($scope.zone.comments, function(c) {
+      return !(c.name == qname && c.type == qtype);
+    });
+    _.each($scope.comments, function(c) {
+      if (c.content) {
+        $scope.zone.comments.push(c);
+      }
+    });
+    if ($scope.updateCommentCache) {
+      $scope.updateCommentCache();
+    }
+    $scope.close();
+  }
+  $scope.addComment();
 }
 
 function ZoneCreateCtrl($scope, $location, Restangular, server) {

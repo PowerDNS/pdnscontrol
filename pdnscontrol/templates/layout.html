@@ -21,7 +21,8 @@
 var ServerData = {};
 ServerData.User = {
   name: "{[ user.name ]}",
-  roles: {[ user_roles|tojson|safe ]}
+  roles: {[ user_roles|tojson|safe ]},
+  email: "{[ user.email ]}"
 };
 {# FIXME: move this into its own route and make it cacheable #}
 ServerData.Config = {

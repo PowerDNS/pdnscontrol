@@ -593,8 +593,9 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
     enableColumnResize: true,
     showFilter: true,
     menuTemplate: templateUrl('grid/menuTemplate'),
+    sortInfo: { fields: ['name'], directions: ['asc'] },
     columnDefs: [
-      {field: 'name', displayName: 'Name', cellTemplate: '<div class="ngCellText"><a href="/server/{{server._id}}/zone/{{row.entity._id}}">{{row.entity[col.field]}}</a> <a href="/server/{{server._id}}/zone/{{row.entity._id}}"><span class="foundicon-edit"/></a></div>'},
+      {field: 'name', displayName: 'Name', cellTemplate: '<div class="ngCellText"><a href="/server/{{server._id}}/zone/{{row.entity._id}}">{{row.entity[col.field]}}</a> <a href="/server/{{server._id}}/zone/{{row.entity._id}}"><span class="foundicon-edit"/></a></div>', sortFn: dnsNameSort},
       {field: 'kind', displayName: 'Kind', width: '100'}
     ]
   };
@@ -626,6 +627,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
     enableColumnResize: true,
     showFilter: true,
     menuTemplate: templateUrl('grid/menuTemplate'),
+    sortInfo: { fields: ['k', 'v'], directions: ['asc', 'asc'] },
     columnDefs: [
       {field: 'k', displayName: 'Name', width: '300', cellTemplate: '<div class="ngCellText">{{row.entity[col.field]}} <a href="/server/{{server._id}}/config/{{row.entity[col.field]}}/edit" ng-show="canEditConfig(row.entity[col.field])"><span class="foundicon-edit"/></a></div>'},
       {field: 'v', displayName: 'Value'}
@@ -642,6 +644,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
     enableColumnResize: true,
     showFilter: true,
     menuTemplate: templateUrl('grid/menuTemplate'),
+    sortInfo: { fields: ['k', 'v'], directions: ['asc', 'asc'] },
     columnDefs: [
       {field: 'k', displayName: 'Name', width: '300'},
       {field: 'v', displayName: 'Value'}
@@ -1246,17 +1249,19 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   };
 
   var rrTypesSort = function(a,b) {
-    var typeA = _.findWhere($scope.rrTypes, {name: a});
-    var typeB = _.findWhere($scope.rrTypes, {name: b});
+    var typeA = _.findWhere($scope.rrTypes, {name: a}) || {};
+    var typeB = _.findWhere($scope.rrTypes, {name: b}) || {};
     var weightA = typeA.sortWeight || 0;
     var weightB = typeB.sortWeight || 0;
     if (weightA < weightB) {
-      return 1;
-    }
-    if (weightA > weightB) {
       return -1;
     }
-    return a > b;
+    if (weightA > weightB) {
+      return 1;
+    }
+    if (a == b) return 0;
+    if (a < b) return 1;
+    return -1;
   };
 
   $scope.rrTypes = [
@@ -1290,6 +1295,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     {name: 'DLV'}
   ];
   typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in rrTypes" ng-show="!!row.entity._new"></select><div class="ngCellText" ng-show="!!!row.entity._new">{{COL_FIELD}}</div>';
+
   checkboxEditTemplate = '<input type=checkbox required ng-class="\'colt\' + col.index" ng-input="COL_FIELD" ng-model="COL_FIELD">';
   checkboxViewTemplate = '<div class="ngCellText" ng-class=\"col.colIndex()\"><input type=checkbox required ng-model="COL_FIELD" ng-disabled="!isChangeAllowed"></div>';
   $scope.stripZone = function(val) {
@@ -1349,7 +1355,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   };
 
   $scope.mySelections = [];
-  $scope.recordsGridOptions = {
+  var preliminaryOptions = {
     data: 'zone.records',
     enableRowSelection: true,
     enableCellEditOnFocus: false,
@@ -1359,10 +1365,13 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     showSelectionCheckbox: false,
     showFilter: true,
     menuTemplate: templateUrl('grid/menuTemplate'),
-    sortInfo: { fields: ['name', 'type', 'priority', 'content'], directions: ['ASC', 'ASC', 'ASC', 'ASC'] },
+    sortInfo: {
+      fields: ['name', 'type', 'priority', 'content', 'ttl', 'disabled'],
+      directions: ['asc', 'asc', 'asc', 'asc', 'asc', 'asc']
+    },
     selectedItems: $scope.mySelections,
     columnDefs: [
-      {field: 'name', displayName: 'Name', enableCellEdit: $scope.isChangeAllowed, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate, resizable: true, width: '20%'},
+      {field: 'name', displayName: 'Name', enableCellEdit: $scope.isChangeAllowed, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate, resizable: true, width: '20%', sortFn: dnsNameSort},
       {field: 'disabled', displayName: 'Dis.', width: '40', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: checkboxEditTemplate, cellTemplate: checkboxViewTemplate },
       {field: 'type', displayName: 'Type', width: '60', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
       {field: 'ttl', displayName: 'TTL', width: '60', enableCellEdit: $scope.isChangeAllowed},
@@ -1372,10 +1381,13 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   };
 
   $scope.commentsSupported = ($scope.zone.comments !== undefined);
+
   if ($scope.isAllowedChange || $scope.commentsSupported) {
-    $scope.recordsGridOptions.columnDefs.splice(0, 0,
+    preliminaryOptions.columnDefs.splice(0, 0,
       {field: '_', displayName: '', cellTemplate: templateUrl('zone/recordsgrid-rowmeta'), groupable: false, resizable: false, sortable: false, width: ($scope.isChangeAllowed ? 50 : 20)});
   }
+
+  $scope.recordsGridOptions = preliminaryOptions;
 }
 
 function ZoneCommentCtrl($scope, Restangular) {

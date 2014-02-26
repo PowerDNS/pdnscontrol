@@ -1,4 +1,9 @@
-<div class="ngCellText">
-  <a href="#" ng-click="deleteRow(row)" class="alert" ng-show="isChangeAllowed"><span class="foundicon-trash"></span></a>
+<div class="ngCellText recordRowMeta">
+
+  <!-- trash can -->
+  <a href="#" ng-click="deleteRow(row)" class="alert" ng-show="canDelete(row)"><i class="foundicon-trash"></i></a>
+  <span class="disabled" ng-show="!canDelete(row)"><i class="foundicon-trash"></i></span>
+
+  <!-- comment indicator -->
   <a href="#" ng-click="editComment(row)" ng-show="commentsSupported"><i class="foundicon-paper-clip"></i><small>{{commentCount(row)}}</small></a>
 </div>

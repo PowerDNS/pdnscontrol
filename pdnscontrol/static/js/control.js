@@ -903,17 +903,6 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     return angular.equals($scope.master, $scope.zone);
   };
 
-  $scope.isDeletePossible = function() {
-    // Must have at least one selected row, and no row's type can have allowDelete=false.
-    var selectedTypes;
-    if ($scope.mySelections.length == 0)
-      return false;
-    selectedTypes = _.map($scope.mySelections, function(row) { return _.findWhere($scope.rrTypes, {name: row.type}); });
-    return _.every(selectedTypes, function(type) {
-      return (type && type.allowDelete !== undefined) ? type.allowDelete : true;
-    });
-  };
-
   function matchAutoPtrsToZones(possiblePtrs) {
     // NOTE: $scope.zones MUST already be filled
     var ptr;
@@ -1265,7 +1254,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   };
 
   $scope.rrTypes = [
-    {name: 'SOA', required: true, allowDelete: false, sortWeight: -100},
+    {name: 'SOA', required: true, allowCreate: false, sortWeight: -100},
     {name: 'A'},
     {name: 'AAAA'},
     {name: 'NS', sortWeight: -50},
@@ -1294,7 +1283,12 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     {name: 'SPF'},
     {name: 'DLV'}
   ];
-  typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in rrTypes" ng-show="!!row.entity._new"></select><div class="ngCellText" ng-show="!!!row.entity._new">{{COL_FIELD}}</div>';
+  $scope.creatableRRTypes = _.filter($scope.rrTypes, function(t) {
+    if (t.allowCreate === undefined)
+      return true;
+    return t.allowCreate;
+  });
+  typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in creatableRRTypes" ng-show="!!row.entity._new"></select><div class="ngCellText" ng-show="!!!row.entity._new">{{COL_FIELD}}</div>';
 
   checkboxEditTemplate = '<input type=checkbox required ng-class="\'colt\' + col.index" ng-input="COL_FIELD" ng-model="COL_FIELD">';
   checkboxViewTemplate = '<div class="ngCellText" ng-class=\"col.colIndex()\"><input type=checkbox required ng-model="COL_FIELD" ng-disabled="!isChangeAllowed"></div>';
@@ -1345,7 +1339,16 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
       $scope.record = record;
     });
   };
+  $scope.canDelete = function(ngRow) {
+    if (!$scope.isChangeAllowed)
+      return false;
+    if (ngRow.entity.type == 'SOA' && $scope.zone.name == ngRow.entity.name)
+      return false;
+    return true;
+  }
   $scope.deleteRow = function(ngRow) {
+    if (!$scope.canDelete(ngRow))
+      return;
     $scope.zone.records.splice($scope.zone.records.indexOf(ngRow.entity), 1);
   };
 
@@ -1384,7 +1387,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
 
   if ($scope.isAllowedChange || $scope.commentsSupported) {
     preliminaryOptions.columnDefs.splice(0, 0,
-      {field: '_', displayName: '', cellTemplate: templateUrl('zone/recordsgrid-rowmeta'), groupable: false, resizable: false, sortable: false, width: ($scope.isChangeAllowed ? 50 : 20)});
+      {field: '_', displayName: '', cellTemplate: templateUrl('zone/recordsgrid-rowmeta'), enableCellEdit: false, groupable: false, resizable: false, sortable: false, width: ($scope.isChangeAllowed ? 50 : 20)});
   }
 
   $scope.recordsGridOptions = preliminaryOptions;

@@ -173,6 +173,11 @@ footer {
   @include animation(requestsPending 2s linear infinite);
 }
 
+/* records editor */
+.recordRowMeta.disabled {
+  color: gray;
+}
+
 /* override ngGrid CSS */
 .ngHeaderButton {
   background: inherit;

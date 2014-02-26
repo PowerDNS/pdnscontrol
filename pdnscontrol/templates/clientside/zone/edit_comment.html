@@ -1,7 +1,10 @@
 <div ng-controller="ZoneCommentCtrl">
   <div class="row">
-    <div class="small-12 columns">
+    <div class="small-10 medium-11 columns">
       <h2>Comments for {{record.name}}/{{record.type}}</h2>
+    </div>
+    <div class="small-2 medium-1 columns">
+      <a href="#" ng-click="addComment()" class="button postfix"><span class="foundicon-plus"></span></a>
     </div>
   </div>
 
@@ -24,9 +27,6 @@
   </div>
 
   <div class="row">
-    <div class="small-2 medium-1 columns">
-      <a href="#" ng-click="addComment()" class="button postfix"><span class="foundicon-plus"></span></a>
-    </div>
     <div class="small-4 columns right text-right">
       <button class="button success" ng-click="saveAndClose()" type="button">Close</button>
     </div>

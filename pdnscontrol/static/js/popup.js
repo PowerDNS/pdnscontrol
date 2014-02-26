@@ -19,6 +19,6 @@ function showPopup($scope, $compile, template, scopeBinder) {
     popupScope.$emit("finished");
   };
   document.body.appendChild(popupElement[0]);
-  $(popupElement).foundation(); // init reveal settings
+  $(popupElement).foundation({'reveal': {close_on_background_click: false}}); // init reveal settings
   $(popupElement).foundation('reveal', 'open');
 }

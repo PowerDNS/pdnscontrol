@@ -820,69 +820,83 @@ function toRRsetMap(input) {
   return output;
 }
 
-function diffZone(master, current, key) {
-    function pluckNameTypes(source) {
-      return _.uniq(_.map(source, rrToNameType));
-    }
-    function rrToNameType(rr) {
-      return '' + escape(rr['name']) + '/' + escape(rr['type']);
-    }
-    function unpackNameType(nt) {
-      return _.map(nt.split('/'), unescape);
-    }
-    function compareNameTypeAndRR(rr, nt) {
-      return rrToNameType(rr) == nt;
-    }
+function diffAB(a, b, diff_cb) {
+  "use strict";
 
-    var currentNameTypes = pluckNameTypes(current[key]);
-    var masterNameTypes = pluckNameTypes(master[key]);
-    var removedNameTypes = _.difference(masterNameTypes, currentNameTypes);
-    var addedNameTypes = _.difference(currentNameTypes, masterNameTypes);
-    var noNameChangeNameTypes = _.intersection(masterNameTypes, currentNameTypes);
+  var noChange = [], removed = [];
+  var aIdx = a.length;
+  while (aIdx--) {
+    var found = false;
+    var aEntry = a[aIdx];
+    var bIdx = b.length;
+    while (bIdx--) {
+      var bEntry = b[bIdx];
+      found = diff_cb(aEntry, bEntry);
+      if (found)
+        break;
+    }
+    if (found) {
+      noChange.push(aEntry);
+    } else {
+      removed.push(aEntry);
+    }
+  }
+  return {noChange: noChange, removed: removed};
+}
+
+function diffZone(master, current, key) {
+  "use strict";
+
+  function cmpNameType(a, b) {
+    return a.name == b.name && a.type == b.type;
+  }
+
+  var removedNameTypes = diffAB(master[key], current[key], cmpNameType);
+  var addedNameTypes = diffAB(current[key], master[key], cmpNameType);
+  var noNameTypeChangeNameTypes = _.union(removedNameTypes.noChange, addedNameTypes.noChange);
+  removedNameTypes = removedNameTypes.removed;
+  addedNameTypes = addedNameTypes.removed;
 
     var changes = [];
 
     _.each(removedNameTypes, function(nt) {
-      var nt_ = unpackNameType(nt);
       var change = {
         changetype: 'replace',
-        name: nt_[0],
-        type: nt_[1],
+        name: nt.name,
+        type: nt.type
       };
       change[key] = []; // required to do an actual delete
       changes.push(change);
     });
 
     _.each(addedNameTypes, function(nt) {
-      var nt_ = unpackNameType(nt);
       var change = {
         changetype: 'replace',
-        name: nt_[0],
-        type: nt_[1]
+        name: nt.name,
+        type: nt.type
       };
       change[key] = _.filter(current[key], function(rr) {
-        return compareNameTypeAndRR(rr, nt);
+        return cmpNameType(rr, nt);
       });
       changes.push(change);
     });
 
-    _.each(noNameChangeNameTypes, function(nt) {
-      var nt_ = unpackNameType(nt);
+    _.each(noNameTypeChangeNameTypes, function(nt) {
       var entriesCurrent = _.filter(current[key], function(rr) {
-        return compareNameTypeAndRR(rr, nt);
+        return cmpNameType(rr, nt);
       });
       var entriesMaster = _.filter(master[key], function(rr) {
-        return compareNameTypeAndRR(rr, nt);
+        return cmpNameType(rr, nt);
       });
       var change;
       if (!angular.equals(entriesCurrent.sort(), entriesMaster.sort())) {
         change = {
           changetype: 'replace',
-          name: nt_[0],
-          type: nt_[1]
+          name: nt.name,
+          type: nt.type
         };
         change[key] = _.filter(current[key], function(rr) {
-          return compareNameTypeAndRR(rr, nt);
+          return cmpNameType(rr, nt);
         });
         changes.push(change);
       }
@@ -1376,7 +1390,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     columnDefs: [
       {field: 'name', displayName: 'Name', enableCellEdit: $scope.isChangeAllowed, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate, resizable: true, width: '20%', sortFn: dnsNameSort},
       {field: 'disabled', displayName: 'Dis.', width: '40', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: checkboxEditTemplate, cellTemplate: checkboxViewTemplate },
-      {field: 'type', displayName: 'Type', width: '60', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
+      {field: 'type', displayName: 'Type', width: '70', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
       {field: 'ttl', displayName: 'TTL', width: '60', enableCellEdit: $scope.isChangeAllowed},
       {field: 'priority', displayName: 'Prio', width: '40', enableCellEdit: $scope.isChangeAllowed, cellTemplate: prioViewTemplate},
       {field: 'content', displayName: 'Data', enableCellEdit: $scope.isChangeAllowed},

@@ -10,6 +10,7 @@ def create_instance_conf():
         tpl = """
 DATABASE_URI = '{db}'
 SECRET_KEY = 'test-key-do-not-use'
+SECURITY_PASSWORD_SALT = 'test-salt-do-not-use'
         """
         f.write(tpl.format(db=db))
 

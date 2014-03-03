@@ -18,8 +18,15 @@ Features:
 * PowerDNS Authoritative 3.4-pre
 * PowerDNS Recursor 3.6-pre
 * Graphite
-* PostgreSQL 8.3 or newer database
+* PostgreSQL 8.3 or newer, or MySQL 5.5 or newer
 * Cron
+
+### Browser requirements
+
+* Chrome 33+
+* Firefox 24.3+
+* Internet Explorer 9+
+* Safari 7+
 
 ## Components
 
@@ -48,11 +55,8 @@ Flask-based web app.
 
 #### Developing
 
-To update built templates, you also need to have a few gems installed.
-
-    cd pdnscontrol && bundle
-    make
-
+To update built templates, you also need to have other software installed.
+See pdnscontrol/README.md for details.
 
 ### Graphite data feeder
 

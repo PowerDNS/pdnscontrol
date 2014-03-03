@@ -1101,9 +1101,12 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
       return '' + c.name + '/' + c.type + '/' + c.modified_at + '/' + c.account + '/' + c.content;
     }
 
-    var commentChanges = diffZone($scope.master, $scope.zone, 'comments');
+    var commentChanges = [];
+    if ($scope.master.comments !== undefined) {
+      diffZone($scope.master, $scope.zone, 'comments');
+    }
     var recordChanges = diffZone($scope.master, $scope.zone, 'records');
-    var changes = _.compact(recordChanges);
+    var changes = _.compact(recordChanges); // copy
 
     // merge comment changes into record changes, if possible.
     var changeIdx = changes.length;

@@ -1,5 +1,6 @@
 // Controlling Application
 var ControlApp = angular.module('control', [
+  'ngRoute',
   'models',
   'components',
   'graphite',

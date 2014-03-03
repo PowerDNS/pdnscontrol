@@ -55,6 +55,7 @@ js_libs = [
     'blob/Blob.js',
     'FileSaver/FileSaver.js',
     'angular/angular.js',
+    'angular-route/angular-route.js',
     'restangular/dist/restangular.js',
     'ng-grid/build/ng-grid.debug.js',
     'moment/moment.js',

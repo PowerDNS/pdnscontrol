@@ -23,5 +23,3 @@ class ManageResetPassword(Command):
         print "Password updated."
         return 0
 
-#with app.app_context():
-

@@ -5354,8 +5354,8 @@ footer {
   animation: requestsPending 2s linear infinite; }
 
 /* records editor */
-.recordRowMeta.disabled {
-  color: gray; }
+.recordRowMeta .disabled {
+  color: #cccccc; }
 
 /* override ngGrid CSS */
 .ngHeaderButton {

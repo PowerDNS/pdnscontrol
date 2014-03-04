@@ -174,8 +174,8 @@ footer {
 }
 
 /* records editor */
-.recordRowMeta.disabled {
-  color: gray;
+.recordRowMeta .disabled {
+  color: scale-color(#000, $lightness: 80%);
 }
 
 /* override ngGrid CSS */

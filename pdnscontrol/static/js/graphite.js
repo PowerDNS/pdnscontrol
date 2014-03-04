@@ -108,6 +108,10 @@ GraphiteModule.directive('graphite', function($timeout) {
             });
             return;
           }
+          // release when the element is no longer attached to the current DOM
+          if (!jQuery.contains(document, elm[0])) {
+            return;
+          }
           $timeout(function() {
             // refresh graphs
             beginRefresh();

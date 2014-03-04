@@ -1378,7 +1378,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   $scope.mySelections = [];
   var preliminaryOptions = {
     data: 'zone.records',
-    enableRowSelection: true,
+    enableRowSelection: false,
     enableCellEditOnFocus: false,
     enableCellSelection: false,
     enableCellEdit: $scope.isChangeAllowed,

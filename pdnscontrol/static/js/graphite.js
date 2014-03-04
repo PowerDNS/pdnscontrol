@@ -32,7 +32,7 @@ GraphiteModule.directive('graphite', function($timeout) {
         }, ServerData.Config.graphite_default_opts);
 
         // automatically choose width, if possible
-        var width = parseInt($(elm).parent().width());
+        var width = $(elm).width() || $(elm).parent().width();
         if (width > 0) {
           opts['width'] = width;
         }

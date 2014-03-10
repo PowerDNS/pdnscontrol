@@ -590,6 +590,11 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
     }
   };
 
+  $scope.isAddZoneAllowed = true;
+  $scope.$watch('server.config', function() {
+    $scope.isAddZoneAllowed = !$scope.server.mustDo("experimental-api-readonly", "no");
+  });
+
   $scope.zonesGridOptions = {
     data: 'zones',
     enableRowSelection: false,
@@ -1221,10 +1226,15 @@ function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
     }, 100);
   };
 
-  $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() === 'MASTER' && server.mustDo('master')) || ($scope.zone.kind.toUpperCase() === 'SLAVE' && server.mustDo('slave-renotify'));
-  $scope.isUpdateFromMasterAllowed = ($scope.zone.kind.toUpperCase() === 'SLAVE');
-  $scope.isChangeAllowed = (($scope.zone.kind.toUpperCase() !== 'SLAVE') && ($scope.server.daemon_type === 'Authoritative'));
-  $scope.canExport = ($scope.server.daemon_type === 'Authoritative');
+  function setFlags() {
+    $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() === 'MASTER' && server.mustDo('master')) || ($scope.zone.kind.toUpperCase() === 'SLAVE' && server.mustDo('slave-renotify'));
+    $scope.isUpdateFromMasterAllowed = ($scope.zone.kind.toUpperCase() === 'SLAVE');
+    $scope.isEditZoneAllowed = ($scope.server.daemon_type === 'Recursor') || !server.mustDo("experimental-api-readonly", "no");
+    $scope.isChangeAllowed = (($scope.server.daemon_type === 'Authoritative') && ($scope.zone.kind.toUpperCase() !== 'SLAVE') && $scope.isEditZoneAllowed);
+    $scope.canExport = ($scope.server.daemon_type === 'Authoritative');
+  }
+  setFlags();
+  $scope.$watch('server.config', setFlags);
 
   $scope.notify_slaves = function() {
     $scope.loading = true;

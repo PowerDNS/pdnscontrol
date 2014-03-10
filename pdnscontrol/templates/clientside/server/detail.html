@@ -91,7 +91,7 @@
       </pane>
       <pane tabtitle="Zones">
         <!-- search -->
-        <a href="/server/{{server.name}}/zones/new" class="zone-new"><span class="foundicon-plus"></span> Add Zone</a>
+        <a ng-show="isAddZoneAllowed" href="/server/{{server.name}}/zones/new" class="zone-new"><span class="foundicon-plus"></span> Add Zone</a>
 
         <div class="gridStyle" ng-grid="zonesGridOptions" ng-style="gridExtraStyle()">
         </div>

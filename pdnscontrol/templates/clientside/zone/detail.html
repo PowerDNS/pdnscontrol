@@ -6,7 +6,7 @@
 <div class="row">
   <div class="small-12 medium-8 columns">
     <h2>{{zone.name}} <spinner class="right" id="zone-spinner" spin="{{loading}}"></spinner>
-      <a href="/server/{{server.name}}/zone/{{zone.name}}/edit" class="title-edit"><span class="foundicon-edit"></span></a>
+      <a ng-show="isEditZoneAllowed" href="/server/{{server.name}}/zone/{{zone.name}}/edit" class="title-edit"><span class="foundicon-edit"></span></a>
     </h2>
   </div>
   <div class="small-12 medium-4 columns right">

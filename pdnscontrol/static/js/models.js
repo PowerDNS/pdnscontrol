@@ -78,8 +78,8 @@ angular.module('models', ['restangular']).
         });
       }
 
-      server.mustDo = function(key) {
-        var val = server.config[key];
+      server.mustDo = function(key, dflt) {
+        var val = server.config[key] || dflt;
         return (val!=="no") && (val!=="off");
       };
 

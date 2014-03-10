@@ -1,3 +1,5 @@
+"use strict";
+
 ServerData.Config.api_base = ServerData.Config.url_root + 'api';
 
 angular.module('models', ['restangular']).
@@ -7,18 +9,13 @@ angular.module('models', ['restangular']).
       id: "_id"
     });
     RestangularProvider.setRequestInterceptor(function(elem, operation, what) {
-      if (operation === 'put' || operation === 'post' || operation == 'patch') {
+      if (operation === 'put' || operation === 'post' || operation === 'patch') {
         elem._id = undefined;
-      }
-      if (what == 'zone') {
-//        elem.
       }
       //DBG//console.log('sending', elem);
       return elem;
     });
-    RestangularProvider.setResponseExtractor(function(original_response, operation, what, url) {
-      var response = original_response;
-      var singular = what.replace(/s$/, '');
+    RestangularProvider.setResponseExtractor(function(response, operation, what, url) {
       if (operation === 'getList') {
         var i;
         for (i = 0; i < response.length; i++) {
@@ -28,7 +25,7 @@ angular.module('models', ['restangular']).
         }
         return response;
       }
-      if (operation === 'get' || operation == 'put' || operation == 'post') {
+      if (operation === 'get' || operation === 'put' || operation === 'post') {
         if (!response._id && !!response.id) {
           response._id = response.id;
         }
@@ -58,7 +55,7 @@ angular.module('models', ['restangular']).
       server.addRestangularMethod('control', 'post', 'control', null, {parameters: true});
       server.graphite_name = (function() {
         var name = 'pdns.' + server.name.replace(/\./gm,'-');
-        if (server.daemon_type == 'Authoritative') {
+        if (server.daemon_type === 'Authoritative') {
           name = name + '.auth';
         } else {
           name = name + '.recursor';
@@ -70,10 +67,10 @@ angular.module('models', ['restangular']).
       server.config = {};
 
       server.one('statistics').get().then(function(resp) {
-        server.stats = _.object(_.map(resp, function(o) { return [o['name'], o['value']]; }));
+        server.stats = _.object(_.map(resp, function(o) { return [o.name, o.value]; }));
       });
       server.one('config').get().then(function(resp) {
-        server.config = _.object(_.map(resp, function(o) { return [o['name'], o['value']]; }));
+        server.config = _.object(_.map(resp, function(o) { return [o.name, o.value]; }));
       });
       if (!('version' in server)) {
         server.get().then(function(resp) {

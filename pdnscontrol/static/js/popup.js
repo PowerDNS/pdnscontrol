@@ -2,6 +2,7 @@
  * Note: function added by scopeBinder should use 'this' to get the current scope.
  */
 function showPopup($scope, $compile, template, scopeBinder) {
+  "use strict";
   var popupTemplate = "<div data-reveal='' class='reveal-modal'><div ng-include src=\"'" + templateUrl(template) + "'\"></div></div>";
   var popupScope = $scope.$new();
   scopeBinder(popupScope);

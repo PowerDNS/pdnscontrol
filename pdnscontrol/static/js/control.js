@@ -1,4 +1,6 @@
 // Controlling Application
+"use strict";
+
 var ControlApp = angular.module('control', [
   'ngRoute',
   'models',
@@ -19,8 +21,8 @@ ControlApp.provider(
 
 ControlApp.factory(
   "exceptionHandlingService",
-  ["$log","$window",
-   function($log, $window){
+  ["$log",
+   function($log){
      function error(exception, cause){
        // preserve the default behaviour which will log the error
        // to the console, and allow the application to continue running.
@@ -48,7 +50,7 @@ function ConfigResolver(Restangular, $route) {
   return Restangular.one('servers', $route.current.params.serverName).one('config', $route.current.params.configName).get();
 }
 
-function MeResolver(Restangular, $route) {
+function MeResolver(Restangular) {
   return Restangular.one('me').get();
 }
 
@@ -115,13 +117,13 @@ ControlApp.
         }
       });
 
-    if (ServerData.User.roles.indexOf('view-users') != -1) {
+    if (ServerData.User.roles.indexOf('view-users') !== -1) {
       $routeProvider.
         when('/users', {
           controller:UserListCtrl, templateUrl: templateUrl('user/list')
         });
     }
-    if (ServerData.User.roles.indexOf('edit-users') != -1) {
+    if (ServerData.User.roles.indexOf('edit-users') !== -1) {
       $routeProvider.
         when('/user/:userId/edit', {
           controller:UserEditCtrl, templateUrl: templateUrl('user/edit'),
@@ -149,7 +151,7 @@ ControlApp.
         return '';
       }
       return moment().subtract('seconds', value);
-    }
+    };
   }).
   filter('rel_timestamp', function() {
     return function(value) {
@@ -157,7 +159,7 @@ ControlApp.
         return 'unknown';
       }
       return moment(value).fromNow();
-    }
+    };
   }).
   filter('full_and_rel_timestamp', function() {
     return function(value) {
@@ -166,7 +168,7 @@ ControlApp.
       }
       var m = moment(value);
       return m.format('LLLL') + " (" + m.fromNow() + ")";
-    }
+    };
   }).
   filter('full_timestamp', function() {
     return function(value) {
@@ -174,7 +176,7 @@ ControlApp.
         return '';
       }
       return moment(value).format('LLLL');
-    }
+    };
   }).
   filter('short_timestamp', function() {
     return function(value) {
@@ -182,7 +184,7 @@ ControlApp.
         return '';
       }
       return moment(value).format('L HH:mm:ss');
-    }
+    };
   }).
   filter('unixts_time', function() {
     return moment.unix;
@@ -193,7 +195,7 @@ ControlApp.
         return '';
       }
       return value.join(' ');
-    }
+    };
   });
 
 
@@ -208,7 +210,7 @@ ControlApp.directive('searchlog', function() {
     controller: ['$scope', '$compile', function($scope, $compile) {
       $scope.query = '';
       $scope.submit = function() {
-        if ($scope.query.length == 0) {
+        if ($scope.query.length === 0) {
           return;
         }
         var servers = $scope.servers();
@@ -225,7 +227,7 @@ ControlApp.directive('searchlog', function() {
             columnDefs: [
               {field: 'date', displayName: 'Date', width: 200, cellFilter: 'short_timestamp'},
               {field: 'hostname', displayName: 'Hostname', width: '80'},
-              {field: 'message', displayName: 'Message',}
+              {field: 'message', displayName: 'Message'}
             ]
           };
 
@@ -248,7 +250,7 @@ ControlApp.directive('searchlog', function() {
         });
       };
     }]
-  }
+  };
 });
 
 ControlApp.directive('spinner', function() {
@@ -282,8 +284,8 @@ ControlApp.directive('spinner', function() {
 
       attrs.$observe('spin', function() {
         var spin = (scope.spin === 'true');
-        if (scope.spinning != spin) {
-          if (spin == true) {
+        if (scope.spinning !== spin) {
+          if (spin === true) {
             spinner.spin(elm[0]);
           } else {
             spinner.stop();
@@ -292,7 +294,7 @@ ControlApp.directive('spinner', function() {
         }
       });
     }
-  }
+  };
 });
 
 
@@ -316,7 +318,7 @@ function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
 
     filtered.length = 0;
     if (raw[0]) {
-      if (raw[0].name == 'server' || raw[0].name == '') {
+      if (raw[0].name === 'server' || raw[0].name === '') {
         filtered.push({name: 'Servers', path: '/servers'});
         if (raw[1]) {
           filtered.push(raw[1]);
@@ -324,7 +326,7 @@ function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
             filtered.push(raw[3]);
           }
         }
-      } else if (raw[0].name == 'user' || raw[0].name == 'users') {
+      } else if (raw[0].name === 'user' || raw[0].name === 'users') {
         filtered.push({name: 'Users', path: '/users'});
       }
     }
@@ -359,14 +361,14 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
   $scope.recursors = function() {
     // TODO: apply 'filter' filter (name match)
     return _.filter($scope.selected_servers(), function(server) {
-      return server.daemon_type == 'Recursor';
+      return server.daemon_type === 'Recursor';
     });
-  }
+  };
   $scope.authoritatives = function() {
     return _.filter($scope.selected_servers(), function(server) {
-      return server.daemon_type == 'Authoritative';
+      return server.daemon_type === 'Authoritative';
     });
-  }
+  };
 
   $scope.auth_answers = function() {
     var sources, servers;
@@ -377,7 +379,7 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
       var source = server.graphite_name;
       return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
     });
-    if (servers.length == 0) {
+    if (servers.length === 0) {
       return '';
     }
 
@@ -393,7 +395,7 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
       var source = server.graphite_name;
       return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
     });
-    if (servers.length == 0) {
+    if (servers.length === 0) {
       return '';
     }
 
@@ -411,7 +413,7 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
       var source = server.graphite_name;
       return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
     });
-    if (servers.length == 0) {
+    if (servers.length === 0) {
       return '';
     }
 
@@ -430,7 +432,7 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
       var source = server.graphite_name;
       return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
     });
-    if (servers.length == 0) {
+    if (servers.length === 0) {
       return '';
     }
 
@@ -461,19 +463,19 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
           server.flush_cache({'domain': scope.flush_domain}).then(function(response) {
             scope.results.push({server: server, output: '' + response.content.number + ' domains flushed.'});
             requestCount -= 1;
-            if (requestCount == 0) {
+            if (requestCount === 0) {
               scope.loading = false;
             }
           }, function(response) {
             scope.results.push({server: server, output: 'Failed.'});
             scope.loading = false;
             requestCount -= 1;
-            if (requestCount == 0) {
+            if (requestCount === 0) {
               scope.loading = false;
             }
           });
         });
-      }
+      };
       // HACK: don't rely on setTimeout(, >0) here when we could use (, 0) or a callback from showPopup
       setTimeout(function() {
         angular.element("#flush_domain").focus();
@@ -489,7 +491,7 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
         var requestCount = scope.affected_servers.length;
         function reqDone() {
           requestCount -= 1;
-          if (requestCount == 0) {
+          if (requestCount === 0) {
             scope.loading = false;
           }
         }
@@ -510,7 +512,7 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
             reqDone();
           });
         });
-      }
+      };
     });
   };
 
@@ -522,7 +524,7 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
         var requestCount = scope.affected_servers.length;
         function reqDone() {
           requestCount -= 1;
-          if (requestCount == 0) {
+          if (requestCount === 0) {
             scope.loading = false;
           }
         }
@@ -543,7 +545,7 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
             reqDone();
           });
         });
-      }
+      };
     });
   };
 }
@@ -556,7 +558,7 @@ function ServerCreateCtrl($scope, $location, Restangular) {
     Restangular.all("servers").post($scope.server).then(function(response) {
       $location.path('/server/' + $scope.server.name);
     }, function(response) {
-      if (response.status == 422) {
+      if (response.status === 422) {
         _.each(response.data.errors, function(field, desc) {
           $scope.serverForm.$setValidity("serverForm." + field + ".$invalid", false);
         });
@@ -564,11 +566,11 @@ function ServerCreateCtrl($scope, $location, Restangular) {
         alert('Server reported unexpected error ' + response.status);
       }
     });
-  }
+  };
 
   $scope.cancel = function() {
     $location.path('/');
-  }
+  };
 
   $scope.isClean = function() {
     return false;
@@ -580,7 +582,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
 
   $scope.gridExtraStyle = function() {
     try {
-      var h = $(window).height() - $(".tabs").offset()['top'] - $('footer').height() - $('.tabs').height();
+      var h = $(window).height() - $(".tabs").offset().top - $('footer').height() - $('.tabs').height();
       h -= 70; // account for padding/border/margin and '+ Add Zone' link
       return {height: h + "px"};
     } catch (e) {
@@ -600,7 +602,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
       {field: 'kind', displayName: 'Kind', width: '100'}
     ]
   };
-  if ($scope.server.daemon_type == 'Recursor') {
+  if ($scope.server.daemon_type === 'Recursor') {
     $scope.zonesGridOptions.columnDefs.push({field: 'servers', displayName: 'Forwarders', width: '200', cellFilter: 'array_join'});
     $scope.zonesGridOptions.columnDefs.push({field: 'recursion_desired', displayName: 'Recurse', width: '150', cellFilter: 'checkmark'});
   } else {
@@ -619,7 +621,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   loadServerData();
 
   $scope.canEditConfig = function(varname) {
-    return varname == 'allow-from';
+    return varname === 'allow-from';
   };
 
   $scope.configurationGridOptions = {
@@ -669,13 +671,13 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
           scope.output = 'Flushing failed.';
           scope.loading = false;
         });
-      }
+      };
       // HACK: don't rely on setTimeout(, >0) here when we could use (, 0) or a callback from showPopup
       setTimeout(function() {
         angular.element("#flush_domain").focus();
       }, 100);
     });
-  }
+  };
 
   function handleManagerResponseAndReload(scope, response) {
     scope.output = '$ ' + response.cmdline.join(' ') + "\n" + response.output;
@@ -701,9 +703,9 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
           scope.output = 'Shutdown failed.';
           scope.loading = false;
         });
-      }
+      };
     });
-  }
+  };
 
   $scope.popup_restart = function() {
     showPopup($scope, $compile, 'server/restart', function(scope) {
@@ -718,9 +720,9 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
           scope.output = 'Restart failed.';
           scope.loading = false;
         });
-      }
+      };
     });
-  }
+  };
 }
 
 function ServerEditCtrl($scope, $location, Restangular, server) {
@@ -747,13 +749,13 @@ function ServerEditCtrl($scope, $location, Restangular, server) {
 
   $scope.cancel = function() {
     $location.path('/server/' + $scope.server.name);
-  }
+  };
 }
 
 ////////////////////////////////////////////////////////////////////////
 // (Server) Config
 ////////////////////////////////////////////////////////////////////////
-function ConfigEditCtrl($scope, $compile, $location, Restangular, server, config) {
+function ConfigEditCtrl($scope, $location, Restangular, server, config) {
   $scope.server = server;
   $scope.master = config;
   $scope.master.value_o = _.map($scope.master.value, function(o) { return {'value': o}; });
@@ -780,7 +782,7 @@ function ConfigEditCtrl($scope, $compile, $location, Restangular, server, config
 
   $scope.cancel = function() {
     $location.path('/server/' + $scope.server.name);
-  }
+  };
 
   $scope.addOne();
 }
@@ -797,10 +799,10 @@ function revNameIPv6(ip) {
   var rev, chunks;
   chunks = ip.split(':');
   rev = _.flatten(_.map(chunks, function(e) {
-    if (e == "") {
-      return Array(10-chunks.length).join('0000');
+    if (e === "") {
+      return new Array(10-chunks.length).join('0000');
     }
-    return Array(5-e.length).join("0") + e;
+    return new Array(5-e.length).join("0") + e;
   })).join('').split('').reverse().join('.');
   return rev + '.ip6.arpa';
 }
@@ -822,8 +824,6 @@ function toRRsetMap(input) {
 }
 
 function diffAB(a, b, diff_cb) {
-  "use strict";
-
   var noChange = [], removed = [];
   var aIdx = a.length;
   while (aIdx--) {
@@ -833,8 +833,9 @@ function diffAB(a, b, diff_cb) {
     while (bIdx--) {
       var bEntry = b[bIdx];
       found = diff_cb(aEntry, bEntry);
-      if (found)
+      if (found) {
         break;
+      }
     }
     if (found) {
       noChange.push(aEntry);
@@ -846,10 +847,8 @@ function diffAB(a, b, diff_cb) {
 }
 
 function diffZone(master, current, key) {
-  "use strict";
-
   function cmpNameType(a, b) {
-    return a.name == b.name && a.type == b.type;
+    return a.name === b.name && a.type === b.type;
   }
 
   var removedNameTypes = diffAB(master[key], current[key], cmpNameType);
@@ -905,9 +904,7 @@ function diffZone(master, current, key) {
   return changes;
 }
 
-function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, server, zone) {
-  var typeEditTemplate;
-
+function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
   $scope.server = server;
   $scope.loading = false;
 
@@ -933,9 +930,9 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
         var finalPtrSet = [];
         while (ptr = matchedPtrs.pop()) {
           ptr.replacedRecords = _.filter(zoneCache[ptr.zonename].records, function(rec) {
-            return rec.name == ptr.revName && rec.type == 'PTR';
+            return rec.name === ptr.revName && rec.type === 'PTR';
           });
-          if (ptr.replacedRecords.length != 1 || ptr.replacedRecords[0].content != ptr.record.name) {
+          if (ptr.replacedRecords.length !== 1 || ptr.replacedRecords[0].content !== ptr.record.name) {
             finalPtrSet.push(ptr);
           }
         }
@@ -948,7 +945,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     // Also start fetching the reverse zones already.
     _.each(possiblePtrs, function(ptr) {
       var matchingZones = _.sortBy(_.filter($scope.zones, function(z) { return ptr.revName.indexOf(z.name) != -1; }), function(z) { return z.name }).reverse();
-      if (matchingZones.length == 0) {
+      if (matchingZones.length === 0) {
         return;
       }
       ptr.zone = _.first(matchingZones);
@@ -972,7 +969,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
   }
 
   function autoPtrShowPopup(newPTRs) {
-    if (newPTRs.length == 0) {
+    if (newPTRs.length === 0) {
       // nothing to do
       return;
     }
@@ -1056,7 +1053,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     var change;
     // build possible PTR records from changes
     while (change = zoneChanges.pop()) {
-      if (change.changetype != 'replace' || change.records.length == 0) {
+      if (change.changetype !== 'replace' || change.records.length === 0) {
         continue;
       }
       var rec;
@@ -1066,9 +1063,9 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
         }
         // build name of PTR record
         var revName;
-        if (change.type == 'A') {
+        if (change.type === 'A') {
           revName = revNameIPv4(rec.content);
-        } else if (change.type == 'AAAA') {
+        } else if (change.type === 'AAAA') {
           revName = revNameIPv6(rec.content);
         } else {
           continue;
@@ -1115,10 +1112,10 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
       if (changes[changeIdx].changetype != 'replace') {
         continue;
       }
-      var commentIdx = commentChanges.length
+      var commentIdx = commentChanges.length;
       while (commentIdx--) {
-        if (commentChanges[commentIdx].name == changes[changeIdx].name &&
-            commentChanges[commentIdx].type == changes[changeIdx].type) {
+        if (commentChanges[commentIdx].name === changes[changeIdx].name &&
+            commentChanges[commentIdx].type === changes[changeIdx].type) {
           changes[changeIdx].comments = commentChanges[commentIdx].comments;
           commentChanges.splice(commentIdx, 1);
         }
@@ -1164,7 +1161,7 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
           var idx = $scope.master[key].length;
           while(idx--) {
             var row = $scope.master[key][idx];
-            if (row.name == change.name && row.type == change.type) {
+            if (row.name === change.name && row.type === change.type) {
               $scope.master[key].splice(idx, 1);
             }
           }
@@ -1224,10 +1221,10 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
     }, 100);
   };
 
-  $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() == 'MASTER' && server.mustDo('master')) || ($scope.zone.kind.toUpperCase() == 'SLAVE' && server.mustDo('slave-renotify'));
-  $scope.isUpdateFromMasterAllowed = ($scope.zone.kind.toUpperCase() == 'SLAVE');
-  $scope.isChangeAllowed = (($scope.zone.kind.toUpperCase() != 'SLAVE') && ($scope.server.daemon_type == 'Authoritative'));
-  $scope.canExport = ($scope.server.daemon_type == 'Authoritative');
+  $scope.isNotifyAllowed = ($scope.zone.kind.toUpperCase() === 'MASTER' && server.mustDo('master')) || ($scope.zone.kind.toUpperCase() === 'SLAVE' && server.mustDo('slave-renotify'));
+  $scope.isUpdateFromMasterAllowed = ($scope.zone.kind.toUpperCase() === 'SLAVE');
+  $scope.isChangeAllowed = (($scope.zone.kind.toUpperCase() !== 'SLAVE') && ($scope.server.daemon_type === 'Authoritative'));
+  $scope.canExport = ($scope.server.daemon_type === 'Authoritative');
 
   $scope.notify_slaves = function() {
     $scope.loading = true;
@@ -1306,38 +1303,36 @@ function ZoneDetailCtrl($scope, $compile, $location, $timeout, Restangular, serv
       return true;
     return t.allowCreate;
   });
-  typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in creatableRRTypes" ng-show="!!row.entity._new"></select><div class="ngCellText" ng-show="!!!row.entity._new">{{COL_FIELD}}</div>';
+  var typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in creatableRRTypes" ng-show="!!row.entity._new"></select><div class="ngCellText" ng-show="!!!row.entity._new">{{COL_FIELD}}</div>';
 
-  checkboxEditTemplate = '<input type=checkbox required ng-class="\'colt\' + col.index" ng-input="COL_FIELD" ng-model="COL_FIELD">';
-  checkboxViewTemplate = '<div class="ngCellText" ng-class=\"col.colIndex()\"><input type=checkbox required ng-model="COL_FIELD" ng-disabled="!isChangeAllowed"></div>';
+  var checkboxEditTemplate = '<input type=checkbox required ng-class="\'colt\' + col.index" ng-input="COL_FIELD" ng-model="COL_FIELD">';
+  var checkboxViewTemplate = '<div class="ngCellText" ng-class=\"col.colIndex()\"><input type=checkbox required ng-model="COL_FIELD" ng-disabled="!isChangeAllowed"></div>';
   $scope.stripZone = function(val) {
-    var val = val;
-    if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) == '.'+$scope.zone.name) {
+    if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) === '.'+$scope.zone.name) {
       val = val.substring(0, val.lastIndexOf('.'+$scope.zone.name));
-    } else if (val == $scope.zone.name) {
+    } else if (val === $scope.zone.name) {
       val = '';
     }
     return val;
   };
   $scope.stripLabel = function(val) {
-    var val = val;
-    if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) == '.'+$scope.zone.name) {
+    if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) === '.'+$scope.zone.name) {
       val = $scope.zone.name;
-    } else if (val == $scope.zone.name) {
+    } else if (val === $scope.zone.name) {
       val = $scope.zone.name;
     } else {
       val = ''; // zone name missing
     }
     return val;
   };
-  nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{stripLabel(row.getProperty(col.field))}}</span></div>';
-  nameEditTemplate = '';
+  var nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{stripLabel(row.getProperty(col.field))}}</span></div>';
+  var nameEditTemplate = '';
 
   var typesWithPriority = ['MX', 'SRV'];
   $scope.prioVisible = function(row) {
     return (typesWithPriority.indexOf(row.getProperty('type')) != -1) || (row.getProperty('priority') > 0);
   };
-  prioViewTemplate = '<div class="ngCellText"><span ng-show="prioVisible(row)">{{row.getProperty(col.field)}}</span></div>';
+  var prioViewTemplate = '<div class="ngCellText"><span ng-show="prioVisible(row)">{{row.getProperty(col.field)}}</span></div>';
 
   $scope.updateCommentCache = function() {
     $scope.commentCache = toRRsetMap($scope.zone.comments || []);
@@ -1425,13 +1420,13 @@ function ZoneCommentCtrl($scope, Restangular) {
 
   $scope.isClean = function() {
     return angular.equals($scope.master, $scope.comments);
-  }
+  };
   $scope.addComment = function() {
     $scope.comments.push({'content': '', 'account': ServerData.User.email, '_new': true, 'name': qname, 'type': qtype});
-  }
+  };
   $scope.removeComment = function(index) {
     $scope.comments.splice(index, 1);
-  }
+  };
   $scope.close = function() {
     // remove previous comments for this RRset
     $scope.zone.comments = _.filter($scope.zone.comments, function(c) {
@@ -1449,7 +1444,7 @@ function ZoneCommentCtrl($scope, Restangular) {
       $scope.updateCommentCache();
     }
     $scope.$emit("finished");
-  }
+  };
 
   // be nice and allow instant typing into a new comment
   if ($scope.isChangeAllowed) {
@@ -1557,7 +1552,7 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
       url += '/zone/' + $scope.zone.id;
     }
     $location.path(url);
-  }
+  };
 
   $scope.save = function() {
     var i;
@@ -1597,7 +1592,7 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
 // Me -- currently logged in user
 ////////////////////////////////////////////////////////////////////////
 
-function MeDetailCtrl($scope, $location, Restangular, me) {
+function MeDetailCtrl($scope, Restangular, me) {
   $scope.master = me;
   $scope.me = Restangular.copy($scope.master);
   $scope.errors = [];
@@ -1607,7 +1602,7 @@ function MeDetailCtrl($scope, $location, Restangular, me) {
 // Users
 ////////////////////////////////////////////////////////////////////////
 
-function UserListCtrl($scope, $compile, Restangular) {
+function UserListCtrl($scope, Restangular) {
   Restangular.all("users").getList().then(function(users) {
     $scope.users = users;
   });

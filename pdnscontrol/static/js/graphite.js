@@ -1,3 +1,5 @@
+"use strict";
+
 var GraphiteModule = angular.module('graphite', []);
 GraphiteModule.directive('graphite', function($timeout) {
   return {
@@ -13,7 +15,7 @@ GraphiteModule.directive('graphite', function($timeout) {
     transclude: true,
     replace: true,
     scope: true,
-    link: function(scope, elm, attrs, controller) {
+    link: function(scope, elm, attrs) {
       attrs.$set('gSalt', Math.random()*10000000);
 
       function updateUrl() {
@@ -96,28 +98,30 @@ GraphiteModule.directive('graphite', function($timeout) {
       attrs.$observe('gTitle', updateUrl);
       attrs.$observe('gFrom', updateUrl);
       scope.$on('graph_target_changed', updateUrl);
-      if (attrs.gRefresh && attrs.gRefresh > 0) {
-        function beginRefresh() {
-          attrs.$set('gSalt', Math.random()*10000000);
-          // if page visibility API is present, don't poll if page is in background
-          if (typeof document.hidden !== "undefined" && document.hidden) {
-            // register handler so we resume updating when we're becoming visible again.
-            $(document).one('visibilitychange', function() {
+
+      function beginRefresh() {
+        attrs.$set('gSalt', Math.random()*10000000);
+        // if page visibility API is present, don't poll if page is in background
+        if (typeof document.hidden !== "undefined" && document.hidden) {
+          // register handler so we resume updating when we're becoming visible again.
+          $(document).one('visibilitychange', function() {
               updateUrl();
               beginRefresh();
-            });
-            return;
-          }
-          // release when the element is no longer attached to the current DOM
-          if (!jQuery.contains(document, elm[0])) {
-            return;
-          }
-          $timeout(function() {
-            // refresh graphs
-            beginRefresh();
-            updateUrl();
-          }, attrs.gRefresh*1000);
+          });
+          return;
         }
+        // release when the element is no longer attached to the current DOM
+        if (!jQuery.contains(document, elm[0])) {
+          return;
+        }
+        $timeout(function() {
+          // refresh graphs
+          beginRefresh();
+          updateUrl();
+        }, attrs.gRefresh*1000);
+      }
+
+      if (attrs.gRefresh && attrs.gRefresh > 0) {
         beginRefresh();
       }
     }

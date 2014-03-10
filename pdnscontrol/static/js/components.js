@@ -1,10 +1,12 @@
+"use strict";
+
 angular.module('components', []).
   directive('tabs', function() {
     return {
       restrict: 'E', // must be an 'E'lement
       transclude: true,
       scope: {}, // a scope for us to use
-      controller: function($scope, $element) {
+      controller: function($scope) {
         var panes = $scope.panes = [];
  
         $scope.select = function(pane) {
@@ -12,12 +14,12 @@ angular.module('components', []).
             pane.selected = false;
           });
           pane.selected = true;
-        }
+        };
  
         this.addPane = function(pane) {
-          if (panes.length == 0) $scope.select(pane);
+          if (panes.length === 0) $scope.select(pane);
           panes.push(pane);
-        }
+        };
       },
       template:
         '<div>' + 

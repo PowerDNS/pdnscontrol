@@ -17,14 +17,19 @@ import subprocess
 import tempfile
 import os
 import collections
+import sys
+import logging
+import logging.handlers
+import signal
 
 BECOME_ROOT = ['sudo', '-n']
-
 STARTSTOP_COMMAND = {'start': 'start', 'stop': 'stop', 'restart': 'restart'}
-
 CONFIG = ConfigParser.ConfigParser()
 
 Request = collections.namedtuple('Request', ['environ', 'args', 'path', 'method', 'body'])
+
+logger = logging.getLogger('Server')
+
 
 class UpstreamServer(object):
     def __init__(self, config):
@@ -279,11 +284,50 @@ def manager_app(environ, start_response):
     return response.start(start_response)
 
 
+def format_address(client_address):
+    return '%s:%s' % client_address
+
+
 class PdnsmgrdRequestHandler(wsgissl.SecureWSGIRequestHandler):
 
     def address_string(self):
         """Override address_string to not resolve the client address."""
-        return str(self.client_address[0])
+        return format_address(self.client_address)
+
+    def log_request(self, code='-', size='-'):
+        self.log_message_level(logging.INFO, 'REQUEST: "%s" %s %s',
+                               self.requestline, str(code), str(size))
+
+    def log_error(self, fmt, *args):
+        """Log an error.
+
+        This is called when a request cannot be fulfilled.  By
+        default it passes the message on to log_message().
+
+        Arguments are the same as for log_message().
+        """
+        self.log_message_level(logging.ERROR, fmt, args)
+
+    def log_message(self, fmt, *args):
+        """Log an arbitrary message.
+
+        This is used by all other logging functions.  Override
+        it if you have specific logging wishes.
+
+        The first argument, FORMAT, is a format string for the
+        message to be logged.  If the format string contains
+        any % escapes requiring parameters, they should be
+        specified as subsequent arguments (it's just like
+        printf!).
+
+        The client ip address and current date/time are prefixed to every
+        message.
+
+        """
+        self.log_message_level(logging.WARNING, fmt, args)
+
+    def log_message_level(self, level, fmt, *args):
+        logger.log(level, "%s %s", self.address_string(), fmt % args)
 
 
 class PdnsmgrdServer(wsgissl.SecureWSGIServer):
@@ -297,6 +341,13 @@ class PdnsmgrdServer(wsgissl.SecureWSGIServer):
         self.server_name = host
         self.server_port = port
         self.setup_environ()
+
+    def handle_error(self, request, client_address):
+        """Handle an error gracefully.
+
+        We log the traceback and continue.
+        """
+        logger.exception('Exception happened during processing of request from %s', format_address(client_address))
 
 
 class PackageManager(object):
@@ -349,17 +400,54 @@ def run_server(address, port, certfile, keyfile):
     httpd.allow_reuse_address = True
     httpd.set_credentials(keyfile, certfile)
 
-    print("Serving https://%s:%d/ ..." % (address, port))
+    logger.warning("Serving https://%s:%d/", address, port)
     httpd.serve_forever()
+
+
+def setup_logging():
+    fmt = '%(name)s: %(message)s'
+    target = CONFIG.get('logging', 'target')
+    if target == 'file':
+        handler = logging.FileHandler(CONFIG.get('logging', 'file'))
+        fmt = '%(asctime)-15s ' + fmt
+    elif target == 'syslog':
+        handler = logging.handlers.SysLogHandler(CONFIG.get('logging', 'syslog'))
+        fmt = ('pdnsmgrd[%d]: ' % os.getpid()) + fmt
+    elif target == 'console':
+        handler = logging.StreamHandler(sys.stderr)
+    else:
+        raise StandardError('Please set up logging.target in configuration.')
+    formatter = logging.Formatter(fmt, None)
+    handler.setFormatter(formatter)
+    logging.root.addHandler(handler)
+    level = logging.INFO if CONFIG.getboolean('logging', 'log_requests') else logging.WARNING
+    logging.root.setLevel(level)
+
+
+def signal_hup(signum, frame):
+    """close log files, for logrotate and similar uses"""
+    logger.warning('SIGHUP received, closing logfiles')
+    for handler in logging.root.handlers:
+        if hasattr(handler, 'close') and callable(handler.close):
+            handler.close()
 
 
 if __name__ == '__main__':
     CONFIG.add_section('proxy')
     CONFIG.set('proxy', 'port', '8080')
     CONFIG.set('proxy', 'address', '127.0.0.1')
+    CONFIG.add_section('logging')
+    CONFIG.set('logging', 'target', 'syslog')
+    CONFIG.set('logging', 'syslog', '/dev/log')
+    CONFIG.set('logging', 'log_requests', 'false')
     CONFIG.read("pdnsmgrd.conf")
+
+    setup_logging()
+
     UPSTREAM = UpstreamServer(CONFIG.items('upstream'))
     PACKAGE_MANAGER = PackageManagerAPT()
+
+    signal.signal(signal.SIGHUP, signal_hup)
 
     run_server(
         CONFIG.get('proxy', 'address'),

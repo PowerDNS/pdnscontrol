@@ -21,6 +21,7 @@ import sys
 import logging
 import logging.handlers
 import signal
+import platform
 
 BECOME_ROOT = ['sudo', '-n']
 STARTSTOP_COMMAND = {'start': 'start', 'stop': 'stop', 'restart': 'restart'}
@@ -438,7 +439,7 @@ if __name__ == '__main__':
     CONFIG.set('proxy', 'address', '127.0.0.1')
     CONFIG.add_section('logging')
     CONFIG.set('logging', 'target', 'syslog')
-    CONFIG.set('logging', 'syslog', '/dev/log')
+    CONFIG.set('logging', 'syslog', '/var/run/syslog' if platform.system() == 'Darwin' else '/dev/log')
     CONFIG.set('logging', 'log_requests', 'false')
     CONFIG.read("pdnsmgrd.conf")
 

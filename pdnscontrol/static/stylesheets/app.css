@@ -5259,6 +5259,9 @@ footer {
   /* disable space between graphite-times and img */
   line-height: 100%; }
 
+.table-buttons .button, .table-buttons input {
+  margin-bottom: 0; }
+
 @-webkit-keyframes changeInProgress {
   0% {
     opacity: 0.1; }

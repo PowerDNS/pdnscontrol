@@ -1,0 +1,45 @@
+<div class="row">
+  <div class="small-12 columns">
+    <a href="/server/{{server.name}}"><h1 class="server-name">{{server.name}}</h1></a>
+    <h2>Search for "{{search}}"</h2>
+  </div>
+</div>
+<div class="row">
+  <div class="small-12 columns" ng-cloak class="ng-cloak">
+    <form class="inline-form" ng-submit="search_data(data_query)">
+      <div class="row collapse">
+        <div class="small-11 columns">
+          <input type="text" ng-model="data_query" class="search-query" placeholder="Record or Comment">
+        </div>
+        <div class="small-1 columns">
+          <button type="submit" class="button expand postfix" ng-class="{disabled:data_query.length==0}"><span class="foundicon-search"></span></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="row">
+  <div class="small-12 columns" ng-cloak class="ng-cloak">
+    <div ng-show="results.length == 0">
+      Not found.
+    </div>
+    <ul ng-init="limit=500">
+      <li ng-repeat="result in results | limitTo:limit">
+        <span ng-switch on="result.type">
+          <span ng-switch-when="zone">
+            <a href="./zone/{{result.zone_id}}">Zone <b>{{result.name}}</b></a>
+          </span>
+          <span ng-switch-when="record">
+            <a href="./zone/{{result.zone_id}}">Record <b>{{result.name}}</b></a>: {{result.content}}
+          </span>
+          <span ng-switch-when="comment">
+            <a href="./zone/{{result.zone_id}}">Comment on <b>{{result.name}}</b></a>: {{result.content}}
+          </span>
+        </span>
+      </li>
+    </ul>
+    <div ng-show="results.length > limit">
+      <a href="#" ng-click="limit=limit+100">Show more.</a>
+    </div>
+  </div>
+</div>

@@ -156,6 +156,14 @@ def zone_export(server, zone):
     return forward_request(server, '/servers/localhost/zones/' + zone + '/export')
 
 
+@mod.route('/servers/<server>/search-data')
+@api_auth_required
+@roles_required('edit')
+def server_searchdata(server):
+    q = request.values.get('q')
+    return forward_request(server, '/servers/localhost/search-data', {'q': q})
+
+
 @mod.route('/servers/<server>/search-log')
 @api_auth_required
 @roles_required('edit')

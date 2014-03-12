@@ -87,6 +87,12 @@ ControlApp.
           config: ConfigResolver
         }
       }).
+      when('/server/:serverName/search-data', {
+        controller:ServerSearchDataCtrl, templateUrl: templateUrl('server/search_data'),
+        resolve: {
+          server: ServerResolver
+        }
+      }).
       when('/server/:serverName/zone/:zoneId', {
         controller:ZoneDetailCtrl, templateUrl: templateUrl('zone/detail'),
         resolve: {
@@ -338,6 +344,10 @@ function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
 ////////////////////////////////////////////////////////////////////////
 // Servers
 ////////////////////////////////////////////////////////////////////////
+
+function gotoServerSearchData($location, server, q) {
+  $location.path('/server/'+server.name+'/search-data').search({'q': q});
+}
 
 function ServerListCtrl($scope, $compile, $filter, Restangular) {
   // init server-list filter
@@ -728,6 +738,10 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
       };
     });
   };
+
+  $scope.search_data = function(q) {
+    gotoServerSearchData($location, server, q);
+  }
 }
 
 function ServerEditCtrl($scope, $location, Restangular, server) {
@@ -755,6 +769,26 @@ function ServerEditCtrl($scope, $location, Restangular, server) {
   $scope.cancel = function() {
     $location.path('/server/' + $scope.server.name);
   };
+}
+
+function ServerSearchDataCtrl($scope, $compile, $location, Restangular, server) {
+  $scope.server = server;
+  $scope.search = $location.search().q;
+  $scope.data_query = $scope.search; // for new searches
+  $scope.errors = [];
+  $scope.results = server.customOperation(
+    'get',
+    'search-data',
+    {q: $scope.search}
+  ).then(function(response) {
+    $scope.results = response;
+  }, function(errorResponse) {
+    $scope.errors.push(errorResponse.data.error || 'Unknown server error');
+  });
+
+  $scope.search_data = function(q) {
+    gotoServerSearchData($location, server, q);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////

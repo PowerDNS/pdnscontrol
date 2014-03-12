@@ -136,6 +136,10 @@ footer {
     line-height: 100%;
 }
 
+.table-buttons .button, .table-buttons input {
+  margin-bottom: 0;
+}
+
 @include keyframes(changeInProgress) {
   0% {
     opacity: 0.1;

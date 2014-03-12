@@ -90,10 +90,28 @@
         </div>
       </pane>
       <pane tabtitle="Zones">
-        <!-- search -->
-        <a ng-show="isAddZoneAllowed" href="/server/{{server.name}}/zones/new" class="zone-new"><span class="foundicon-plus"></span> Add Zone</a>
-
-        <div class="gridStyle" ng-grid="zonesGridOptions" ng-style="gridExtraStyle()">
+        <div class="row table-buttons">
+          <div class="small-2 columns">
+            <a ng-show="isAddZoneAllowed" href="/server/{{server.name}}/zones/new" class="button small zone-new"><span class="foundicon-plus"></span> Add Zone</a>
+          </div>
+          <div class="small-8 columns right">
+            <form class="inline-form" ng-submit="search_data(data_query)">
+              <div class="row collapse">
+                <div class="small-11 columns">
+                  <input type="text" ng-model="data_query" class="search-query" placeholder="Record or Comment">
+                </div>
+                <div class="small-1 columns">
+                  <button type="submit" class="button expand postfix" ng-class="{disabled:data_query.length==0}"><span class="foundicon-search"></span></button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="small-12 columns">
+          <div class="gridStyle" ng-grid="zonesGridOptions" ng-style="gridExtraStyle()">
+          </div>
+          </div>
         </div>
       </pane>
       <pane tabtitle="Configuration">

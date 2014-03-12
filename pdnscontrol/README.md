@@ -14,6 +14,7 @@ You'll need to have the following items installed before continuing.
 
 ```bash
 npm install && bower install
+npm install -g grunt-cli
 ```
 
 While you're working on your project, run:

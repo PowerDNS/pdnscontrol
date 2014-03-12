@@ -94,7 +94,7 @@
           <div class="small-2 columns">
             <a ng-show="isAddZoneAllowed" href="/server/{{server.name}}/zones/new" class="button small zone-new"><span class="foundicon-plus"></span> Add Zone</a>
           </div>
-          <div class="small-8 columns right">
+          <div class="small-8 columns right" ng-show="isSearchAllowed">
             <form class="inline-form" ng-submit="search_data(data_query)">
               <div class="row collapse">
                 <div class="small-11 columns">

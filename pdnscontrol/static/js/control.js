@@ -601,6 +601,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   };
 
   $scope.isAddZoneAllowed = true;
+  $scope.isSearchAllowed = ($scope.server.daemon_type == 'Authoritative');
   $scope.$watch('server.config', function() {
     $scope.isAddZoneAllowed = !$scope.server.mustDo("experimental-api-readonly", "no");
   });

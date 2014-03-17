@@ -62,6 +62,16 @@ ServerData.Config.graphite_default_opts.tz = (jstz.determine()).name();
   <section class="top-bar-section">
     <!-- Right Nav Section -->
     <ul class="right">
+      {% if 'view' in user_roles %}
+      <li class="has-form">
+        <div class="row collapse">
+          <div class="small-12 columns">
+            <input type="text" id="topbar-search" placeholder="Search">
+          </div>
+        </div>
+      </li>
+      {% endif %}
+
       {% if 'view-users' in user_roles %}
       <li><a href="/users">Manage Users</a></li>
       <li class="divider"></li>

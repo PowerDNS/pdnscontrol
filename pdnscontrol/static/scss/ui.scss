@@ -131,6 +131,14 @@ footer {
     padding-top: 8px;
 }
 
+#topbar-search {
+  width: 50%;
+  float: right;
+}
+#topbar-search:focus {
+  width: 100%;
+}
+
 .graphite-graph {
     /* disable space between graphite-times and img */
     line-height: 100%;

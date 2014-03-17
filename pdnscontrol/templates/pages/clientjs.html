@@ -4,8 +4,9 @@
 {% assets "js_pdnscontrol" %}
 <script src="{[ ASSET_URL ]}"></script>
 {% endassets %}
-
-<div ng-view>Loading...</div>
+<div ng-controller="MainCtrl">
+  <div ng-view>Loading...</div>
+</div>
 
 {% endblock %}
 

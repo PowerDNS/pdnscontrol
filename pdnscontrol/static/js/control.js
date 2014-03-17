@@ -116,6 +116,9 @@ ControlApp.
       when('/servers/new', {
         controller: ServerCreateCtrl, templateUrl: templateUrl('server/edit')
       }).
+      when('/search-data', {
+        controller: GlobalSearchDataCtrl, templateUrl: templateUrl('search_data')
+      }).
       when('/me', {
         controller: MeDetailCtrl, templateUrl: templateUrl('me/detail'),
         resolve: {
@@ -341,6 +344,32 @@ function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
   };
 }
 
+function MainCtrl($document, $scope, $location) {
+  var searchBox = angular.element('#topbar-search');
+  var FORWARD_SLASH_KEYCODE = 191;
+  var ENTER_KEYCODE = 13;
+
+  // search hotkey
+  angular.element($document[0].body).bind('keydown', function(event) {
+    if (event.keyCode == FORWARD_SLASH_KEYCODE && document.activeElement == $document[0].body) {
+      event.stopPropagation();
+      event.preventDefault();
+      searchBox.focus();
+    }
+  });
+
+  searchBox.bind('keydown', function(event) {
+    if (event.keyCode == ENTER_KEYCODE) {
+      $scope.$emit('global-search', {q: searchBox.val()});
+      searchBox.blur();
+    }
+  });
+
+  $scope.$on('global-search', function(event, args) {
+    $location.path('/search-data').search({q: args.q});
+    event.targetScope.$apply();
+  });
+}
 ////////////////////////////////////////////////////////////////////////
 // Servers
 ////////////////////////////////////////////////////////////////////////
@@ -772,7 +801,7 @@ function ServerEditCtrl($scope, $location, Restangular, server) {
   };
 }
 
-function ServerSearchDataCtrl($scope, $compile, $location, Restangular, server) {
+function ServerSearchDataCtrl($scope, $location, server) {
   $scope.server = server;
   $scope.search = $location.search().q;
   $scope.data_query = $scope.search; // for new searches
@@ -790,6 +819,42 @@ function ServerSearchDataCtrl($scope, $compile, $location, Restangular, server) 
   $scope.search_data = function(q) {
     gotoServerSearchData($location, server, q);
   }
+}
+
+function GlobalSearchDataCtrl($scope, $location, Restangular) {
+  $scope.search = $location.search().q;
+  $scope.data_query = $scope.search; // for new searches
+  $scope.errors = [];
+  $scope.results = [];
+
+  Restangular.all("servers").getList().then(function(servers) {
+    $scope.servers = servers;
+    $scope.results = [];
+    _.each($scope.servers, function(server) {
+      var serverObj = {
+        'name': server.name,
+        'url': '/server/' + server.name
+      };
+      $scope.results = server.customOperation(
+        'get',
+        'search-data',
+        {q: $scope.search}
+      ).then(function(response) {
+        var idx = response.length;
+        while(idx-- > 0) {
+          var result = response[idx];
+          result.server = serverObj;
+          $scope.results.push(response[idx]);
+        }
+      }, function(errorResponse) {
+        $scope.errors.push(errorResponse.data.error || 'Unknown server error');
+      });
+    });
+  });
+
+  $scope.search_data = function(q) {
+    $location.search({q: q});
+  };
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -351,7 +351,7 @@ function MainCtrl($document, $scope, $location) {
 
   // search hotkey
   angular.element($document[0].body).bind('keydown', function(event) {
-    if (event.keyCode == FORWARD_SLASH_KEYCODE && document.activeElement == $document[0].body) {
+    if (event.keyCode === FORWARD_SLASH_KEYCODE && document.activeElement === $document[0].body) {
       event.stopPropagation();
       event.preventDefault();
       searchBox.focus();
@@ -360,7 +360,7 @@ function MainCtrl($document, $scope, $location) {
   });
 
   searchBox.bind('keydown', function(event) {
-    if (event.keyCode == ENTER_KEYCODE) {
+    if (event.keyCode === ENTER_KEYCODE) {
       $scope.$emit('global-search', {q: searchBox.val()});
       searchBox.blur();
     }
@@ -772,7 +772,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
 
   $scope.search_data = function(q) {
     gotoServerSearchData($location, server, q);
-  }
+  };
 }
 
 function ServerEditCtrl($scope, $location, Restangular, server) {
@@ -1145,7 +1145,7 @@ function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
             maybeComplete();
           });
         });
-      }
+      };
     });
   }
 
@@ -1210,7 +1210,7 @@ function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
     // merge comment changes into record changes, if possible.
     var changeIdx = changes.length;
     while (changeIdx--) {
-      if (changes[changeIdx].changetype != 'replace') {
+      if (changes[changeIdx].changetype !== 'replace') {
         continue;
       }
       var commentIdx = commentChanges.length;
@@ -1436,7 +1436,7 @@ function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
 
   var typesWithPriority = ['MX', 'SRV'];
   $scope.prioVisible = function(row) {
-    return (typesWithPriority.indexOf(row.getProperty('type')) != -1) || (row.getProperty('priority') > 0);
+    return (typesWithPriority.indexOf(row.getProperty('type')) !== -1) || (row.getProperty('priority') > 0);
   };
   var prioViewTemplate = '<div class="ngCellText"><span ng-show="prioVisible(row)">{{row.getProperty(col.field)}}</span></div>';
 
@@ -1461,10 +1461,10 @@ function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
   $scope.canDelete = function(ngRow) {
     if (!$scope.isChangeAllowed)
       return false;
-    if (ngRow.entity.type == 'SOA' && $scope.zone.name == ngRow.entity.name)
+    if (ngRow.entity.type === 'SOA' && $scope.zone.name === ngRow.entity.name)
       return false;
     return true;
-  }
+  };
   $scope.deleteRow = function(ngRow) {
     if (!$scope.canDelete(ngRow))
       return;
@@ -1473,7 +1473,7 @@ function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
 
   $scope.calcGridExtraStyle = function() {
     // HACK: 100px are whatever?
-    return {height: ($(window).height() - $(".gridStyle").offset()['top'] - 100) + "px"};
+    return {height: ($(window).height() - $(".gridStyle").offset().top - 100) + "px"};
   };
 
   $scope.mySelections = [];
@@ -1536,7 +1536,7 @@ function ZoneCommentCtrl($scope, Restangular) {
   $scope.close = function() {
     // remove previous comments for this RRset
     $scope.zone.comments = _.filter($scope.zone.comments, function(c) {
-      return !(c.name == qname && c.type == qtype);
+      return !(c.name === qname && c.type === qtype);
     });
     _.each($scope.comments, function(c) {
       if (c.content) {
@@ -1567,7 +1567,7 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
   $scope.master = zone;
   $scope.errors = [];
 
-  if (server.daemon_type == 'Recursor') {
+  if (server.daemon_type === 'Recursor') {
     $scope.zone_types = ['Native', 'Forwarded'];
     $scope.arrays = ['server'];
     if (!$scope.master._url) {
@@ -1633,7 +1633,7 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
   };
 
   $scope.showNameservers = function() {
-    return (!($scope.master._url)) && (server.daemon_type == 'Authoritative');
+    return (!($scope.master._url)) && (server.daemon_type === 'Authoritative');
   };
 
   $scope.addServer = function() {
@@ -1649,7 +1649,7 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
   };
 
   $scope.showForwarders = function() {
-    return $scope.zone.kind == 'Forwarded';
+    return $scope.zone.kind === 'Forwarded';
   };
 
   $scope.cancel = function() {
@@ -1678,7 +1678,7 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
       $scope.zone.post().then(function(resultObject) {
         $location.path('/server/' + $scope.server.name + '/zone/' + resultObject.id);
       }, function(response) {
-        if (response.status == 422) {
+        if (response.status === 422) {
           $scope.errors = [];
           _.each(response.data.errors, function(field, desc) {
             $scope.zoneForm.$setValidity("zoneForm." + field + ".$invalid", false);
@@ -1738,7 +1738,7 @@ function UserEditCtrl($scope, $location, Restangular, user) {
 
   $scope.cancel = function() {
     gotoUserList();
-  }
+  };
 
   $scope.isClean = function() {
     return angular.equals($scope.master, $scope.user);
@@ -1760,7 +1760,7 @@ function UserEditCtrl($scope, $location, Restangular, user) {
       $scope.user[plural] = _.uniq(_.compact(_.map($scope.user[plural+'_o'], function(o) { return o[name]; } )));
     }
 
-    if ($scope.user.password != $scope.user.password2) {
+    if ($scope.user.password !== $scope.user.password2) {
       alert('The passwords need to match.');
       return;
     }
@@ -1775,7 +1775,7 @@ function UserEditCtrl($scope, $location, Restangular, user) {
     }
 
     promise.then(gotoUserList, function (response) {
-      if (response.status == 422) {
+      if (response.status === 422) {
         $scope.errors = [];
         _.each(response.data.errors, function(field, desc) {
           $scope.userForm.$setValidity("userForm." + field + ".$invalid", false);

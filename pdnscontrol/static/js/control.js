@@ -355,6 +355,7 @@ function MainCtrl($document, $scope, $location) {
       event.stopPropagation();
       event.preventDefault();
       searchBox.focus();
+      searchBox.select();
     }
   });
 
@@ -630,7 +631,7 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   };
 
   $scope.isAddZoneAllowed = true;
-  $scope.isSearchAllowed = ($scope.server.daemon_type == 'Authoritative');
+  $scope.isSearchAllowed = (!!server.search_data);
   $scope.$watch('server.config', function() {
     $scope.isAddZoneAllowed = !$scope.server.mustDo("experimental-api-readonly", "no");
   });
@@ -806,11 +807,7 @@ function ServerSearchDataCtrl($scope, $location, server) {
   $scope.search = $location.search().q;
   $scope.data_query = $scope.search; // for new searches
   $scope.errors = [];
-  $scope.results = server.customOperation(
-    'get',
-    'search-data',
-    {q: $scope.search}
-  ).then(function(response) {
+  $scope.results = server.search_data({q: $scope.search}).then(function(response) {
     $scope.results = response;
   }, function(errorResponse) {
     $scope.errors.push(errorResponse.data.error || 'Unknown server error');
@@ -818,7 +815,7 @@ function ServerSearchDataCtrl($scope, $location, server) {
 
   $scope.search_data = function(q) {
     gotoServerSearchData($location, server, q);
-  }
+  };
 }
 
 function GlobalSearchDataCtrl($scope, $location, Restangular) {
@@ -835,11 +832,10 @@ function GlobalSearchDataCtrl($scope, $location, Restangular) {
         'name': server.name,
         'url': '/server/' + server.name
       };
-      $scope.results = server.customOperation(
-        'get',
-        'search-data',
-        {q: $scope.search}
-      ).then(function(response) {
+      if (!server.search_data) {
+        return;
+      }
+      server.search_data({q: $scope.search}).then(function(response) {
         var idx = response.length;
         while(idx-- > 0) {
           var result = response[idx];

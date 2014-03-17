@@ -1202,7 +1202,7 @@ function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
 
     var commentChanges = [];
     if ($scope.master.comments !== undefined) {
-      diffZone($scope.master, $scope.zone, 'comments');
+      commentChanges = diffZone($scope.master, $scope.zone, 'comments');
     }
     var recordChanges = diffZone($scope.master, $scope.zone, 'records');
     var changes = _.compact(recordChanges); // copy

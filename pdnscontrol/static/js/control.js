@@ -1504,7 +1504,7 @@ function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
 
   $scope.commentsSupported = ($scope.zone.comments !== undefined);
 
-  if ($scope.isAllowedChange || $scope.commentsSupported) {
+  if ($scope.isChangeAllowed || $scope.commentsSupported) {
     preliminaryOptions.columnDefs.splice(0, 0,
       {field: '_', displayName: '', cellTemplate: templateUrl('zone/recordsgrid-rowmeta'), enableCellEdit: false, groupable: false, resizable: false, sortable: false, width: ($scope.isChangeAllowed ? 50 : 20)});
   }

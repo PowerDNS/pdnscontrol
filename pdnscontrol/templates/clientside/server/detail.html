@@ -54,9 +54,10 @@
         <div ng-switch-when="Recursor">
           <graphite g-source="{{server.graphite_name}}" g-title="Questions" g-area-mode="first" g-refresh="30">
             <graph target="nonNegativeDerivative(%SOURCE%.questions)" title="Questions" />
-            <graph target="sumSeries(nonNegativeDerivative(%SOURCE%.answers0-1), nonNegativeDerivative(%SOURCE%.answers1-10), nonNegativeDerivative(%SOURCE%.answers10-100), nonNegativeDerivative(%SOURCE%.answers100-1000), nonNegativeDerivative(%SOURCE%.answers-slow))" title="Answers" />
+            <graph target="sumSeries(nonNegativeDerivative(%SOURCE%.packetcache-hits), nonNegativeDerivative(%SOURCE%.answers0-1), nonNegativeDerivative(%SOURCE%.answers1-10), nonNegativeDerivative(%SOURCE%.answers10-100), nonNegativeDerivative(%SOURCE%.answers100-1000), nonNegativeDerivative(%SOURCE%.answers-slow))" title="Answers" />
           </graphite>
           <graphite g-source="{{server.graphite_name}}" g-title="Latency distribution" g-area-mode="stacked" g-refresh="30">
+            <graph target="nonNegativeDerivative(%SOURCE%.packetcache-hits)" title="in 0ms" style="cacti" />          
             <graph target="nonNegativeDerivative(%SOURCE%.answers0-1)" title="in 1ms" style="cacti" />
             <graph target="nonNegativeDerivative(%SOURCE%.answers1-10)" title="in 10ms" style="cacti" />
             <graph target="nonNegativeDerivative(%SOURCE%.answers10-100)" title="in 100ms" style="cacti" />

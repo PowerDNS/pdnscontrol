@@ -19,19 +19,20 @@
 # PREFERRED_URL_SCHEME = 'http'
 # LOG_FILE = 'app.log'
 
-# GRAPHITE_SERVER = 'http://127.0.0.1:8085/graphite/render/'
+# Make sure this URL returns a PNG saying "No Data" and not a web GUI.
+# GRAPHITE_SERVER = 'http://127.0.0.1:8085/render/'
 # GRAPHITE_TIMEOUT = 30
 # IGNORE_SSL_ERRORS = False
 
 # USE_X_SENDFILE = False
-# SESSION_COOKIE_NAME = 'PdnsControlSess'
+# SESSION_COOKIE_NAME = 'ControlSess'
 
 # DEBUG = False
 
 # For pdns2graphite:
 
-# URL of serverlist
-# serverlist_url = 'http://some.place/x/y'
+# URL of serverlist (on pdnscontrol port)
+# serverlist_url = 'http://127.0.0.1:5000/servers.json'
 
 # Name or address of Carbon server (default: 127.0.0.1)
 # carbon_server = '10.0.12.1'
@@ -43,5 +44,5 @@
 # carbon_delay = 5
 
 # Authentication: user & password (no defaults)
-# pdnscontrol_user = 'username'
-# pdnscontrol_pass = 'password'
+# pdnscontrol_user = 'graphite@example.org'
+# pdnscontrol_pass = 'notsecure'

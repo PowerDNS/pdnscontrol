@@ -46,6 +46,10 @@ function ZoneResolver(Restangular, $route) {
   return Restangular.one('servers', $route.current.params.serverName).one('zones', $route.current.params.zoneId).get();
 }
 
+function NewZoneResolver(Restangular, $route) {
+  return Restangular.one('servers', $route.current.params.serverName).one('zones');
+}
+
 function ConfigResolver(Restangular, $route) {
   return Restangular.one('servers', $route.current.params.serverName).one('config', $route.current.params.configName).get();
 }
@@ -67,60 +71,61 @@ ControlApp.
     moment.lang('en');
     $locationProvider.html5Mode(true);
     $routeProvider.
-      when('/', {controller:ServerListCtrl, templateUrl: templateUrl('server/list')}).
+      when('/', {controller: 'ServerListCtrl', templateUrl: templateUrl('server/list')}).
       when('/server/:serverName', {
-        controller:ServerDetailCtrl, templateUrl: templateUrl('server/detail'),
+        controller: 'ServerDetailCtrl', templateUrl: templateUrl('server/detail'),
         resolve: {
           server: ServerResolver
         }
       }).
       when('/server/:serverName/edit', {
-        controller:ServerEditCtrl, templateUrl: templateUrl('server/edit'),
+        controller: 'ServerEditCtrl', templateUrl: templateUrl('server/edit'),
         resolve: {
           server: ServerResolver
         }
       }).
       when('/server/:serverName/config/:configName/edit', {
-        controller:ConfigEditCtrl, templateUrl: templateUrl('config/edit'),
+        controller: 'ConfigEditCtrl', templateUrl: templateUrl('config/edit'),
         resolve: {
           server: ServerResolver,
           config: ConfigResolver
         }
       }).
       when('/server/:serverName/search-data', {
-        controller:ServerSearchDataCtrl, templateUrl: templateUrl('server/search_data'),
+        controller: 'ServerSearchDataCtrl', templateUrl: templateUrl('server/search_data'),
         resolve: {
           server: ServerResolver
         }
       }).
       when('/server/:serverName/zone/:zoneId', {
-        controller:ZoneDetailCtrl, templateUrl: templateUrl('zone/detail'),
+        controller: 'ZoneDetailCtrl', templateUrl: templateUrl('zone/detail'),
         resolve: {
           server: ServerResolver,
           zone: ZoneResolver
         }
       }).
       when('/server/:serverName/zone/:zoneId/edit', {
-        controller:ZoneEditCtrl, templateUrl: templateUrl('zone/edit'),
+        controller: 'ZoneEditCtrl', templateUrl: templateUrl('zone/edit'),
         resolve: {
           server: ServerResolver,
           zone: ZoneResolver
         }
       }).
       when('/server/:serverName/zones/new', {
-        controller: ZoneCreateCtrl, templateUrl: templateUrl('zone/edit'),
+        controller: 'ZoneEditCtrl', templateUrl: templateUrl('zone/edit'),
         resolve: {
-          server: ServerResolver
+          server: ServerResolver,
+          zone: NewZoneResolver
         }
       }).
       when('/servers/new', {
-        controller: ServerCreateCtrl, templateUrl: templateUrl('server/edit')
+        controller: 'ServerCreateCtrl', templateUrl: templateUrl('server/edit')
       }).
       when('/search-data', {
-        controller: GlobalSearchDataCtrl, templateUrl: templateUrl('search_data')
+        controller: 'GlobalSearchDataCtrl', templateUrl: templateUrl('search_data')
       }).
       when('/me', {
-        controller: MeDetailCtrl, templateUrl: templateUrl('me/detail'),
+        controller: 'MeDetailCtrl', templateUrl: templateUrl('me/detail'),
         resolve: {
           me: MeResolver
         }
@@ -129,19 +134,19 @@ ControlApp.
     if (ServerData.User.roles.indexOf('view-users') !== -1) {
       $routeProvider.
         when('/users', {
-          controller:UserListCtrl, templateUrl: templateUrl('user/list')
+          controller: 'UserListCtrl', templateUrl: templateUrl('user/list')
         });
     }
     if (ServerData.User.roles.indexOf('edit-users') !== -1) {
       $routeProvider.
         when('/user/:userId/edit', {
-          controller:UserEditCtrl, templateUrl: templateUrl('user/edit'),
+          controller: 'UserEditCtrl', templateUrl: templateUrl('user/edit'),
           resolve: {
             user: UserResolver
           }
         }).
         when('/users/new', {
-          controller:UserCreateCtrl, templateUrl: templateUrl('user/edit')
+          controller: 'UserCreateCtrl', templateUrl: templateUrl('user/edit')
         });
     }
 
@@ -330,7 +335,7 @@ function zoneIdToName(zoneId) {
   return tmp;
 }
 
-function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
+ControlApp.controller('NavCtrl', ['$scope', 'breadcrumbs', 'httpRequestTracker', function($scope, breadcrumbs, httpRequestTracker) {
   $scope.hasPendingRequests = function() {
     return httpRequestTracker.hasPendingRequests();
   };
@@ -381,9 +386,9 @@ function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
     }
     return ''; // global
   };
-}
+}]);
 
-function MainCtrl($document, $scope, $location) {
+ControlApp.controller('MainCtrl', ['$scope', '$document', '$location', function($scope, $document, $location) {
   var searchBox = angular.element('#topbar-search');
   var FORWARD_SLASH_KEYCODE = 191;
   var ENTER_KEYCODE = 13;
@@ -417,7 +422,8 @@ function MainCtrl($document, $scope, $location) {
     $location.path(url).search({q: args.q});
     event.targetScope.$apply();
   });
-}
+}]);
+
 ////////////////////////////////////////////////////////////////////////
 // Servers
 ////////////////////////////////////////////////////////////////////////
@@ -426,7 +432,7 @@ function gotoServerSearchData($location, server, q) {
   $location.path('/server/'+server.name+'/search-data').search({'q': q});
 }
 
-function ServerListCtrl($scope, $compile, $filter, Restangular) {
+ControlApp.controller('ServerListCtrl', ['$scope', '$compile', '$filter', 'Restangular', function($scope, $compile, $filter, Restangular) {
   // init server-list filter
   $scope.filter = "";
 
@@ -635,9 +641,9 @@ function ServerListCtrl($scope, $compile, $filter, Restangular) {
       };
     });
   };
-}
+}]);
 
-function ServerCreateCtrl($scope, $location, Restangular) {
+ControlApp.controller('ServerCreateCtrl', ['$scope', '$location', 'Restangular', function($scope, $location, Restangular) {
   // set defaults
   $scope.server = {'daemon_type': 'Authoritative'};
 
@@ -662,9 +668,9 @@ function ServerCreateCtrl($scope, $location, Restangular) {
   $scope.isClean = function() {
     return false;
   };
-}
+}]);
 
-function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
+ControlApp.controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'Restangular', 'server', function($scope, $compile, $location, Restangular, server) {
   $scope.server = server;
 
   $scope.gridExtraStyle = function() {
@@ -820,9 +826,9 @@ function ServerDetailCtrl($scope, $compile, $location, Restangular, server) {
   $scope.search_data = function(q) {
     gotoServerSearchData($location, server, q);
   };
-}
+}]);
 
-function ServerEditCtrl($scope, $location, Restangular, server) {
+ControlApp.controller('ServerEditCtrl', ['$scope', '$location', 'Restangular', 'server', function($scope, $location, Restangular, server) {
   $scope.master = server;
   $scope.server = Restangular.copy($scope.master);
 
@@ -847,9 +853,9 @@ function ServerEditCtrl($scope, $location, Restangular, server) {
   $scope.cancel = function() {
     $location.path('/server/' + $scope.server.name);
   };
-}
+}]);
 
-function ServerSearchDataCtrl($scope, $location, server) {
+ControlApp.controller('ServerSearchDataCtrl', ['$scope', '$location', 'server', function($scope, $location, server) {
   $scope.server = server;
   $scope.search = $location.search().q;
   $scope.data_query = $scope.search; // for new searches
@@ -863,9 +869,9 @@ function ServerSearchDataCtrl($scope, $location, server) {
   $scope.search_data = function(q) {
     gotoServerSearchData($location, server, q);
   };
-}
+}]);
 
-function GlobalSearchDataCtrl($scope, $location, Restangular) {
+ControlApp.controller('GlobalSearchDataCtrl', ['$scope', '$location', 'Restangular', function($scope, $location, Restangular) {
   $scope.search = $location.search().q;
   $scope.data_query = $scope.search; // for new searches
   $scope.errors = [];
@@ -898,12 +904,12 @@ function GlobalSearchDataCtrl($scope, $location, Restangular) {
   $scope.search_data = function(q) {
     $location.search({q: q});
   };
-}
+}]);
 
 ////////////////////////////////////////////////////////////////////////
 // (Server) Config
 ////////////////////////////////////////////////////////////////////////
-function ConfigEditCtrl($scope, $location, Restangular, server, config) {
+ControlApp.controller('GlobalSearchDataCtrl', ['$scope', '$location', 'Restangular', 'server', 'config', function($scope, $location, Restangular, server, config) {
   $scope.server = server;
   $scope.master = config;
   $scope.master.value_o = _.map($scope.master.value, function(o) { return {'value': o}; });
@@ -933,7 +939,7 @@ function ConfigEditCtrl($scope, $location, Restangular, server, config) {
   };
 
   $scope.addOne();
-}
+}]);
 
 ////////////////////////////////////////////////////////////////////////
 // Zones
@@ -1052,7 +1058,7 @@ function diffZone(master, current, key) {
   return changes;
 }
 
-function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
+ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Restangular', 'server', 'zone', function($scope, $compile, $timeout, Restangular, server, zone) {
   $scope.server = server;
   $scope.loading = false;
 
@@ -1557,9 +1563,9 @@ function ZoneDetailCtrl($scope, $compile, $timeout, Restangular, server, zone) {
   }
 
   $scope.recordsGridOptions = preliminaryOptions;
-}
+}]);
 
-function ZoneCommentCtrl($scope, Restangular) {
+ControlApp.controller('ZoneCommentCtrl', ['$scope', 'Restangular', function($scope, Restangular) {
   var qname = $scope.record.name;
   var qtype = $scope.record.type;
 
@@ -1603,13 +1609,9 @@ function ZoneCommentCtrl($scope, Restangular) {
   if ($scope.isChangeAllowed) {
     $scope.addComment();
   }
-}
+}]);
 
-function ZoneCreateCtrl($scope, $location, Restangular, server) {
-  return ZoneEditCtrl($scope, $location, Restangular, server, server.one('zones'));
-}
-
-function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
+ControlApp.controller('ZoneEditCtrl', ['$scope', '$location', 'Restangular', 'server', 'zone', function($scope, $location, Restangular, server, zone) {
   $scope.server = server;
   $scope.master = zone;
   $scope.errors = [];
@@ -1739,36 +1741,36 @@ function ZoneEditCtrl($scope, $location, Restangular, server, zone) {
       });
     }
   };
-}
+}]);
 
 ////////////////////////////////////////////////////////////////////////
 // Me -- currently logged in user
 ////////////////////////////////////////////////////////////////////////
 
-function MeDetailCtrl($scope, Restangular, me) {
+ControlApp.controller('MeDetailCtrl', ['$scope', 'Restangular', 'me', function($scope, Restangular, me) {
   $scope.master = me;
   $scope.me = Restangular.copy($scope.master);
   $scope.errors = [];
-}
+}]);
 
 ////////////////////////////////////////////////////////////////////////
 // Users
 ////////////////////////////////////////////////////////////////////////
 
-function UserListCtrl($scope, Restangular) {
+ControlApp.controller('UserListCtrl', ['$scope', 'Restangular', function($scope, Restangular) {
   Restangular.all("users").getList().then(function(users) {
     $scope.users = users;
   });
 
   $scope.orderProp = 'name';
   $scope.canEditUsers = (ServerData.User.roles.indexOf('edit-users') != -1);
-}
+}]);
 
-function UserCreateCtrl($scope, $location, Restangular) {
+ControlApp.controller('UserCreateCtrl', ['$scope', '$location', 'Restangular', function($scope, $location, Restangular) {
   return UserEditCtrl($scope, $location, Restangular, Restangular.one('users'));
-}
+}]);
 
-function UserEditCtrl($scope, $location, Restangular, user) {
+ControlApp.controller('UserEditCtrl', ['$scope', '$location', 'Restangular', 'user', function($scope, $location, Restangular, user) {
   $scope.master = user;
   if (!$scope.master._url) {
     // set defaults
@@ -1835,4 +1837,4 @@ function UserEditCtrl($scope, $location, Restangular, user) {
       }
     });
   };
-}
+}]);

@@ -1,10 +1,8 @@
 "use strict";
 
-ServerData.Config.api_base = ServerData.Config.url_root + 'api';
-
 angular.module('models', ['restangular']).
   config(function(RestangularProvider) {
-    RestangularProvider.setBaseUrl(ServerData.Config.api_base);
+    RestangularProvider.setBaseUrl(ServerData.Config.url_root + 'api');
     RestangularProvider.setRestangularFields({
       id: "_id"
     });

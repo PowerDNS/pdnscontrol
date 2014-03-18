@@ -125,8 +125,9 @@ GraphiteModule.directive('graphite', function($timeout) {
         beginRefresh();
       }
     }
-  }
+  };
 });
+
 GraphiteModule.directive('graph', function() {
   return {
     restrict: 'E',
@@ -135,5 +136,53 @@ GraphiteModule.directive('graph', function() {
         scope.$parent.$broadcast('graph_target_changed');
       });
     }
+  };
+});
+
+GraphiteModule.directive('sparklegraph', function($http, $timeout) {
+  function showGraph(server, metric, width, from, elm, doneCallback) {
+    $http.get(ServerData.Config.graphite_server, {
+      params: {
+        format: 'json',
+        areaMode: 'first',
+        from: from,
+        target: 'nonNegativeDerivative(pdns.' + server + '.' + metric + ')'
+      }
+    }).success(function(data) {
+      if (data.length > 0) {
+        var points = data[0].datapoints;
+        var flat = [];
+        $.each(points, function(key, value) {
+          flat.push(1.0*value[0]);
+        });
+        $(elm).sparkline(flat, {
+          width: width,
+          disableTooltips: true
+        });
+      }
+      doneCallback();
+    });
   }
+
+  return {
+    restrict: 'E',
+    link: function(scope, elm, attrs) {
+      var server = attrs.server.replace(/\./gm,'-');
+      var metric = attrs.metric;
+      var width = attrs.width;
+      var from = attrs.from || '-300s';
+      function update() {
+        // release when the element is no longer attached to the current DOM
+        if (!jQuery.contains(document, elm[0])) {
+          return;
+        }
+
+        showGraph(server, metric, width, from, elm, function() {
+          // schedule update in 5sec
+          $timeout(update, 5*1000);
+        });
+      }
+      update();
+    }
+  };
 });

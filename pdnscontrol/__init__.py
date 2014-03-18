@@ -59,7 +59,8 @@ js_libs = [
     'restangular/dist/restangular.js',
     'ng-grid/build/ng-grid.debug.js',
     'moment/moment.js',
-    'jstz-detect/jstz.js'
+    'jstz-detect/jstz.js',
+    'jquery.sparkline/dist/jquery.sparkline.js'
 ]
 js_libs_files = ['bower_components/'+x for x in js_libs]
 asset_env.register('js_libs', *js_libs_files, output='gen/js-libs-%(version)s.js')

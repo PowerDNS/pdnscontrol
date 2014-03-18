@@ -5266,6 +5266,9 @@ footer {
   /* disable space between graphite-times and img */
   line-height: 100%; }
 
+.graphite-graph-loading {
+  padding-right: 0.5em; }
+
 .table-buttons .button, .table-buttons input {
   margin-bottom: 0; }
 

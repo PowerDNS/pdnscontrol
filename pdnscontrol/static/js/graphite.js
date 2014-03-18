@@ -5,6 +5,7 @@ GraphiteModule.directive('graphite', function($timeout) {
   return {
     restrict: 'E',
     template: '<div class="graphite-graph"><div class="right graphite-times">' +
+      '<span class="changeInProgress graphite-graph-loading" ng-hide="isComplete()">&#8734;</span>' +
       '<a href="#" ng-click="set24h()" ng-class="{active: is24h}">24h</a> ' +
       '<a href="#" ng-click="set7d()" ng-class="{active: is7d}">7d</a> ' +
       '<a href="#" ng-click="set30d()" ng-class="{active: is30d}">30d</a> ' +
@@ -76,6 +77,14 @@ GraphiteModule.directive('graphite', function($timeout) {
         scope.is365d = (attrs.gFrom == '-365d');
         scope.isCustom = (!scope.is24h && !scope.is7d && !scope.is30d && !scope.is365d);
       }
+
+      scope.isComplete = function() {
+        return elm.find('img')[0].complete;
+      };
+      elm.find('img').bind('load', function() {
+        // update isComplete.
+        scope.$digest();
+      });
 
       scope.set24h  = function() { attrs.$set('gFrom', '-24h');  };
       scope.set7d   = function() { attrs.$set('gFrom', '-7d');   };

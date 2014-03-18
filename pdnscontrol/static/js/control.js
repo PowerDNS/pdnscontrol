@@ -365,6 +365,22 @@ function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
     rawCache = raw;
     return filtered;
   };
+
+  $scope.search_placeholder = function() {
+    var crumbs = breadcrumbs.getAll();
+    if (crumbs.length > 1 && crumbs[0].name === 'server') {
+      return 'Search in ' + crumbs[1].name + '...';
+    }
+    return 'Search...';
+  };
+
+  $scope.search_context = function() {
+    var crumbs = breadcrumbs.getAll();
+    if (crumbs.length > 1 && crumbs[0].name === 'server') {
+      return crumbs[1].name;
+    }
+    return ''; // global
+  };
 }
 
 function MainCtrl($document, $scope, $location) {
@@ -384,13 +400,17 @@ function MainCtrl($document, $scope, $location) {
 
   searchBox.bind('keydown', function(event) {
     if (event.keyCode === ENTER_KEYCODE) {
-      $scope.$emit('global-search', {q: searchBox.val()});
+      $scope.$emit('global-search', {q: searchBox.val(), context: searchBox.attr('search-context')});
       searchBox.blur();
     }
   });
 
   $scope.$on('global-search', function(event, args) {
-    $location.path('/search-data').search({q: args.q});
+    var url = '/search-data'; // global search
+    if (args.context) {
+      url = '/server/' + args.context + url;
+    }
+    $location.path(url).search({q: args.q});
     event.targetScope.$apply();
   });
 }

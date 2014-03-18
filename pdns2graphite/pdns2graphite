@@ -32,14 +32,13 @@ auth = [
         'udp6-answers',
         'udp6-queries'
         ]
-recursor = [    # http://doc.powerdns.com/recursor-stats.html
+recursor = [    # http://doc.powerdns.com/recursor-stats.html - except the slow '-bytes' queries
 		"all-outqueries",
 		"answers0-1",
 		"answers100-1000",
 		"answers10-100",
 		"answers1-10",
 		"answers-slow",
-		"cache-bytes",
 		"cache-entries",
 		"cache-hits",
 		"cache-misses",
@@ -57,7 +56,6 @@ recursor = [    # http://doc.powerdns.com/recursor-stats.html
 		"nxdomain-answers",
 		"outgoing-timeouts",
 		"over-capacity-drops",
-		"packetcache-bytes",
 		"packetcache-entries",
 		"packetcache-hits",
 		"packetcache-misses",

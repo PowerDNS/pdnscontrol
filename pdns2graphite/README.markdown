@@ -68,6 +68,7 @@ specified Carbon host) in a single message.
 
 * Better error-handling
 * syslog support
+* requirements.txt
 
 ## Authors
 

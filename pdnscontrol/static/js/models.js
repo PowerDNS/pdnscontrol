@@ -32,9 +32,9 @@ angular.module('models', ['restangular']).
         if (!response._id && !!response.name) {
           response._id = response.name;
         }
-        if (!response._id) {
-          console.log('request for', operation, what, 'yielded no _id');
-        }
+        //DBG//if (!response._id) {
+          //DBG//console.log('request for', operation, what, 'yielded no _id');
+        //DBG//}
         response._url = url;
       }
       //DBG//console.log('setResponse', response);

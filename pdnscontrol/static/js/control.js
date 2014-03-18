@@ -400,7 +400,11 @@ function MainCtrl($document, $scope, $location) {
 
   searchBox.bind('keydown', function(event) {
     if (event.keyCode === ENTER_KEYCODE) {
-      $scope.$emit('global-search', {q: searchBox.val(), context: searchBox.attr('search-context')});
+      var val = searchBox.val();
+      if (val === '') {
+        return;
+      }
+      $scope.$emit('global-search', {q: val, context: searchBox.attr('search-context')});
       searchBox.blur();
     }
   });

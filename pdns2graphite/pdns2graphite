@@ -79,7 +79,7 @@ recursor = [    # http://doc.powerdns.com/recursor-stats.html - except the slow 
    ]
 
 config = {
-    'serverlist_url'    : 'http://localhost',
+    'serverlist_url'    : 'http://localhost:5000/servers.json',
     'carbon_server'     : '127.0.0.1',
     'carbon_port'       : 2003,
     'carbon_delay'      : 5,

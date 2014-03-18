@@ -311,6 +311,25 @@ ControlApp.directive('spinner', function() {
 // Base UI
 ////////////////////////////////////////////////////////////////////////
 
+// decode zone id into zone name
+function zoneIdToName(zoneId) {
+  var tmp = "";
+  var idx;
+  for (idx = 0; idx<zoneId.length; idx++) {
+    var chr = zoneId[idx];
+    if (chr === '=') {
+      chr = zoneId[idx+1] + zoneId[idx+2];
+      chr = String.fromCharCode(parseInt(chr, 16));
+      idx += 2;
+    }
+    tmp += chr;
+  }
+  if (tmp.length > 1 && tmp[tmp.length-1] === '.') {
+    tmp = tmp.substr(0, tmp.length-1);
+  }
+  return tmp;
+}
+
 function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
   $scope.hasPendingRequests = function() {
     return httpRequestTracker.hasPendingRequests();
@@ -332,7 +351,11 @@ function NavCtrl($scope, breadcrumbs, httpRequestTracker) {
         if (raw[1]) {
           filtered.push(raw[1]);
           if (raw[2] && raw[3]) {
-            filtered.push(raw[3]);
+            var raw3 = raw[3];
+            if (raw[2].name === 'zone') {
+              raw3.name = zoneIdToName(raw3.name);
+            }
+            filtered.push(raw3);
           }
         }
       } else if (raw[0].name === 'user' || raw[0].name === 'users') {

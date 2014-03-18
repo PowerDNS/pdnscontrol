@@ -40,6 +40,9 @@ Flask-based web app.
     . ./venv-pdnscontrol/bin/activate
     pip install -r requirements.txt
 
+Note that the middle 'activate' command creates a special working environment, which must remain active for
+the 'pip install' and the 'python install.py' below!
+
 #### Configuration
 
     cp instance/pdnscontrol.conf.example instance/pdnscontrol.conf
@@ -79,3 +82,4 @@ The current code is known to run on these platforms:
 
 * CentOS 6 (Python 2.7)
 * Debian wheezy (Python 2.7)
+

@@ -723,37 +723,12 @@ ControlApp.controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'R
     return varname === 'allow-from';
   };
 
-  $scope.configurationGridOptions = {
-    data: 'configuration',
-    enableRowSelection: false,
-    enableColumnResize: true,
-    showFilter: true,
-    menuTemplate: templateUrl('grid/menuTemplate'),
-    sortInfo: { fields: ['k', 'v'], directions: ['asc', 'asc'] },
-    columnDefs: [
-      {field: 'k', displayName: 'Name', width: '300', cellTemplate: '<div class="ngCellText">{{row.entity[col.field]}} <a href="/server/{{server._id}}/config/{{row.entity[col.field]}}/edit" ng-show="canEditConfig(row.entity[col.field])"><span class="foundicon-edit"/></a></div>'},
-      {field: 'v', displayName: 'Value'}
-    ]
-  };
   $scope.$watch('server.config', function() {
-    // _.pairs is not good enough, ngGrid can't sort on Arrays.
+    // _.pairs is not good enough for angular
     $scope.configuration = simpleListToKVList($scope.server.config);
   });
-
-  $scope.statisticsGridOptions = {
-    data: 'statistics',
-    enableRowSelection: false,
-    enableColumnResize: true,
-    showFilter: true,
-    menuTemplate: templateUrl('grid/menuTemplate'),
-    sortInfo: { fields: ['k', 'v'], directions: ['asc', 'asc'] },
-    columnDefs: [
-      {field: 'k', displayName: 'Name', width: '300'},
-      {field: 'v', displayName: 'Value'}
-    ]
-  };
   $scope.$watch('server.stats', function() {
-    // _.pairs is not good enough, ngGrid can't sort on Arrays.
+    // _.pairs is not good enough for angular
     $scope.statistics = simpleListToKVList($scope.server.stats);
   });
 

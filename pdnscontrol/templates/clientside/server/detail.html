@@ -87,8 +87,20 @@
         </div>
       </pane>
       <pane tabtitle="Statistics">
-        <div class="gridStyle" ng-grid="statisticsGridOptions" ng-style="gridExtraStyle()">
-        </div>
+        <table width="100%">
+          <thead>
+            <tr>
+              <th width="40%">Statistic</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="stat in statistics">
+              <td>{{stat.k}}</td>
+              <td>{{stat.v}}</td>
+            </tr>
+          </tbody>
+        </table>
       </pane>
       <pane tabtitle="Zones">
         <div class="row table-buttons">
@@ -116,8 +128,24 @@
         </div>
       </pane>
       <pane tabtitle="Configuration">
-        <div class="gridStyle" ng-grid="configurationGridOptions" ng-style="gridExtraStyle()">
-        </div>
+        <table width="100%">
+          <thead>
+            <tr>
+              <th width="40%">Setting</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="config in configuration">
+              <td>
+                {{config.k}}
+                <a href="/server/{{server._id}}/config/{{config.k}}/edit" ng-show="canEditConfig(config.k)"><span class="foundicon-edit"/></a>
+                <span class="right"><a href="https://google.com/search?q=site:doc.powerdns.com+{{ config.k }}"><i class="foundicon-idea"/></a></span>
+              </td>
+              <td>{{config.v}}</td>
+            </tr>
+          </tbody>
+        </table>
       </pane>
     </tabs>
   </div>

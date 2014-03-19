@@ -122,8 +122,33 @@
         </div>
         <div class="row">
           <div class="small-12 columns">
-          <div class="gridStyle" ng-grid="zonesGridOptions" ng-style="gridExtraStyle()">
-          </div>
+            <table width="100%">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th width="130">Kind</th>
+                  <th ng-if="server.daemon_type === 'Recursor'" width="200">Servers</th>
+                  <th ng-if="server.daemon_type === 'Authoritative'" width="120">Serial</th>
+                  <th ng-if="server.daemon_type === 'Authoritative'" width="250">Masters</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr ng-repeat="zone in zones">
+                  <td>
+                    <a href="/server/{{ server._id }}/zone/{{ zone._id }}">{{ zone.name }}</a>
+                    <a href="/server/{{ server._id }}/zone/{{ zone._id }}"><i class="foundicon-edit"/></a>
+                  </td>
+                  <td>{{ zone.kind }}
+                    <span ng-if="zone.recursion_desired">+ RD</span>
+                  </td>
+                  <td ng-if="server.daemon_type === 'Recursor'">
+                    {{ zone.servers | array_join }}
+                  </td>
+                  <td ng-if="server.daemon_type === 'Authoritative'">{{ zone.serial }}</td>
+                  <td ng-if="server.daemon_type === 'Authoritative'">{{ zone.masters | array_join }}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </pane>

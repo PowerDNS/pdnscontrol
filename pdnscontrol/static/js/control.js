@@ -673,41 +673,11 @@ ControlApp.controller('ServerCreateCtrl', ['$scope', '$location', 'Restangular',
 ControlApp.controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'Restangular', 'server', function($scope, $compile, $location, Restangular, server) {
   $scope.server = server;
 
-  $scope.gridExtraStyle = function() {
-    try {
-      var h = $(window).height() - $(".tabs").offset().top - $('footer').height() - $('.tabs').height();
-      h -= 70; // account for padding/border/margin and '+ Add Zone' link
-      return {height: h + "px"};
-    } catch (e) {
-      return {};
-    }
-  };
-
   $scope.isAddZoneAllowed = true;
   $scope.isSearchAllowed = (!!server.search_data);
   $scope.$watch('server.config', function() {
     $scope.isAddZoneAllowed = !$scope.server.mustDo("experimental-api-readonly", "no");
   });
-
-  $scope.zonesGridOptions = {
-    data: 'zones',
-    enableRowSelection: false,
-    enableColumnResize: true,
-    showFilter: true,
-    menuTemplate: templateUrl('grid/menuTemplate'),
-    sortInfo: { fields: ['name'], directions: ['asc'] },
-    columnDefs: [
-      {field: 'name', displayName: 'Name', cellTemplate: '<div class="ngCellText"><a href="/server/{{server._id}}/zone/{{row.entity._id}}">{{row.entity[col.field]}}</a> <a href="/server/{{server._id}}/zone/{{row.entity._id}}"><span class="foundicon-edit"/></a></div>', sortFn: dnsNameSort},
-      {field: 'kind', displayName: 'Kind', width: '100'}
-    ]
-  };
-  if ($scope.server.daemon_type === 'Recursor') {
-    $scope.zonesGridOptions.columnDefs.push({field: 'servers', displayName: 'Forwarders', width: '200', cellFilter: 'array_join'});
-    $scope.zonesGridOptions.columnDefs.push({field: 'recursion_desired', displayName: 'Recurse', width: '150', cellFilter: 'checkmark'});
-  } else {
-    $scope.zonesGridOptions.columnDefs.push({field: 'serial', displayName: 'Serial', width: '120'});
-    $scope.zonesGridOptions.columnDefs.push({field: 'masters', displayName: 'Masters', cellTemplate: '<div class="ngCellText">{{row.entity[col.field] | array_join }}</div>', width: '250'});
-  }
 
   function loadServerData() {
     $scope.server.all("zones").getList().then(function(zones) {

@@ -113,7 +113,13 @@ class Response(object):
     def start(self, start_response):
         status = self.status
         if not isinstance(status, str):
-            status = str(status) + ' ' + BaseHTTPRequestHandler.responses[status][1]
+            if status in BaseHTTPRequestHandler.responses:
+                status = str(status) + ' ' + BaseHTTPRequestHandler.responses[status][1]
+            elif status == 422:
+                # known to not be in BaseHTTPRequestHandler.responses
+                status = '422 Unprocessable Entity'
+            else:
+                status = str(status) + ' Unknown error'
         headers = [
             ('Content-Type', self.content_type),
             ('Access-Control-Allow-Origin', CONFIG.get('proxy', 'allow_origin')),

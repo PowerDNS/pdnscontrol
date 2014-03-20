@@ -433,7 +433,15 @@ def signal_hup(signum, frame):
             handler.close()
 
 
+def warn_if_root():
+    if os.getuid() == 0:
+        print("WARNING: Do NOT run pdnsmgrd as root.", file=sys.stderr)
+        print("WARNING: Instead, run it as a separate user (suggestion: pdnsmgrd) and give", file=sys.stderr)
+        print("WARNING: restricted sudo permissions to the new user.", file=sys.stderr)
+
+
 if __name__ == '__main__':
+    warn_if_root()
     CONFIG.add_section('proxy')
     CONFIG.set('proxy', 'port', '8080')
     CONFIG.set('proxy', 'address', '127.0.0.1')

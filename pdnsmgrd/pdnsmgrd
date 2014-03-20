@@ -24,7 +24,7 @@ import signal
 import platform
 
 BECOME_ROOT = ['sudo', '-n']
-STARTSTOP_COMMAND = {'start': 'start', 'stop': 'stop', 'restart': 'restart'}
+START_STOP_RESTART_COMMANDS = ['start', 'stop', 'restart']
 CONFIG = ConfigParser.ConfigParser()
 
 Request = collections.namedtuple('Request', ['environ', 'args', 'path', 'method', 'body'])
@@ -156,7 +156,9 @@ def run_proc(cmdline):
 
 
 def do_start_stop_restart(action):
-    cmdline = BECOME_ROOT + ['service', UPSTREAM.service, STARTSTOP_COMMAND[action]]
+    if not action in START_STOP_RESTART_COMMANDS:
+        raise StandardError("Invalid action given")
+    cmdline = BECOME_ROOT + ['service', UPSTREAM.service, action]
     return run_proc(cmdline)
 
 
@@ -179,7 +181,7 @@ def do_configure(config):
 
 
 def handle_route_do(action, args):
-    if action in ['start', 'stop', 'restart']:
+    if action in START_STOP_RESTART_COMMANDS:
         return do_start_stop_restart(action)
     if action in ['install', 'upgrade']:
         version = args.get('version', [''])[0]

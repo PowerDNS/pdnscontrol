@@ -15,6 +15,5 @@ allow_origin = *
 daemon_type = authoritative
 # the following settings are set to defaults based on daemon_type.
 # package = pdns-recursor
-# config = /etc/powerdns/recursor.conf
 # service = pdns-recursor
 # url = http://localhost:8082/

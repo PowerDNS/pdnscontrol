@@ -14,7 +14,6 @@ import urlparse
 import urllib2
 import json
 import subprocess
-import tempfile
 import os
 import collections
 import sys
@@ -41,19 +40,16 @@ class UpstreamServer(object):
         if self.daemon_type == 'recursor':
             self.package = 'pdns-recursor'
             self.service = 'pdns-recursor'
-            self.config = '/etc/powerdns/recursor.conf'
             self.url = 'http://localhost:8082'
         elif self.daemon_type == 'authoritative':
             self.package = 'pdns-server'
             self.service = 'pdns'
-            self.config = '/etc/powerdns/powerdns.conf'
             self.url = 'http://localhost:8081'
         else:
             raise 'Unknown daemon_type %r' % self.daemon_type
 
         self.package = config.get('package', self.package)
         self.service = config.get('service', self.service)
-        self.config = config.get('config', self.config)
         self.url = config.get('url', self.url)
         self.url = self.url.rstrip('/') # strip last /
 
@@ -169,28 +165,12 @@ def do_install_upgrade(version):
     return PACKAGE_MANAGER.install_upgrade(UPSTREAM.package, version)
 
 
-def do_configure(config):
-    (tfhandle, tfname) = tempfile.mkstemp()
-    tf = os.fdopen(tfhandle, 'w')
-    tf.write(config)
-    tf.close()
-    cmdline = BECOME_ROOT + ['cp', tfname, UPSTREAM.config]
-    status = run_proc(cmdline)
-    os.unlink(tfname)
-    return status
-
-
 def handle_route_do(action, args):
     if action in START_STOP_RESTART_COMMANDS:
         return do_start_stop_restart(action)
     if action in ['install', 'upgrade']:
         version = args.get('version', [''])[0]
         return do_install_upgrade(version)
-    if action == 'configure':
-        config = str(args['config'][0])
-        if len(config) < 5:
-            raise ExposedException('invalid config')
-        return do_configure(config + "\n")
 
     raise ExposedException('unknown action')
 

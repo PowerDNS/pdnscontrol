@@ -443,7 +443,7 @@ def warn_if_root():
 if __name__ == '__main__':
     warn_if_root()
     CONFIG.add_section('proxy')
-    CONFIG.set('proxy', 'port', '8080')
+    CONFIG.set('proxy', 'port', '8084')
     CONFIG.set('proxy', 'address', '127.0.0.1')
     CONFIG.add_section('logging')
     CONFIG.set('logging', 'target', 'syslog')

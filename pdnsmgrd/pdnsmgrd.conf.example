@@ -3,16 +3,18 @@ username = secret
 password = sikrit
 
 [proxy]
-port = 8080
-address =
+# 8085 is suggested for a second pdnsmgrd
+port = 8084
+address = 127.0.0.1
 certfile = ssl-cert-snakeoil.pem
 keyfile = ssl-cert-snakeoil.key
 allow_origin = *
 
 [upstream]
-daemon_type = recursor
-# daemon_type = authoritative
+# "authoritative" or "recursor"
+daemon_type = authoritative
+# the following settings are set to defaults based on daemon_type.
 # package = pdns-recursor
 # config = /etc/powerdns/recursor.conf
 # service = pdns-recursor
-# url = http://localhost:8081/
+# url = http://localhost:8082/

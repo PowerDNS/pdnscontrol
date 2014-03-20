@@ -29,6 +29,8 @@ CONFIG = ConfigParser.ConfigParser()
 
 Request = collections.namedtuple('Request', ['environ', 'args', 'path', 'method', 'body'])
 
+HTTP_METHODS_WITH_BODY = ['PATCH', 'POST', 'PUT']
+
 logger = logging.getLogger('Server')
 
 
@@ -193,12 +195,8 @@ def handle_route_do(action, args):
 
 def handle_route_servers(request):
     url = UPSTREAM.url + request.path + '?' + request.environ['QUERY_STRING']
+    data = request.body if request.method in HTTP_METHODS_WITH_BODY else None
 
-    data = None
-    if request.method == 'POST':
-        data = request.body
-
-    result = ''
     try:
         conn = urllib2.urlopen(url, data, timeout=5)
         result = conn.read()
@@ -260,9 +258,8 @@ def manager_app(environ, start_response):
     path = request_uri(environ)
     parsed_path = urlparse.urlparse(path)
     method = environ['REQUEST_METHOD']
-    args = {}
     request_body = ''
-    if method == 'POST':
+    if method in HTTP_METHODS_WITH_BODY:
         request_body_size = int(environ['CONTENT_LENGTH'])
         request_body = str(environ['wsgi.input'].read(request_body_size))
         args = urlparse.parse_qs(request_body)

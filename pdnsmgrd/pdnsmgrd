@@ -434,14 +434,22 @@ def signal_hup(signum, frame):
 
 
 def warn_if_root():
-    if os.getuid() == 0:
-        print("WARNING: Do NOT run pdnsmgrd as root.", file=sys.stderr)
-        print("WARNING: Instead, run it as a separate user (suggestion: pdnsmgrd) and give", file=sys.stderr)
-        print("WARNING: restricted sudo permissions to the new user.", file=sys.stderr)
+    msgs = """
+Do NOT run pdnsmgrd as root.
+Instead, run it as a separate user (suggestion: pdnsmgrd) and give restricted sudo permissions to the new user.
+    """.strip().splitlines()
+
+    if not (os.getuid() == 0):
+        # not root, no need to warn
+        return
+
+    for line in msgs:
+        print("WARNING: " + line, file=sys.stderr)
+        if CONFIG.get('logging', 'target') != 'console':
+            logger.warn(line)
 
 
 if __name__ == '__main__':
-    warn_if_root()
     CONFIG.add_section('proxy')
     CONFIG.set('proxy', 'port', '8084')
     CONFIG.set('proxy', 'address', '127.0.0.1')
@@ -452,6 +460,7 @@ if __name__ == '__main__':
     CONFIG.read("pdnsmgrd.conf")
 
     setup_logging()
+    warn_if_root()
 
     UPSTREAM = UpstreamServer(CONFIG.items('upstream'))
     PACKAGE_MANAGER = PackageManagerAPT()

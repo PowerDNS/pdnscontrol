@@ -17,7 +17,6 @@
  * Static Authentication (HTTP Basic Auth)
  * Install/Upgrade pdns packages
  * Start/Stop/Restart pdns daemons
- * Write configuration files
  * Relay to pdns webservers
 
 
@@ -29,8 +28,7 @@ Do something.
 
 #### Parameters
 
- * **action**: _start_, _stop_, _restart_, _install_, _upgrade_, _configure_
- * For action=configure: **config** - the config file contents
+ * **action**: _start_, _stop_, _restart_, _install_, _upgrade_
  * For action=install and action=upgrade: **version** - the version to install/upgrade (_optional_)
  * **\_callback**: _optional_, turns response into JSONP instead of JSON
  

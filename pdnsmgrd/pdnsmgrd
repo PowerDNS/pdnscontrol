@@ -456,10 +456,15 @@ if __name__ == '__main__':
     CONFIG.set('logging', 'target', 'syslog')
     CONFIG.set('logging', 'syslog', '/var/run/syslog' if platform.system() == 'Darwin' else '/dev/log')
     CONFIG.set('logging', 'log_requests', 'false')
-    CONFIG.read("pdnsmgrd.conf")
+    config_filename = None
+    for config_filename in ["pdnsmgrd.conf", "/etc/pdnsmgrd.conf"]:
+        if os.path.isfile(config_filename):
+            CONFIG.read(config_filename)
+            break
 
     setup_logging()
     warn_if_root()
+    logging.info("Using configuration from %s", config_filename)
 
     UPSTREAM = UpstreamServer(CONFIG.items('upstream'))
     PACKAGE_MANAGER = PackageManagerAPT()

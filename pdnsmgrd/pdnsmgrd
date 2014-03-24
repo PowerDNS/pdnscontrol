@@ -2,9 +2,8 @@
 
 from __future__ import print_function
 
-from wsgiref.simple_server import make_server
+import wsgiref.simple_server
 from wsgiref.util import request_uri, is_hop_by_hop
-
 import wsgissl
 from BaseHTTPServer import BaseHTTPRequestHandler
 import SocketServer
@@ -22,6 +21,8 @@ import logging.handlers
 import signal
 import platform
 import optparse
+import pwd
+import grp
 
 
 BECOME_ROOT = ['sudo', '-n']
@@ -414,16 +415,19 @@ class PackageManagerYUM(PackageManager):
         )
 
 
-def run_server(address, port, certfile, keyfile):
+def make_server(address, port, certfile, keyfile):
     if not address:
         address = '0.0.0.0'
 
-    httpd = make_server(address, port, manager_app, server_class=PdnsmgrdServer, handler_class=PdnsmgrdRequestHandler)
+    httpd = wsgiref.simple_server.make_server(
+        address, port, manager_app,
+        server_class=PdnsmgrdServer,
+        handler_class=PdnsmgrdRequestHandler)
     httpd.allow_reuse_address = True
     httpd.set_credentials(keyfile, certfile)
 
     logger.warning("Serving https://%s:%d/", address, port)
-    httpd.serve_forever()
+    return httpd
 
 
 def setup_logging():
@@ -454,20 +458,20 @@ def signal_hup(signum, frame):
             handler.close()
 
 
-def warn_if_root():
-    msgs = """
-Do NOT run pdnsmgrd as root.
-Instead, run it as a separate user (suggestion: pdnsmgrd) and give restricted sudo permissions to the new user.
-    """.strip().splitlines()
-
+def drop_privs_if_root(user, group):
     if not (os.getuid() == 0):
-        # not root, no need to warn
         return
 
-    for line in msgs:
-        print("WARNING: " + line, file=sys.stderr)
-        if CONFIG.get('logging', 'target') != 'console':
-            logger.warn(line)
+    try:
+        gid = grp.getgrnam(group).gr_gid
+        uid = pwd.getpwnam(user).pw_uid
+    except KeyError as ex:
+        logger.error("Dropping privileges to user \"%s\", group \"%s\" failed: %s", user, group, ex)
+        exit(1)
+
+    os.chdir('/')
+    os.setgid(gid)
+    os.setuid(uid)
 
 
 argparser = optparse.OptionParser(description="PowerDNS daemon manager daemon")
@@ -484,6 +488,9 @@ def main():
 
     CONFIG.add_section('upstream')
     CONFIG.set('upstream', 'authentication', 'forward')
+    CONFIG.add_section('os')
+    CONFIG.set('os', 'user', 'pdnsmgrd')
+    CONFIG.set('os', 'group', 'pdnsmgrd')
     CONFIG.add_section('proxy')
     CONFIG.set('proxy', 'port', '8084')
     CONFIG.set('proxy', 'address', '127.0.0.1')
@@ -499,7 +506,6 @@ def main():
     CONFIG.read(config_filename)
 
     setup_logging()
-    warn_if_root()
     logger.info("Using configuration from %s", config_filename)
 
     UPSTREAM = UpstreamServer(CONFIG.items('upstream'))
@@ -507,12 +513,14 @@ def main():
 
     signal.signal(signal.SIGHUP, signal_hup)
 
-    run_server(
+    server = make_server(
         CONFIG.get('proxy', 'address'),
         CONFIG.getint('proxy', 'port'),
-        CONFIG.get('proxy', 'certfile'),
-        CONFIG.get('proxy', 'keyfile')
+        os.path.join(args.config_dir, CONFIG.get('proxy', 'certfile')),
+        os.path.join(args.config_dir, CONFIG.get('proxy', 'keyfile'))
     )
+    drop_privs_if_root(CONFIG.get('os', 'user'), CONFIG.get('os', 'group'))
+    server.serve_forever()
 
 
 if __name__ == '__main__':

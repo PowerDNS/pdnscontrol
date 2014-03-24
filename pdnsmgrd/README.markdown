@@ -3,11 +3,13 @@
 ## Quickstart
 
     apt-get install python ssl-cert
-    sudo cat /etc/ssl/private/ssl-cert-snakeoil.key > ssl-cert-snakeoil.key
-    cp /etc/ssl/certs/ssl-cert-snakeoil.pem ssl-cert-snakeoil.pem
+    mkdir /etc/powerdns
+    cp /etc/ssl/private/ssl-cert-snakeoil.key /etc/powerdns/pdnsmgrd-ssl.key
+    cp /etc/ssl/certs/ssl-cert-snakeoil.pem /etc/powerdns/pdnsmgrd-ssl.pem
     cp pdnsmgrd.conf.example /etc/powerdns/pdnsmgrd.conf
     editor /etc/powerdns/pdnsmgrd.conf
-    su - pdnsmgr
+    groupadd -r pdnsmgrd
+    useradd -r -g pdnsmgrd pdnsmgrd
     ./pdnsmgrd
 
 

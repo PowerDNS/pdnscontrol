@@ -6,8 +6,8 @@ password = sikrit
 # 8085 is suggested for a second pdnsmgrd
 port = 8084
 address = 127.0.0.1
-certfile = ssl-cert-snakeoil.pem
-keyfile = ssl-cert-snakeoil.key
+certfile = pdnsmgrd-ssl.pem
+keyfile = pdnsmgrd-ssl.key
 allow_origin = *
 
 [upstream]

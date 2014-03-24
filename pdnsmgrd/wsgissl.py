@@ -21,13 +21,23 @@ class HTTPSMixIn:
     def finish_request(self, request, client_address):
         """Negotiates SSL and then mimics BaseServer behavior.
         """
+        # request is a socket here.
         # Note: accessing self.* from here might not be thread-safe,
         # which could be an issue when using ThreadingMixIn.
         # In practice, the GIL probably prevents any trouble with read access.
-        ssock = ssl.wrap_socket(request,
-                                keyfile=self.keypath,
-                                certfile=self.certpath,
-                                server_side=True)
+        try:
+            ssock = ssl.wrap_socket(request,
+                                    keyfile=self.keypath,
+                                    certfile=self.certpath,
+                                    server_side=True)
+        except ssl.SSLError as e:
+            if ':http request' in str(e):
+                try:
+                    request.sendall("HTTP/0.9 400 Bad Request\r\n\r\nYou're talking HTTP to an HTTPS server.\r\n")
+                except:
+                    # ignore errors for sending an error hint
+                    pass
+            raise  # re-raise as we didn't really handle that error.
         self.RequestHandlerClass(ssock, client_address, self)
         ssock.close()
 

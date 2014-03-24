@@ -682,9 +682,8 @@ ControlApp.controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'R
   function loadServerData() {
     $scope.server.all("zones").getList().then(function(zones) {
       $scope.zones = zones;
-    }, function(response) {
-      $scope.load_error = $scope.load_error || '';
-      $scope.load_error += 'Loading zones failed';
+    }, function() {
+      $scope.load_error = 'Loading server information failed. The server may be down.';
     });
   }
   loadServerData();

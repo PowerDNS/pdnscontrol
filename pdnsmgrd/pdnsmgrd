@@ -470,6 +470,7 @@ def drop_privs_if_root(user, group):
         exit(1)
 
     os.chdir('/')
+    os.initgroups(user, gid)
     os.setgid(gid)
     os.setuid(uid)
 

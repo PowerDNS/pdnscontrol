@@ -73,7 +73,7 @@
 
     <span ng-show="authoritatives().length>0">
     <h4>Authoritative Servers</h4>
-    <graphite g-source="" g-area-mode="first" g-refresh="60">
+    <graphite g-source="" g-area-mode="first" g-refresh="60" g-v-title="Queries per minute">
       <graph target="{{auth_queries()}}" title="Queries" />
       <graph target="{{auth_answers()}}" title="Answers" />
     </graphite>
@@ -81,7 +81,7 @@
 
     <span ng-show="recursors().length>0">
     <h4>Recursor Servers</h4>
-    <graphite g-source="" g-area-mode="first" g-refresh="60">
+    <graphite g-source="" g-area-mode="first" g-refresh="60" g-v-title="Queries per minute">
       <graph target="{{recursor_queries()}}" title="Queries" />
       <graph target="{{recursor_answers()}}" title="Answers" />
     </graphite>

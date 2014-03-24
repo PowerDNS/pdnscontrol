@@ -32,6 +32,7 @@ GraphiteModule.directive('graphite', function($timeout) {
           'areaMode': attrs.gAreaMode || 'none',
           'from': attrs.gFrom,
           'title': attrs.gTitle || '',
+          'vtitle': attrs.gVTitle || ''
         }, ServerData.Config.graphite_default_opts);
 
         // automatically choose width, if possible
@@ -105,6 +106,7 @@ GraphiteModule.directive('graphite', function($timeout) {
       attrs.$observe('gSource', updateUrl);
       attrs.$observe('gAreaMode', updateUrl);
       attrs.$observe('gTitle', updateUrl);
+      attrs.$observe('gVTitle', updateUrl);
       attrs.$observe('gFrom', updateUrl);
       scope.$on('graph_target_changed', updateUrl);
 

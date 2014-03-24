@@ -1,6 +1,8 @@
 # Development / Building
 
-Most of this is about building CSS.
+The requirements below are needed for developing pdnscontrol or building a distribution.
+
+We use `bower` to manage JavaScript dependencies. `grunt` is used to build CSS.
 
 ## Requirements
 

@@ -48,6 +48,7 @@ class UpstreamServer(object):
         else:
             raise 'Unknown daemon_type %r' % self.daemon_type
 
+        self.authentication = config.get('authentication')
         self.package = config.get('package', self.package)
         self.service = config.get('service', self.service)
         self.url = config.get('url', self.url)
@@ -196,6 +197,12 @@ def handle_route_servers(request):
         headers['Accept'] = request.environ['HTTP_ACCEPT']
     if 'CONTENT_TYPE' in request.environ:
         headers['Content-Type'] = request.environ['CONTENT_TYPE']
+
+    # We skip the urllib2 Auth handler, as we unconditionally want to supply the password (if configured).
+    if UPSTREAM.authentication == 'forward':
+        client_auth = request.environ.get('HTTP_AUTHORIZATION', '')
+        if client_auth:
+            headers['Authorization'] = client_auth
 
     try:
         forwarded_req = urllib2.Request(url, data=data, headers=headers)
@@ -452,6 +459,8 @@ Instead, run it as a separate user (suggestion: pdnsmgrd) and give restricted su
 
 
 if __name__ == '__main__':
+    CONFIG.add_section('upstream')
+    CONFIG.set('upstream', 'authentication', 'forward')
     CONFIG.add_section('proxy')
     CONFIG.set('proxy', 'port', '8084')
     CONFIG.set('proxy', 'address', '127.0.0.1')

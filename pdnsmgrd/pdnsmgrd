@@ -3,7 +3,7 @@
 from __future__ import print_function
 
 from wsgiref.simple_server import make_server
-from wsgiref.util import request_uri
+from wsgiref.util import request_uri, is_hop_by_hop
 
 import wsgissl
 from BaseHTTPServer import BaseHTTPRequestHandler
@@ -22,6 +22,7 @@ import logging.handlers
 import signal
 import platform
 
+
 BECOME_ROOT = ['sudo', '-n']
 START_STOP_RESTART_COMMANDS = ['start', 'stop', 'restart']
 CONFIG = ConfigParser.ConfigParser()
@@ -31,6 +32,11 @@ Request = collections.namedtuple('Request', ['environ', 'args', 'path', 'method'
 HTTP_METHODS_WITH_BODY = ['PATCH', 'POST', 'PUT']
 
 logger = logging.getLogger('Server')
+
+# Patch in status code 422
+if 422 not in BaseHTTPRequestHandler.responses:
+    BaseHTTPRequestHandler.responses[422] = ('Unprocessable Entity',
+                                             'Request understood and syntactically correct, yet unprocessable')
 
 
 class UpstreamServer(object):
@@ -116,17 +122,15 @@ class Response(object):
         status = self.status
         if not isinstance(status, str):
             if status in BaseHTTPRequestHandler.responses:
-                status = str(status) + ' ' + BaseHTTPRequestHandler.responses[status][1]
-            elif status == 422:
-                # known to not be in BaseHTTPRequestHandler.responses
-                status = '422 Unprocessable Entity'
+                status = str(status) + ' ' + BaseHTTPRequestHandler.responses[status][0]
             else:
                 status = str(status) + ' Unknown error'
-        headers = [
+        default_headers = [
             ('Content-Type', self.content_type),
             ('Access-Control-Allow-Origin', CONFIG.get('proxy', 'allow_origin')),
             ('Server', 'Manager/0')
-        ] + self.headers
+        ]
+        headers = default_headers + [hdr for hdr in self.headers if hdr[0] not in [h[0] for h in default_headers]]
         start_response(status, headers)
         return [self.content]
 
@@ -198,6 +202,11 @@ def handle_route_servers(request):
     if 'CONTENT_TYPE' in request.environ:
         headers['Content-Type'] = request.environ['CONTENT_TYPE']
 
+    # Build our own urllib2 opener, which doesn't handle HTTP errors (we want to forward them as-is).
+    opener = urllib2.OpenerDirector()
+    for handler in [urllib2.UnknownHandler, urllib2.HTTPHandler]:
+        opener.add_handler(handler())
+
     # We skip the urllib2 Auth handler, as we unconditionally want to supply the password (if configured).
     if UPSTREAM.authentication == 'forward':
         client_auth = request.environ.get('HTTP_AUTHORIZATION', '')
@@ -207,7 +216,7 @@ def handle_route_servers(request):
     try:
         forwarded_req = urllib2.Request(url, data=data, headers=headers)
         forwarded_req.get_method = lambda: request.method
-        conn = urllib2.urlopen(forwarded_req, timeout=5)
+        conn = opener.open(forwarded_req, timeout=5)
         result = conn.read()
         conn.close()
     except urllib2.HTTPError as ex:
@@ -216,9 +225,10 @@ def handle_route_servers(request):
         logging.exception("Upstream request failed: %s", ex)
         raise ExposedException(ex.reason, status=500, content=ex.message)
 
-    headers = ((k.lower().strip(), v.strip()) for (k, v) in [h.split(': ', 1) for h in conn.info().headers])
-    content_type = [v for (k, v) in headers if k == 'content-type'][0]
-    response = Response(result, content_type=content_type)
+    headers = [(k.strip(), v.strip()) for (k, v) in [h.split(': ', 1) for h in conn.info().headers]
+               if not is_hop_by_hop(k)]
+    content_type = [v for (k, v) in headers if k.lower() == 'content-type'][0]
+    response = Response(result, status=conn.code, content_type=content_type, headers=headers)
 
     return response
 

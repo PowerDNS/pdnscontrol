@@ -205,6 +205,9 @@ def handle_route_servers(request):
         conn.close()
     except urllib2.HTTPError as ex:
         raise ExposedException(ex.reason, status=ex.code, content=ex.read())
+    except urllib2.URLError as ex:
+        logging.exception("Upstream request failed: %s", ex)
+        raise ExposedException(ex.reason, status=500, content=ex.message)
 
     headers = ((k.lower().strip(), v.strip()) for (k, v) in [h.split(': ', 1) for h in conn.info().headers])
     content_type = [v for (k, v) in headers if k == 'content-type'][0]

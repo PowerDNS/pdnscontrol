@@ -1,7 +1,6 @@
-from flask import Flask, request
+from flask import request
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import SQLAlchemyUserDatastore, UserMixin, RoleMixin
-import datetime
 import urlparse
 
 from pdnscontrol import app
@@ -22,7 +21,7 @@ class IterableModel(object):
         for k,v in self.__dict__.iteritems():
             if k.startswith('_'):
                 continue
-            yield (k,v)
+            yield (k, v)
 
 
 class RestModel(object):

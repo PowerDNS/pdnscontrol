@@ -3,8 +3,9 @@ from pdnscontrol import app
 from pdnscontrol.models import *
 from flask.ext.security.utils import encrypt_password
 
+
 class ManageResetPassword(Command):
-    "Reset the password of any user"
+    """Reset the password of any user"""
 
     option_list = (
         Option('email', help='E-Mail of the user to reset the password'),
@@ -22,4 +23,3 @@ class ManageResetPassword(Command):
         db.session.commit()
         print "Password updated."
         return 0
-

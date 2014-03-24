@@ -8,6 +8,7 @@ from pdnscontrol.utils import fetch_remote, api_auth_required
 
 mod = Blueprint('graphite', __name__)
 
+
 @mod.route('/render/', methods=['GET'])
 @api_auth_required
 @roles_required('stats')

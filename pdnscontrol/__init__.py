@@ -6,11 +6,11 @@
 # /_/
 #
 
-from flask import Flask, session, g, render_template, send_from_directory
+from flask import Flask, send_from_directory
 import flask.ext.assets
 from flask.ext.security import Security, current_user
-import json
 import os
+
 
 class Control(Flask):
     jinja_options = dict(Flask.jinja_options,
@@ -82,7 +82,6 @@ asset_env.register('js_pdnscontrol', *js_app_files, output='gen/js-app-%(version
 def not_found(error):
     return 'Not found', 404
 
-from pdnscontrol.utils import inject_config
 from pdnscontrol.views import pages, api, graphite
 app.register_blueprint(pages.mod)
 app.register_blueprint(api.mod, url_prefix='/api')
@@ -90,6 +89,7 @@ app.register_blueprint(graphite.mod, url_prefix='/graphite')
 
 from .models import user_datastore
 security = Security(app, user_datastore)
+
 
 @app.context_processor
 def inject_auth_data():
@@ -107,6 +107,7 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
+
 log_file = app.config['LOG_FILE']
 if log_file:
     log_file = os.path.join(app.instance_path, log_file)
@@ -114,9 +115,7 @@ if log_file:
     import logging.handlers
     file_handler = logging.handlers.RotatingFileHandler(log_file, maxBytes=(100*1024*1024), delay=False)
     file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s [in %(pathname)s:%(lineno)d]: %(message)s'
-))
+    file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s [in %(pathname)s:%(lineno)d]: %(message)s'))
     app.logger.addHandler(file_handler)
     app.logger.warn("Starting up")
 

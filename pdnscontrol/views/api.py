@@ -1,16 +1,14 @@
 import urlparse
-import urllib
-import time
-import sys
-from flask import Blueprint, render_template, request, url_for, redirect, session, g
-from flask import current_app, jsonify, make_response
+from flask import Blueprint, request
+from flask import jsonify, make_response
 from flask.ext.security import roles_required, current_user
 from flask.ext.security.utils import encrypt_password
 
-from pdnscontrol.utils import jsonpify, jsonarify, fetch_remote, fetch_json, api_auth_required
+from pdnscontrol.utils import jsonarify, fetch_remote, fetch_json, api_auth_required
 from pdnscontrol.models import db, Server, User
 
 mod = Blueprint('api', __name__)
+
 
 def forward_remote_response(response):
     return make_response(
@@ -18,14 +16,14 @@ def forward_remote_response(response):
             response.content,
             response.status_code,
             {'Content-Type': response.headers.get('Content-Type')}
-            )
         )
+    )
 
 
 def forward_request(server, remote_url, params=None):
     server = db.session.query(Server).filter_by(name=server).first()
     if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
+        return jsonify(errors={'name': "Not found"}), 404
 
     response = fetch_remote(
         server.pdns_url + remote_url,
@@ -64,7 +62,7 @@ def server_create():
 def server_get(server):
     obj = Server.query.filter_by(name=server).first()
     if not obj:
-        return jsonify(errors={'name':"Not found"}), 404
+        return jsonify(errors={'name': "Not found"}), 404
 
     server = obj.to_dict()
 
@@ -78,7 +76,7 @@ def server_get(server):
         s.update(server)
         s['id'] = s['_id']
         server = s
-    except Exception as e:
+    except StandardError:
         pass
 
     # make sure JS doesn't loop endlessy
@@ -105,7 +103,7 @@ def server_delete(server):
 def server_edit(server):
     obj = Server.query.filter_by(name=server).first()
     if not obj:
-        return jsonify(errors={'name':"Not found"}), 404
+        return jsonify(errors={'name': "Not found"}), 404
     obj.mass_assign(request.json)
     if not obj.is_valid:
         return jsonify(errors=obj.validation_errors), 422
@@ -178,7 +176,7 @@ def server_loggrep(server):
 def server_flushcache(server):
     server = db.session.query(Server).filter_by(name=server).first()
     if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
+        return jsonify(errors={'name': "Not found"}), 404
 
     domain = request.values.get('domain', '')
 
@@ -197,7 +195,7 @@ def server_flushcache(server):
 def server_control(server):
     server = db.session.query(Server).filter_by(name=server).first()
     if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
+        return jsonify(errors={'name': "Not found"}), 404
 
     data = {'parameters': request.values.get('command', '')}
 
@@ -236,13 +234,13 @@ def server_config_edit(server, config):
     return forward_request(server, '/servers/localhost/config/' + config)
 
 
-@mod.route('/servers/<server>/<action>', methods=['GET','POST'])
+@mod.route('/servers/<server>/<action>', methods=['GET', 'POST'])
 @api_auth_required
 @roles_required('stats')
 def server_action(server, action):
     server = db.session.query(Server).filter_by(name=server).first()
     if server is None:
-        return jsonify(errors={'name':"Not found"}), 404
+        return jsonify(errors={'name': "Not found"}), 404
 
     pdns_actions = ['stats', 'config']
     manager_actions = ['start', 'stop', 'restart', 'update', 'install']
@@ -256,7 +254,6 @@ def server_action(server, action):
         if not current_user.has_role('edit'):
             return 'Not authorized', 401
 
-    remote_url = None
     if action in manager_actions:
         target = server.daemon_type
         remote_url = urlparse.urljoin(server.manager_url, '/do/?action='+action+'&target='+target)
@@ -315,7 +312,7 @@ def user_create():
 def user_get(user):
     obj = User.query.filter_by(id=user).first()
     if not obj:
-        return jsonify(errors={'name':"Not found"}), 404
+        return jsonify(errors={'name': "Not found"}), 404
 
     user = obj.to_dict()
     return jsonify(**user)
@@ -327,7 +324,7 @@ def user_get(user):
 def user_edit(user):
     obj = User.query.filter_by(id=user).first()
     if not obj:
-        return jsonify(errors={'name':"Not found"}), 404
+        return jsonify(errors={'name': "Not found"}), 404
     obj.mass_assign(request.json)
     if not obj.is_valid:
         return jsonify(errors=obj.validation_errors), 422

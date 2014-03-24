@@ -30,9 +30,9 @@ respectively.
 
 ## Supported URLs
 
-### /do/
+### /manage/<action>
 
-Do something.
+Manage the pdns daemon or package.
 
 #### Parameters
 
@@ -44,7 +44,7 @@ POST with `application/x-www-form-urlencoded`. Result will be JSON or JSONP (see
 
 #### Example
 
-    curl -u 'secret:sikrit' -k 'https://localhost:8080/do/?action=restart'
+    curl -k -u 'secret:sikrit' 'https://localhost:8084/manage/restart'
     {"cmdline": ["sudo", "service", "pdns", "restart"], "success": true, "output": "Restarting pdns (via systemctl): pdns.service.\n"}
 
 
@@ -56,7 +56,7 @@ Any method supported by the upstream server. Result format will be determined by
 
 #### Example
 
-    curl -u 'secret:sikrit' -k https://localhost:8080/server/localhost/
+    curl -X POST -k -u 'secret:sikrit' https://localhost:8084/server/localhost/
     {"aaaa-additional-processing": "off"
     , "additional-processing": "off"
     , "allow-from": "127.0.0.0/8, 10.0.0.0/8, 192.168.0.0/16, 172.16.0.0/12, ::1/128, fe80::/10"

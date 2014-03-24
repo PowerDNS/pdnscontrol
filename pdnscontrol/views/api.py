@@ -234,46 +234,39 @@ def server_config_edit(server, config):
     return forward_request(server, '/servers/localhost/config/' + config)
 
 
-@mod.route('/servers/<server>/<action>', methods=['GET', 'POST'])
+@mod.route('/servers/<server>/start', methods=['POST'])
 @api_auth_required
-@roles_required('stats')
-def server_action(server, action):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name': "Not found"}), 404
+@roles_required('edit')
+def server_start(server):
+    return forward_request(server, '/manage/start', params=request.values)
 
-    pdns_actions = ['stats', 'config']
-    manager_actions = ['start', 'stop', 'restart', 'update', 'install']
-    generic_actions = pdns_actions + manager_actions
-    if action not in generic_actions:
-        return "invalid api action", 404
 
-    if action in manager_actions:
-        if request.method != 'POST':
-            return "must call action %s using POST" % (action,), 403
-        if not current_user.has_role('edit'):
-            return 'Not authorized', 401
+@mod.route('/servers/<server>/stop', methods=['POST'])
+@api_auth_required
+@roles_required('edit')
+def server_stop(server):
+    return forward_request(server, '/manage/stop', params=request.values)
 
-    if action in manager_actions:
-        target = server.daemon_type
-        remote_url = urlparse.urljoin(server.manager_url, '/do/?action='+action+'&target='+target)
 
-    else:
-        # pdns actions
-        remote_action = action
-        if server.daemon_type == 'Authoritative':
-            if action == 'stats':
-                remote_action = 'get'
-            elif action == 'config':
-                remote_action = 'config'
-        remote_url = urlparse.urljoin(server.pdns_url, '/jsonstat?command=' + remote_action)
+@mod.route('/servers/<server>/restart', methods=['POST'])
+@api_auth_required
+@roles_required('edit')
+def server_restart(server):
+    return forward_request(server, '/manage/restart', params=request.values)
 
-    data = fetch_json(remote_url)
 
-    if isinstance(data, list):
-        return jsonify({action: data})
-    else:
-        return jsonify(data)
+@mod.route('/servers/<server>/update', methods=['POST'])
+@api_auth_required
+@roles_required('edit')
+def server_update(server):
+    return forward_request(server, '/manage/update', params=request.values)
+
+
+@mod.route('/servers/<server>/install', methods=['POST'])
+@api_auth_required
+@roles_required('edit')
+def server_install(server):
+    return forward_request(server, '/manage/install', params=request.values)
 
 
 @mod.route('/me', methods=['GET'])

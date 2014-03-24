@@ -181,7 +181,7 @@ def do_install_upgrade(version):
     return PACKAGE_MANAGER.install_upgrade(UPSTREAM.package, version)
 
 
-def handle_route_do(action, args):
+def handle_route_manage(action, args):
     if action in START_STOP_RESTART_COMMANDS:
         return do_start_stop_restart(action)
     if action in ['install', 'upgrade']:
@@ -263,12 +263,13 @@ def route(request):
 
     callback = request.args.get('_callback', [None])[0]
 
-    if request.path == '/do':
-        action = request.args.get('action', [None])[0]
-        if action is None:
+    if request.path.startswith('/manage/') and request.method == 'POST':
+        # /manage/<action> (no trailing /)
+        path = request.path.split('/')
+        if len(path) != 3:
             raise NotFoundException()
-
-        return JSONResponse(handle_route_do(action, request.args), callback=callback)
+        action = path[2]
+        return JSONResponse(handle_route_manage(action, request.args), callback=callback)
 
     elif request.path.startswith('/servers'):
         return handle_route_servers(request)

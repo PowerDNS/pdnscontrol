@@ -51,7 +51,7 @@ class UpstreamServer(object):
         self.package = config.get('package', self.package)
         self.service = config.get('service', self.service)
         self.url = config.get('url', self.url)
-        self.url = self.url.rstrip('/') # strip last /
+        self.url = self.url.rstrip('/')  # strip last /
 
 
 def check_output(*popenargs, **kwargs):
@@ -125,7 +125,7 @@ class Response(object):
             ('Content-Type', self.content_type),
             ('Access-Control-Allow-Origin', CONFIG.get('proxy', 'allow_origin')),
             ('Server', 'Manager/0')
-            ] + self.headers
+        ] + self.headers
         start_response(status, headers)
         return [self.content]
 

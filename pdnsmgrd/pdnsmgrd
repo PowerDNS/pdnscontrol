@@ -21,6 +21,7 @@ import logging
 import logging.handlers
 import signal
 import platform
+import optparse
 
 
 BECOME_ROOT = ['sudo', '-n']
@@ -468,12 +469,16 @@ Instead, run it as a separate user (suggestion: pdnsmgrd) and give restricted su
             logger.warn(line)
 
 
-if __name__ == '__main__':
-    import optparse
-    argparser = optparse.OptionParser(description="PowerDNS daemon manager daemon")
-    argparser.add_option('--config-dir', default='/etc/powerdns', help="Location of configuration directory")
-    argparser.add_option('--config-name', default='',
-                         help="Name of this virtual configuration, appended to config file name")
+argparser = optparse.OptionParser(description="PowerDNS daemon manager daemon")
+argparser.add_option('--config-dir', default='/etc/powerdns', help="Location of configuration directory")
+argparser.add_option('--config-name', default='',
+                     help="Name of this virtual configuration, appended to config file name")
+
+
+def main():
+    global UPSTREAM
+    global PACKAGE_MANAGER
+
     (args, argvalues) = argparser.parse_args()
 
     CONFIG.add_section('upstream')
@@ -494,7 +499,7 @@ if __name__ == '__main__':
 
     setup_logging()
     warn_if_root()
-    logging.info("Using configuration from %s", config_filename)
+    logger.info("Using configuration from %s", config_filename)
 
     UPSTREAM = UpstreamServer(CONFIG.items('upstream'))
     PACKAGE_MANAGER = PackageManagerAPT()
@@ -507,3 +512,7 @@ if __name__ == '__main__':
         CONFIG.get('proxy', 'certfile'),
         CONFIG.get('proxy', 'keyfile')
     )
+
+
+if __name__ == '__main__':
+    main()

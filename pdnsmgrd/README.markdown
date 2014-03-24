@@ -5,8 +5,8 @@
     apt-get install python ssl-cert
     sudo cat /etc/ssl/private/ssl-cert-snakeoil.key > ssl-cert-snakeoil.key
     cp /etc/ssl/certs/ssl-cert-snakeoil.pem ssl-cert-snakeoil.pem
-    cp pdnsmgrd.conf.example pdnsmgrd.conf
-    editor pdnsmgrd.conf
+    cp pdnsmgrd.conf.example /etc/powerdns/pdnsmgrd.conf
+    editor /etc/powerdns/pdnsmgrd.conf
     su - pdnsmgr
     ./pdnsmgrd
 
@@ -19,6 +19,14 @@
  * Start/Stop/Restart pdns daemons
  * Relay to pdns webservers
 
+## Configuration
+
+`pdnsmgrd` looks for it's configuration file `pdnsmgrd.conf` in `/etc/powerdns` by default (change this using
+`--config-dir`).
+
+If you are running PowerDNS Authoritative Server and PowerDNS Recursor on the same machine and
+want a `pdnsmgrd` instance for each, it is suggested you use `--config-name=auth` and `--config-name=recursor`
+respectively.
 
 ## Supported URLs
 

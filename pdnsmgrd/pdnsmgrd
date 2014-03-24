@@ -469,6 +469,13 @@ Instead, run it as a separate user (suggestion: pdnsmgrd) and give restricted su
 
 
 if __name__ == '__main__':
+    import optparse
+    argparser = optparse.OptionParser(description="PowerDNS daemon manager daemon")
+    argparser.add_option('--config-dir', default='/etc/powerdns', help="Location of configuration directory")
+    argparser.add_option('--config-name', default='',
+                         help="Name of this virtual configuration, appended to config file name")
+    (args, argvalues) = argparser.parse_args()
+
     CONFIG.add_section('upstream')
     CONFIG.set('upstream', 'authentication', 'forward')
     CONFIG.add_section('proxy')
@@ -478,11 +485,12 @@ if __name__ == '__main__':
     CONFIG.set('logging', 'target', 'syslog')
     CONFIG.set('logging', 'syslog', '/var/run/syslog' if platform.system() == 'Darwin' else '/dev/log')
     CONFIG.set('logging', 'log_requests', 'false')
-    config_filename = None
-    for config_filename in ["pdnsmgrd.conf", "/etc/pdnsmgrd.conf"]:
-        if os.path.isfile(config_filename):
-            CONFIG.read(config_filename)
-            break
+    config_filename = 'pdnsmgrd' + (('-' + args.config_name) if args.config_name else '')
+    config_filename = os.path.join(args.config_dir, config_filename + '.conf')
+    if not os.path.exists(config_filename):
+        print("E: Configuration file \"%s\" not found, aborting." % config_filename)
+        sys.exit(1)
+    CONFIG.read(config_filename)
 
     setup_logging()
     warn_if_root()

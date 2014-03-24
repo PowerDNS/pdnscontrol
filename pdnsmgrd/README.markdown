@@ -32,7 +32,7 @@ Do something.
  * For action=install and action=upgrade: **version** - the version to install/upgrade (_optional_)
  * **\_callback**: _optional_, turns response into JSONP instead of JSON
  
-POST with `application/x-www-form-urlencoded` preferred. Result will be JSON or JSONP (see **\_callback** parameter).
+POST with `application/x-www-form-urlencoded`. Result will be JSON or JSONP (see **\_callback** parameter).
 
 #### Example
 
@@ -44,7 +44,7 @@ POST with `application/x-www-form-urlencoded` preferred. Result will be JSON or 
 
 Relay `$subpath` to configured upstream.
 
-GET or POST. Result format will be determined by upstream server.
+Any method supported by the upstream server. Result format will be determined by upstream server.
 
 #### Example
 

@@ -65,9 +65,9 @@
             <graph target="nonNegativeDerivative(%SOURCE%.answers-slow)" title="over 1s" style="cacti" />
             <graph target="nonNegativeDerivative(%SOURCE%.outgoing-timeouts)" title="timeouts" style="cacti" />
           </graphite>
-          <graphite g-source="{{server.graphite_name}}" g-title="Cache" g-refresh="30" g-v-title="Queries per minute">
-            <graph target="nonNegativeDerivative(%SOURCE%.cache-hits)" title="cache hits" style="cacti" />
-            <graph target="nonNegativeDerivative(%SOURCE%.cache-misses)" title="cache misses" style="cacti" />
+          <graphite g-source="{{server.graphite_name}}" g-title="Cache rates" g-refresh="30" g-v-title="Queries per minute">
+            <graph target="nonNegativeDerivative(sumSeries(%SOURCE%.cache-hits, %SOURCE%.packetcache-hits))" title="cache hits" style="cacti" />
+            <graph target="nonNegativeDerivative(sumSeries(%SOURCE%.cache-misses, %SOURCE%.packetcache-misses))" title="cache misses" style="cacti" />
           </graphite>
           <graphite g-source="{{server.graphite_name}}" g-title="Cache size" g-area-mode="stacked" g-refresh="30" g-v-title="Entries">
             <graph target="%SOURCE%.cache-entries" title="entries" style="cacti" />

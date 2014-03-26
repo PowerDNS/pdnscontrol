@@ -70,8 +70,9 @@
             <graph target="nonNegativeDerivative(%SOURCE%.cache-misses)" title="cache misses" style="cacti" />
           </graphite>
           <graphite g-source="{{server.graphite_name}}" g-title="Cache size" g-area-mode="stacked" g-refresh="30" g-v-title="Entries">
-            <graph target="nonNegativeDerivative(%SOURCE%.cache-entries)" title="entries" style="cacti" />
-            <graph target="nonNegativeDerivative(%SOURCE%.negcache-entries)" title="negative entries" style="cacti" />
+            <graph target="%SOURCE%.cache-entries" title="entries" style="cacti" />
+            <graph target="%SOURCE%.negcache-entries" title="negative entries" style="cacti" />
+            <graph target="%SOURCE%.packetcache-entries" title="entries" style="cacti" />            
           </graphite>
           <graphite g-source="{{server.graphite_name}}" g-title="Concurrent queries" g-area-mode="stacked" g-refresh="30" g-v-title="Queries per minute">
             <graph target="nonNegativeDerivative(%SOURCE%.concurrent-queries)" title="queries" style="cacti" />

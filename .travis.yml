@@ -4,17 +4,13 @@ python:
 install:
  - "pip install -r requirements.txt"
 before_script:
- - export DISPLAY=:99.0
+ - export DISPLAY=:99
  - ./.travis.task before_script
 script:
- - cd instance
- - ./install.py
  - cd ..
  - ./manage.py assets build
- - cd pdnscontrol
- - npm install
- - node_modules/.bin/karma start test/karma.conf.js --no-auto-watch --single-run --reporters=dots --browsers=Firefox
- - node_modules/.bin/protractor test/protractor-conf.js --browser=firefox
+ - ./.travis.task run_with_server -- node_modules/.bin/karma start test/karma.conf.js --no-auto-watch --single-run --reporters=dots --browsers=Firefox
+ - ./.travis.task run_with_server -- node_modules/.bin/protractor test/protractor-conf.js --browser=firefox
 notifications:
   irc:
     channels:

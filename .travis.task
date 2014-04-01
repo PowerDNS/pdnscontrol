@@ -3,7 +3,8 @@ import os
 import shutil
 import sys
 import time
-from subprocess import check_call
+from subprocess import check_call, Popen
+
 
 def create_instance_conf():
     shutil.copyfile("instance/pdnscontrol.conf.example", "instance/pdnscontrol.conf")
@@ -16,14 +17,51 @@ SECURITY_PASSWORD_SALT = 'test-salt-do-not-use'
         """
         f.write(tpl.format(db=db))
 
+
+def npm(args):
+    args = ['npm'] + args
+    print "Running %s ..." % (' '.join(args))
+    check_call(args, cwd='pdnscontrol', close_fds=True)
+
+
 def before_script():
     create_instance_conf()
-    check_call("sh -e /etc/init.d/xvfb start")
-    os.system("npm start")
-    check_call("npm run update-webdriver")
+    npm(['install'])
+    npm(['run', 'update-webdriver'])
+    Popen(['Xvfb', os.environ.get('DISPLAY')], close_fds=True)
     time.sleep(2)  # give server time to start
+    check_call(['./install.py'], cwd='instance', close_fds=True)
 
-if sys.argv[-1] == 'before_script':
+
+def run_with_server():
+    args = sys.argv[3:]
+    if len(args) == 0:
+        raise RuntimeError('No command passed to run with server')
+    print "Running \"%s\" with debug server..." % (' '.join(args))
+    server_proc = Popen(['python', '-c', 'import pdnscontrol; pdnscontrol.app.run(use_reloader=False)'], close_fds=True)
+    time.sleep(2)  # wait for server to start
+    proc = None
+    print 'Server PID:', server_proc.pid
+    try:
+        proc = Popen(args, close_fds=True, cwd='pdnscontrol')
+        proc.communicate()
+        rc = proc.wait()
+        proc = None
+    finally:
+        print "Killing server..."
+        server_proc.kill()
+        print "Kill done"
+        server_proc.wait()
+        if proc:
+            proc.terminate()
+    sys.exit(rc)
+
+
+if len(sys.argv) < 2:
+    raise RuntimeError('Syntax: ./.travis.task COMMAND [-- command]')
+elif sys.argv[1] == 'before_script':
     before_script()
-
-
+elif sys.argv[1] == 'run_with_server':
+    run_with_server()
+else:
+    raise RuntimeError('Unknown COMMAND passed')

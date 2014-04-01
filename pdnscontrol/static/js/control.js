@@ -1242,6 +1242,7 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
 
     // now diff
     var changes = diffRRsets($scope.master.rrsets, $scope.zone.rrsets);
+    var changesCopiedForAutoPtr = [].concat(changes);
 
     // remove _new from all records
     forAllRRsetRecords($scope.zone.rrsets, function(record) {
@@ -1256,7 +1257,7 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
         // sort master and current so equals will return true.
         $scope.master.rrsets = angular.copy($scope.zone.rrsets);
         $scope.zone = angular.copy($scope.master);
-        doAutoPtr(changes);
+        doAutoPtr(changesCopiedForAutoPtr);
         return;
       }
 

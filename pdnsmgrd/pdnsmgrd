@@ -470,7 +470,10 @@ def drop_privs_if_root(user, group):
         exit(1)
 
     os.chdir('/')
-    os.initgroups(user, gid)
+    if getattr(os, 'initgroups', None) is not None:
+        os.initgroups(user, gid)
+    else:
+        logger.warn("Not initializing supplemental groups: Python too old")
     os.setgid(gid)
     os.setuid(uid)
 

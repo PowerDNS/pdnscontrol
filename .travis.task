@@ -37,20 +37,18 @@ def run_with_server():
     args = sys.argv[3:]
     if len(args) == 0:
         raise RuntimeError('No command passed to run with server')
-    print "Running \"%s\" with debug server..." % (' '.join(args))
+    print "Running \"%s\" with pdnscontrol debug server..." % (' '.join(args))
     server_proc = Popen(['python', '-c', 'import pdnscontrol; pdnscontrol.app.run(use_reloader=False)'], close_fds=True)
     time.sleep(2)  # wait for server to start
     proc = None
-    print 'Server PID:', server_proc.pid
     try:
         proc = Popen(args, close_fds=True, cwd='pdnscontrol')
         proc.communicate()
         rc = proc.wait()
         proc = None
     finally:
-        print "Killing server..."
+        print "Killing pdnscontrol debug server..."
         server_proc.kill()
-        print "Kill done"
         server_proc.wait()
         if proc:
             proc.terminate()

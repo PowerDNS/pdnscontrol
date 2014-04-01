@@ -7,7 +7,6 @@ before_script:
  - export DISPLAY=:99
  - ./.travis.task before_script
 script:
- - cd ..
  - ./manage.py assets build
  - ./.travis.task run_with_server -- node_modules/.bin/karma start test/karma.conf.js --no-auto-watch --single-run --reporters=dots --browsers=Firefox
  - ./.travis.task run_with_server -- node_modules/.bin/protractor test/protractor-conf.js --browser=firefox

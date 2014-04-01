@@ -1,7 +1,7 @@
 "use strict";
 
 var GraphiteModule = angular.module('graphite', []);
-GraphiteModule.directive('graphite', function($timeout) {
+GraphiteModule.directive('graphite', function($interval) {
   return {
     restrict: 'E',
     template: '<div class="graphite-graph"><div class="right graphite-times">' +
@@ -128,11 +128,11 @@ GraphiteModule.directive('graphite', function($timeout) {
         if (!jQuery.contains(document, elm[0])) {
           return;
         }
-        $timeout(function() {
+        $interval(function() {
           // refresh graphs
           beginRefresh();
           updateUrl();
-        }, attrs.gRefresh*1000);
+        }, attrs.gRefresh*1000, 1);
       }
 
       if (attrs.gRefresh && attrs.gRefresh > 0) {
@@ -153,7 +153,7 @@ GraphiteModule.directive('graph', function() {
   };
 });
 
-GraphiteModule.directive('sparklegraph', function($http, $timeout) {
+GraphiteModule.directive('sparklegraph', function($http, $interval) {
   function showGraph(server, metric, width, from, elm, doneCallback) {
     $http.get(ServerData.Config.graphite_server, {
       params: {
@@ -193,7 +193,7 @@ GraphiteModule.directive('sparklegraph', function($http, $timeout) {
 
         showGraph(server, metric, width, from, elm, function() {
           // schedule update in 5sec
-          $timeout(update, 5*1000);
+          $interval(update, 5*1000, 1);
         });
       }
       update();

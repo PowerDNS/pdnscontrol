@@ -55,6 +55,9 @@ GraphiteModule.directive('graphite', function($timeout) {
           have_targets = true;
 
           target = target.replace(/%SOURCE%/g, attrs.gSource);
+          if (attrs.gBase == 'time') {
+            target = 'scaleToSeconds(' + target + ', 1)';
+          }
           if (graphEl.attr('title')) {
             target = 'alias(' + target + ', \'' + graphEl.attr('title') + '\')';
           }

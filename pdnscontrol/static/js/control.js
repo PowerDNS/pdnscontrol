@@ -1424,6 +1424,16 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
     newRecord._new = true;
     rrset.records.splice(rrset.records.indexOf(current_record), 0, newRecord);
   };
+  $scope.validateNameType = function(rrset, fieldname, data) {
+    // check if name/type combination hasn't been used yet
+    var finder = {name: rrset.name, type: rrset.type};
+    finder[fieldname] = data; // overrides name or type from above
+    if (_.findWhere($scope.zone.rrsets, finder) !== undefined) {
+      alert('An RRset ' + finder.name + '/' + finder.type + ' already exists in this zone. Please choose another ' + fieldname + '.');
+      return false;
+    }
+    return true;
+  };
 
   $scope.commentsSupported = ($scope.zone.comments !== undefined);
 }]);

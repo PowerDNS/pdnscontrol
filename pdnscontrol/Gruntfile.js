@@ -4,7 +4,9 @@ module.exports = function(grunt) {
 
     sass: {
       options: {
-        includePaths: ['static/bower_components/foundation/scss', 'static/bower_components/bourbon/app/assets/stylesheets'],
+        includePaths: ['static/bower_components/angular-xeditable/dist/css',
+          'static/bower_components/foundation/scss',
+          'static/bower_components/bourbon/app/assets/stylesheets'],
         sourceComments: 'map'
       },
       dist: {

@@ -23,7 +23,7 @@
 <div class="row">
   <div class="small-6 columns" style="min-height: 30px;">
     <span ng-show="isChangeAllowed">
-      <button class="button tiny" ng-click="add()"><span class="foundicon-plus"></span></button>
+      <button class="button tiny" ng-click="addRRSet()"><span class="foundicon-plus"></span></button>
       &nbsp;
       <button class="button tiny" ng-click="save()" ng-class="{disabled: isClean()}"><span class="foundicon-inbox"></span> Save</button>
       &nbsp;
@@ -41,8 +41,77 @@
 </div>
 
 <div class="row">
-  <div class="small-12 columns">
-    <div class="gridStyle" ng-grid="recordsGridOptions" ng-init="gridExtraStyle=calcGridExtraStyle()" ng-style="gridExtraStyle">
-    </div>
+  <div class="small-5 columns">
+    <input type="text" ng-model="filterValue" placeholder="Search by name, content or comment...">
+  </div>
+  <div class="small-5 columns right">
+    <span class="right" ng-if="rowLimit < zone.rrsets.length">
+      Showing <input type="text" class="inline" ng-model="rowLimit" size="5"> records.
+      <a ng-click="showMore()">show more</a>
+    </span>
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns" ng-init="rowLimit = 100">
+    <table width="100%" class="recordEdit">
+      <tr>
+        <th width="30%">Name</th>
+        <th width="60">Type</th>
+        <th width="90" title="Disabled">Dis.</th>
+        <th width="60">TTL</th>
+        <th width="40">Prio</th>
+        <th width="40%">Data</th>
+      </tr>
+
+      <tbody ng-repeat="rrset in zone.rrsets | limitTo:rowLimit | filter:filterValue">
+        <tr ng-repeat="record in rrset.records" ng-class="{recordIsNew: record._new}">
+          <td ng-if="$first">
+            <span editable-text="rrset.name" buttons="no" style="white-space: nowrap" e-form="{{ ifRRsetIsNew(rrset, 'rrsetform') }}">
+              {{ stripZone(rrset.name) }}<span class="zoneName">{{ zoneDisplayName(rrset.name) }}</span>
+            </span>
+            <span class="right">
+            <!-- comment indicator -->
+              <a href="#" ng-click="editComments(rrset)" ng-show="commentsSupported"><i class="foundicon-paper-clip"></i><small>{{rrset.comments.length}}</small></a>
+            </span>
+          </td>
+          <td ng-if="$first" class="recordType">
+            <span ng-if="canModifyType(rrset)" editable-select="rrset.type" buttons="no" e-ng-options="rrType.name as rrType.name for rrType in creatableRRTypes" e-form="{{ ifRRsetIsNew(rrset, 'rrsetform') }}">
+              {{ rrset.type }}
+            </span>
+            <span ng-if="!canModifyType(rrset)">
+              {{ rrset.type }}
+            </span>
+          </td>
+          <td ng-if="!$first" colspan="2"></td>
+          <td class="recordDisabled"><span editable-checkbox="record.disabled" e-title="Disabled" e-form="rrsetform">
+            {{ record.disabled && "Dis." || "Active" }}
+            <!-- <input type=checkbox required ng-input="record.disabled" ng-model="record.disabled" ng-disabled="!isChangeAllowed"> -->
+            </span>
+          </td>
+          <td class="recordTtl"><span editable-text="record.ttl" e-form="rrsetform">{{ record.ttl }}</span></td>
+          <td class="recordPrio"><span editable-text="record.prio" e-form="rrsetform"><span ng-show="prioVisible(rrset, record)">{{ record.priority }}</span></span></td>
+          <td class="recordContent">
+            <span editable-text="record.content" class="{recordIsDisabled: record.disabled}" e-form="rrsetform">
+              {{ record.content }}
+            </span>
+            <span class="right" style="white-space: nowrap; display: inline-block; width: 50px;">
+              <form editable-form name="rrsetform" ng-show="rrsetform.$visible" class="form-buttons form-inline" shown="record._new">
+                <button type="submit" title="OK"><i class="foundicon-checkmark"></i></button>
+                <button type="cancel" title="Cancel"><i class="foundicon-refresh"></i></button>
+              </form>
+              <span ng-show="!rrsetform.$visible">
+                <!-- edit -->
+                <a href="#" ng-click="rrsetform.$show()" ng-show="canEdit(rrset)"><i class="foundicon-edit"></i></a>
+                <!-- trash can -->
+                <a href="#" ng-click="deleteRecord(rrset, record)" ng-show="canDelete(rrset)" class="alert"><i class="foundicon-trash"></i></a>
+                <!-- add new value -->
+                <a href="#" ng-click="duplicateRecord(rrset, record)" ng-show="canDuplicate(rrset)"><i class="foundicon-plus"></i></a>
+              </span>
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>

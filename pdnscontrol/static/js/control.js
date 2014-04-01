@@ -8,7 +8,8 @@ var ControlApp = angular.module('control', [
   'graphite',
   'ngGrid',
   'services.breadcrumbs',
-  'services.httpRequestTracker'
+  'services.httpRequestTracker',
+  'xeditable'
 ]);
 
 ControlApp.provider(
@@ -33,6 +34,11 @@ ControlApp.factory(
      return(error);
    }]
 );
+
+ControlApp.run(function(editableOptions) {
+  editableOptions.theme = 'default';
+});
+
 
 ////////////////////////////////////////////////////////////////////////
 // Shared object resolver functions
@@ -905,101 +911,128 @@ function revNameIPv6(ip) {
   return rev + '.ip6.arpa';
 }
 
-function toRRsetMap(input) {
-  var output = {};
-  var i, qname, qtype;
-  for (i = 0; i < input.length; i++) {
-    qname = input[i].name;
-    qtype = input[i].type;
-    output[qname] = output[qname] || {};
-    output[qname][qtype] = output[qname][qtype] || [];
-    if (input[i].content) {
-      // throws away empty comments
-      output[qname][qtype].push(input[i]);
-    }
-  }
-  return output;
-}
-
-function diffAB(a, b, diff_cb) {
-  var noChange = [], removed = [];
+function diffAB(a, b, select_cb) {
+  var unchanged = [], changed = [], removed = [];
+  var bCopy = [].concat(b);
   var aIdx = a.length;
   while (aIdx--) {
     var found = false;
     var aEntry = a[aIdx];
-    var bIdx = b.length;
+    var bIdx = bCopy.length;
     while (bIdx--) {
-      var bEntry = b[bIdx];
-      found = diff_cb(aEntry, bEntry);
+      var bEntry = bCopy[bIdx];
+      found = select_cb(aEntry, bEntry);
       if (found) {
+        if (!angular.equals(aEntry, bEntry)) {
+          changed.push([aEntry, bEntry]);
+        } else {
+          unchanged.push(aEntry);
+        }
+        bCopy.splice(bIdx, 1);
         break;
       }
     }
-    if (found) {
-      noChange.push(aEntry);
-    } else {
+    if (!found) {
       removed.push(aEntry);
     }
   }
-  return {noChange: noChange, removed: removed};
+  return {unchanged: unchanged, changed: changed, removed: removed, added: bCopy};
 }
 
-function diffZone(master, current, key) {
+/**
+ * Returns differences in two rrset lists, suitable for PowerDNS
+ * API server to understand them as change operations to be applied
+ * to an existing zone.
+ * Output format:
+ {
+  "name": <string>,
+  "type": <string>,
+  "changetype": <changetype>,
+  "records": [
+     {
+       "content": <string>,
+       "name": <string>,
+       "priority": <int>,
+       "ttl": <int>,
+       "type": <string>,
+       "disabled": <bool>
+     }, ...
+   ],
+   "comments": [
+     {
+       "account": <string>,
+       "content": <string>,
+       "modfied_at": <int>
+     }, ...
+   ]
+ }
+ */
+function diffRRsets(master, current) {
   function cmpNameType(a, b) {
     return a.name === b.name && a.type === b.type;
   }
 
-  var removedNameTypes = diffAB(master[key], current[key], cmpNameType);
-  var addedNameTypes = diffAB(current[key], master[key], cmpNameType);
-  var noNameTypeChangeNameTypes = _.union(removedNameTypes.noChange, addedNameTypes.noChange);
-  removedNameTypes = removedNameTypes.removed;
-  addedNameTypes = addedNameTypes.removed;
+  var changes = [];
+  var diff = diffAB(master, current, cmpNameType);
+  var data_attributes = ['records', 'comments'];
+  /*
+  console.log('---');
+  console.log('removed: ', diff.removed);
+  console.log('added: ', diff.added);
+  console.log('changed: ', diff.changed);
+  console.log('unchanged: ', diff.unchanged);
+  */
 
-    var changes = [];
+  _.each(diff.removed, function(nt) {
+    var overrides = _.reduce(data_attributes, function(memo, name) {
+      memo[name] = []; // required to do an actual delete
+      return memo;
+    }, {});
+    changes.push(_.extend({}, nt, overrides, {changetype: 'replace'}));
+  });
 
-    _.each(removedNameTypes, function(nt) {
-      var change = {
-        changetype: 'replace',
-        name: nt.name,
-        type: nt.type
-      };
-      change[key] = []; // required to do an actual delete
-      changes.push(change);
-    });
+  _.each(diff.added, function(nt) {
+    changes.push(_.extend({}, nt, {changetype: 'replace'}));
+  });
 
-    _.each(addedNameTypes, function(nt) {
-      var change = {
-        changetype: 'replace',
-        name: nt.name,
-        type: nt.type
-      };
-      change[key] = _.filter(current[key], function(rr) {
-        return cmpNameType(rr, nt);
-      });
-      changes.push(change);
-    });
+  _.each(diff.changed, function(ntList) {
+    changes.push(_.extend({}, ntList[1], {changetype: 'replace'}));
+  });
 
-    _.each(noNameTypeChangeNameTypes, function(nt) {
-      var entriesCurrent = _.filter(current[key], function(rr) {
-        return cmpNameType(rr, nt);
-      });
-      var entriesMaster = _.filter(master[key], function(rr) {
-        return cmpNameType(rr, nt);
-      });
-      var change;
-      if (!angular.equals(entriesCurrent.sort(), entriesMaster.sort())) {
-        change = {
-          changetype: 'replace',
-          name: nt.name,
-          type: nt.type
-        };
-        change[key] = _.filter(current[key], function(rr) {
-          return cmpNameType(rr, nt);
-        });
-        changes.push(change);
-      }
-    });
   return changes;
+}
+
+function forAllRRsetRecords(rrsets, cb) {
+  var i = rrsets.length, j;
+  while (i--) {
+    var rrset = rrsets[i];
+    j = rrset.records.length;
+    while (j--) {
+      rrset.records[j] = cb(rrset.records[j]);
+    }
+  }
+  return rrsets;
+}
+
+/**
+ * Sync names and types from rrsets down to records.
+ */
+function syncRRsetRecordNameTypes(rrsets) {
+  var i = rrsets.length, j;
+  while (i--) {
+    var rrset = rrsets[i];
+    j = rrset.records.length;
+    while (j--) {
+      rrset.records[j].name = rrset.name;
+      rrset.records[j].type = rrset.type;
+    }
+    j = rrset.comments.length;
+    while (j--) {
+      rrset.comments[j].name = rrset.name;
+      rrset.comments[j].type = rrset.type;
+    }
+  }
+  return rrsets;
 }
 
 ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Restangular', 'server', 'zone', function($scope, $compile, $timeout, Restangular, server, zone) {
@@ -1007,10 +1040,25 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
   $scope.loading = false;
 
   $scope.master = zone;
+  $scope.master.rrsets = convertZoneToRRsetList(zone);
   $scope.zone = Restangular.copy($scope.master);
 
   $scope.isClean = function() {
     return angular.equals($scope.master, $scope.zone);
+  };
+
+  $scope.rrTypes = rrTypes;
+  $scope.creatableRRTypes = _.filter(rrTypes, function(t) {
+    if (t.allowCreate === undefined)
+      return true;
+    return t.allowCreate;
+  });
+  $scope.canModifyType = function(rrset) {
+    return rrset.type === '' || (_.findWhere($scope.creatableRRTypes, {'name': rrset.type})) !== undefined;
+  };
+
+  $scope.showMore = function() {
+    $scope.rowLimit += 100;
   };
 
   function matchAutoPtrsToZones(possiblePtrs) {
@@ -1190,52 +1238,25 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
   }
 
   $scope.save = function() {
-    function rrCmpSerialize(rr) {
-      return '' + rr.name + '/' + rr.type + '/' + rr.ttl + '/' + rr.prio + '/' + rr.content + '/' + rr.disabled;
-    }
-    function commentCmpSerialize(c) {
-      return '' + c.name + '/' + c.type + '/' + c.modified_at + '/' + c.account + '/' + c.content;
-    }
+    $scope.zone.rrsets = syncRRsetRecordNameTypes($scope.zone.rrsets);
 
-    var commentChanges = [];
-    if ($scope.master.comments !== undefined) {
-      commentChanges = diffZone($scope.master, $scope.zone, 'comments');
-    }
-    var recordChanges = diffZone($scope.master, $scope.zone, 'records');
-    var changes = _.compact(recordChanges); // copy
+    // now diff
+    var changes = diffRRsets($scope.master.rrsets, $scope.zone.rrsets);
 
-    // merge comment changes into record changes, if possible.
-    var changeIdx = changes.length;
-    while (changeIdx--) {
-      if (changes[changeIdx].changetype !== 'replace') {
-        continue;
-      }
-      var commentIdx = commentChanges.length;
-      while (commentIdx--) {
-        if (commentChanges[commentIdx].name === changes[changeIdx].name &&
-            commentChanges[commentIdx].type === changes[changeIdx].type) {
-          changes[changeIdx].comments = commentChanges[commentIdx].comments;
-          commentChanges.splice(commentIdx, 1);
-        }
-      }
-    }
-    // everything left in commentChanges is now a comment-only change.
-    // merge both arrays into a single change list.
-    var change;
-    while (change = commentChanges.pop()) {
-      changes.push(change);
-    }
+    // remove _new from all records
+    forAllRRsetRecords($scope.zone.rrsets, function(record) {
+      record._new = undefined;
+      return record;
+    });
 
     function sendNextChange(changes) {
       var change = changes.pop();
       if (change === undefined) {
         // done.
         // sort master and current so equals will return true.
-        $scope.zone.records = _.sortBy($scope.zone.records, rrCmpSerialize);
-        $scope.master.records = _.sortBy($scope.master.records, rrCmpSerialize);
-        $scope.zone.comments = _.sortBy($scope.zone.comments, commentCmpSerialize);
-        $scope.master.comments = _.sortBy($scope.master.comments, commentCmpSerialize);
-        doAutoPtr(recordChanges);
+        $scope.master.rrsets = angular.copy($scope.zone.rrsets);
+        $scope.zone = angular.copy($scope.master);
+        doAutoPtr(changes);
         return;
       }
 
@@ -1250,25 +1271,6 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
           $scope.errors.push(response.error);
           return;
         }
-
-        // replace data in master with saved data
-        _.each(['comments', 'records'], function(key) {
-          if (!change[key])
-            return;
-
-          var idx = $scope.master[key].length;
-          while(idx--) {
-            var row = $scope.master[key][idx];
-            if (row.name === change.name && row.type === change.type) {
-              $scope.master[key].splice(idx, 1);
-            }
-          }
-          _.each(change[key], function(row) {
-            row._new = undefined;
-            $scope.master[key].push(_.extend({}, row));
-          });
-        });
-
         sendNextChange(changes);
       }, function(errorResponse) {
         $scope.errors.push(errorResponse.data.error || 'Unknown server error');
@@ -1305,18 +1307,10 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
     });
   };
 
-  function focusRow(gridOptions, rowToSelect) {
-    gridOptions.selectItem(rowToSelect, true);
-    var grid = gridOptions.ngGrid;
-    grid.$viewport.scrollTop(grid.rowMap[rowToSelect] * grid.config.rowHeight);
-  }
-
-  $scope.add = function() {
+  $scope.addRRSet = function() {
     // TODO: get default ttl from somewhere
-    $scope.zone.records.push({name: $scope.zone.name, type: '', priority: 0, ttl: 3600, content: '', disabled: false, _new: true});
-    $timeout(function() {
-      focusRow($scope.recordsGridOptions, $scope.zone.records.length-1);
-    }, 100);
+    var rrset = {name: $scope.zone.name, type: '', records: [{priority: 0, ttl: 3600, content: '', disabled: false, _new: true}], comments: [], _new: true};
+    $scope.zone.rrsets.push(rrset);
   };
 
   function setFlags() {
@@ -1355,61 +1349,6 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
     $scope.zone = Restangular.copy($scope.master);
   };
 
-  var rrTypesSort = function(a,b) {
-    var typeA = _.findWhere($scope.rrTypes, {name: a}) || {};
-    var typeB = _.findWhere($scope.rrTypes, {name: b}) || {};
-    var weightA = typeA.sortWeight || 0;
-    var weightB = typeB.sortWeight || 0;
-    if (weightA < weightB) {
-      return -1;
-    }
-    if (weightA > weightB) {
-      return 1;
-    }
-    if (a == b) return 0;
-    if (a < b) return 1;
-    return -1;
-  };
-
-  $scope.rrTypes = [
-    {name: 'SOA', required: true, allowCreate: false, sortWeight: -100},
-    {name: 'A'},
-    {name: 'AAAA'},
-    {name: 'NS', sortWeight: -50},
-    {name: 'CNAME'},
-    {name: 'MR'},
-    {name: 'PTR'},
-    {name: 'HINFO'},
-    {name: 'MX'},
-    {name: 'TXT'},
-    {name: 'RP'},
-    {name: 'AFSDB'},
-    {name: 'SIG'},
-    {name: 'KEY'},
-    {name: 'LOC'},
-    {name: 'SRV'},
-    {name: 'CERT'},
-    {name: 'NAPTR'},
-    {name: 'DS', sortWeight: -50},
-    {name: 'SSHFP'},
-    {name: 'RRSIG'},
-    {name: 'NSEC'},
-    {name: 'DNSKEY'},
-    {name: 'NSEC3'},
-    {name: 'NSEC3PARAM'},
-    {name: 'TLSA'},
-    {name: 'SPF'},
-    {name: 'DLV'}
-  ];
-  $scope.creatableRRTypes = _.filter($scope.rrTypes, function(t) {
-    if (t.allowCreate === undefined)
-      return true;
-    return t.allowCreate;
-  });
-  var typeEditTemplate = '<select ng-model="COL_FIELD" required ng-options="rrType.name as rrType.name for rrType in creatableRRTypes" ng-show="!!row.entity._new"></select><div class="ngCellText" ng-show="!!!row.entity._new">{{COL_FIELD}}</div>';
-
-  var checkboxEditTemplate = '<input type=checkbox required ng-class="\'colt\' + col.index" ng-input="COL_FIELD" ng-model="COL_FIELD">';
-  var checkboxViewTemplate = '<div class="ngCellText" ng-class=\"col.colIndex()\"><input type=checkbox required ng-model="COL_FIELD" ng-disabled="!isChangeAllowed"></div>';
   $scope.stripZone = function(val) {
     if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) === '.'+$scope.zone.name) {
       val = val.substring(0, val.lastIndexOf('.'+$scope.zone.name));
@@ -1418,107 +1357,82 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
     }
     return val;
   };
-  $scope.stripLabel = function(val) {
+  $scope.zoneDisplayName = function(val) {
+    var ret;
     if (val.substring(val.lastIndexOf('.'+$scope.zone.name)) === '.'+$scope.zone.name) {
-      val = $scope.zone.name;
+      ret = $scope.zone.name;
     } else if (val === $scope.zone.name) {
-      val = $scope.zone.name;
+      ret = $scope.zone.name;
     } else {
-      val = ''; // zone name missing
+      ret = ''; // zone name missing
     }
-    return val;
+    if (ret === $scope.zone.name && ret.length > 10) {
+      if ((val.length-ret.length) > 10) {
+        // long label
+        ret = '...';
+      } else {
+        // long zone name
+        ret = '$ORIGIN';
+      }
+    }
+    if (val !== $scope.zone.name) {
+      ret = '.' + ret;
+    }
+    return ret;
   };
-  var nameViewTemplate = '<div class="ngCellText">{{stripZone(row.getProperty(col.field))}}<span class="zoneName">.{{stripLabel(row.getProperty(col.field))}}</span></div>';
-  var nameEditTemplate = '';
 
   var typesWithPriority = ['MX', 'SRV'];
-  $scope.prioVisible = function(row) {
-    return (typesWithPriority.indexOf(row.getProperty('type')) !== -1) || (row.getProperty('priority') > 0);
+  $scope.prioVisible = function(rrset, record) {
+    return (typesWithPriority.indexOf(rrset.type) !== -1) || (record.priority > 0);
   };
-  var prioViewTemplate = '<div class="ngCellText"><span ng-show="prioVisible(row)">{{row.getProperty(col.field)}}</span></div>';
 
-  $scope.updateCommentCache = function() {
-    $scope.commentCache = toRRsetMap($scope.zone.comments || []);
-  };
-  $scope.updateCommentCache();
-
-  $scope.commentCount = function(ngRow) {
-    var record = ngRow.entity;
-    if (!$scope.commentCache[record.name]) {
-      return 0;
-    }
-    return ($scope.commentCache[record.name][record.type] || []).length;
-  };
-  $scope.editComment = function(ngRow) {
-    var record = ngRow.entity;
+  $scope.editComments = function(rrset) {
     showPopup($scope, $compile, 'zone/edit_comment', function(scope) {
-      $scope.record = record;
+      $scope.rrset = rrset;
     });
   };
-  $scope.canDelete = function(ngRow) {
-    if (!$scope.isChangeAllowed)
-      return false;
-    if (ngRow.entity.type === 'SOA' && $scope.zone.name === ngRow.entity.name)
-      return false;
-    return true;
+  $scope.ifRRsetIsNew = function(rrset, ifNew, ifNotNew) {
+    // Used to associate Name and Type edit fields with the record edit form, if the record has just been inserted.
+    return (rrset._new && ifNew || ifNotNew);
   };
-  $scope.deleteRow = function(ngRow) {
-    if (!$scope.canDelete(ngRow))
+  $scope.canDelete = function(rrset) {
+    return !(
+      !$scope.isChangeAllowed ||
+      (rrset.type === 'SOA' && $scope.zone.name === rrset.name)
+      );
+  };
+  $scope.canEdit = function(rrset) {
+    return $scope.isChangeAllowed;
+  };
+  $scope.canDuplicate = function(rrset) {
+    return !(
+      !$scope.isChangeAllowed ||
+      rrset.type === 'CNAME' ||
+      (rrset.type === 'SOA' && $scope.zone.name === rrset.name)
+      );
+  };
+  $scope.deleteRecord = function(rrset, record) {
+    if (!$scope.canDelete(rrset)) {
+      // how did we come here? - trash icon should be disabled
       return;
-    $scope.zone.records.splice($scope.zone.records.indexOf(ngRow.entity), 1);
+    }
+    rrset.records.splice(rrset.records.indexOf(record), 1);
   };
-
-  $scope.calcGridExtraStyle = function() {
-    // HACK: 100px are whatever?
-    return {height: ($(window).height() - $(".gridStyle").offset().top - 100) + "px"};
-  };
-
-  $scope.mySelections = [];
-  var preliminaryOptions = {
-    data: 'zone.records',
-    enableRowSelection: false,
-    enableCellEditOnFocus: false,
-    enableCellSelection: false,
-    enableCellEdit: $scope.isChangeAllowed,
-    enableColumnResize: true,
-    showSelectionCheckbox: false,
-    showFilter: true,
-    menuTemplate: templateUrl('grid/menuTemplate'),
-    sortInfo: {
-      fields: ['name', 'type', 'priority', 'content', 'ttl', 'disabled'],
-      directions: ['asc', 'asc', 'asc', 'asc', 'asc', 'asc']
-    },
-    selectedItems: $scope.mySelections,
-    columnDefs: [
-      {field: 'name', displayName: 'Name', enableCellEdit: $scope.isChangeAllowed, cellTemplate: nameViewTemplate, editableCellTemplate: nameEditTemplate, resizable: true, width: '20%', sortFn: dnsNameSort},
-      {field: 'disabled', displayName: 'Dis.', width: '40', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: checkboxEditTemplate, cellTemplate: checkboxViewTemplate },
-      {field: 'type', displayName: 'Type', width: '70', enableCellEdit: $scope.isChangeAllowed, editableCellTemplate: typeEditTemplate, sortFn: rrTypesSort},
-      {field: 'ttl', displayName: 'TTL', width: '60', enableCellEdit: $scope.isChangeAllowed},
-      {field: 'priority', displayName: 'Prio', width: '40', enableCellEdit: $scope.isChangeAllowed, cellTemplate: prioViewTemplate},
-      {field: 'content', displayName: 'Data', enableCellEdit: $scope.isChangeAllowed},
-    ]
+  $scope.duplicateRecord = function(rrset, current_record) {
+    // insert copy of selected record immediately after it
+    var newRecord = angular.copy(current_record);
+    newRecord._new = true;
+    rrset.records.splice(rrset.records.indexOf(current_record), 0, newRecord);
   };
 
   $scope.commentsSupported = ($scope.zone.comments !== undefined);
-
-  if ($scope.isChangeAllowed || $scope.commentsSupported) {
-    preliminaryOptions.columnDefs.splice(0, 0,
-      {field: '_', displayName: '', cellTemplate: templateUrl('zone/recordsgrid-rowmeta'), enableCellEdit: false, groupable: false, resizable: false, sortable: false, width: ($scope.isChangeAllowed ? 50 : 20)});
-  }
-
-  $scope.recordsGridOptions = preliminaryOptions;
 }]);
 
 ControlApp.controller('ZoneCommentCtrl', ['$scope', 'Restangular', function($scope, Restangular) {
-  var qname = $scope.record.name;
-  var qtype = $scope.record.type;
+  var qname = $scope.rrset.name;
+  var qtype = $scope.rrset.type;
 
-  // make our own comment_map
-  var comment_map = toRRsetMap($scope.zone.comments || []);
-  comment_map[qname] = comment_map[qname] || {};
-  comment_map[qname][qtype] = comment_map[qname][qtype] || [];
-
-  $scope.master = comment_map[qname][qtype];
+  $scope.master = $scope.rrset.comments;
   $scope.comments = Restangular.copy($scope.master);
 
   $scope.isClean = function() {
@@ -1531,21 +1445,18 @@ ControlApp.controller('ZoneCommentCtrl', ['$scope', 'Restangular', function($sco
     $scope.comments.splice(index, 1);
   };
   $scope.close = function() {
-    // remove previous comments for this RRset
-    $scope.zone.comments = _.filter($scope.zone.comments, function(c) {
-      return !(c.name === qname && c.type === qtype);
-    });
-    _.each($scope.comments, function(c) {
-      if (c.content) {
-        if (!c.modified_at) {
-          c.modified_at = moment().unix();
-        }
-        $scope.zone.comments.push(c);
+    var i, c;
+    for (i = 0; i < $scope.comments.length; i++) {
+      c = $scope.comments[i];
+      if (c.content && !c.modified_at) {
+        c.modified_at = moment().unix();
       }
-    });
-    if ($scope.updateCommentCache) {
-      $scope.updateCommentCache();
+      if (!c.content && c._new) {
+        $scope.comments.splice(i, 1);
+        i--;
+      }
     }
+    $scope.rrset.comments = $scope.comments;
     $scope.$emit("finished");
   };
 
@@ -1614,7 +1525,7 @@ ControlApp.controller('ZoneEditCtrl', ['$scope', '$location', 'Restangular', 'se
   };
 
   $scope.showMasters = function() {
-    return $scope.zone.kind == 'Slave';
+    return $scope.zone.kind === 'Slave';
   };
 
   $scope.addNameserver = function() {

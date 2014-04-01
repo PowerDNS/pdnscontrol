@@ -2,6 +2,8 @@
 import os
 import shutil
 import sys
+import time
+from subprocess import check_call
 
 def create_instance_conf():
     shutil.copyfile("instance/pdnscontrol.conf.example", "instance/pdnscontrol.conf")
@@ -16,6 +18,10 @@ SECURITY_PASSWORD_SALT = 'test-salt-do-not-use'
 
 def before_script():
     create_instance_conf()
+    check_call("sh -e /etc/init.d/xvfb start")
+    os.system("npm start")
+    check_call("npm run update-webdriver")
+    time.sleep(2)  # give server time to start
 
 if sys.argv[-1] == 'before_script':
     before_script()

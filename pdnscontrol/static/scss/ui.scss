@@ -92,13 +92,6 @@ form.inline-form {
     display: none;
 }
 
-.newRecord input, .newRecord select {
-    display: inline;
-    width: auto;
-    height: auto;
-    padding: 0;
-}
-
 .hidden {
     display: none;
 }
@@ -190,8 +183,18 @@ footer {
 }
 
 /* records editor */
+.recordRowMeta {
+  white-space: nowrap;
+  word-spacing: 0;
+  padding-right: 0;
+}
 .recordRowMeta .disabled {
   color: scale-color(#000, $lightness: 80%);
+}
+.recordIsDisabled {
+  text-decoration: line-through;
+  color: scale-color(#000, $lightness: 30%);
+  font-style: italic;
 }
 
 /* override ngGrid CSS */
@@ -259,4 +262,124 @@ footer {
   left: 0px;
   position: absolute;
   z-index: 99;
+}
+
+
+
+/* angular-xeditable styles */
+.editable-wrap {
+  display: inline-block;
+  white-space: nowrap;
+  margin: 0;
+}
+/* remove bottom-margin for bootstrap */
+.editable-wrap .editable-controls,
+.editable-wrap .editable-error {
+  margin-bottom: 0;
+}
+/* remove bottom-margin of inputs */
+.editable-wrap .editable-controls > input,
+.editable-wrap .editable-controls > select,
+.editable-wrap .editable-controls > textarea {
+  margin-bottom: 0;
+}
+/* keep buttons on the same line */
+.editable-wrap .editable-input {
+  display: inline-block;
+}
+.editable-buttons {
+  display: inline-block;
+  vertical-align: top;
+}
+.editable-buttons button {
+  margin-left: 5px;
+}
+/* in bootstrap width: 100% => buttons go outside the box */
+.editable-input.editable-has-buttons {
+  width: auto;
+}
+/* workaround for bootstrap that sets width: 100% and inputs become too wide */
+.editable-bstime .editable-input input[type="text"] {
+  width: 46px;
+}
+/* less padding for .well */
+.editable-bstime .well-small {
+  margin-bottom: 0;
+  padding: 10px;
+}
+.editable-range output {
+  display: inline-block;
+  min-width: 30px;
+  vertical-align: top;
+  text-align: center;
+}
+.editable-color input[type="color"] {
+  width: 50px;
+}
+.editable-checkbox label span,
+.editable-checklist label span,
+.editable-radiolist label span {
+  margin-left: 7px;
+  margin-right: 10px;
+}
+
+/* angular-xeditable overrides */
+.editable-click:hover {
+  background: yellow;
+}
+.editable-hide {
+  display: none !important;
+}
+
+
+/* record editor */
+.recordEdit {
+  input[type=text], input[type=checkbox], select {
+    padding: 0;
+    display: inline;
+    margin: 0;
+    height: auto;
+  }
+  button {
+    margin: 0;
+    padding: 0;
+    color: $primary-color;
+    background: none;
+  }
+  button[type=cancel] {
+    color: $alert-color;
+  }
+}
+table.recordEdit {
+  tr th, tr td {
+    padding: 0.3rem 0.3rem;
+  }
+}
+
+/* fixed widths for columns and xeditable fields */
+.recordPrio {
+  width: 40px;
+  input[type=text] {
+    width: 30px;
+  }
+}
+.recordTtl {
+  width: 60px;
+  input[type=text] {
+    width: 50px;
+  }
+}
+.recordDisabled {
+  width: 80px;
+  input[type=text] {
+    width: 70px;
+  }
+}
+.recordContent {
+  input[type=text] {
+    min-width: 300px;
+  }
+}
+.recordType {
+  width: 60px;
 }

@@ -42,7 +42,6 @@ asset_env.debug = app.debug
 
 asset_env.register('styles', 'stylesheets/app.css', output='gen/styles-%(version)s.css')
 js_libs = [
-    'sizzle/dist/sizzle.js',
     'jquery/dist/jquery.js',
     'modernizr/modernizr.js',
     'fastclick/lib/fastclick.js',
@@ -56,6 +55,7 @@ js_libs = [
     'FileSaver/FileSaver.js',
     'angular/angular.js',
     'angular-route/angular-route.js',
+    'angular-xeditable/dist/js/xeditable.js',
     'restangular/dist/restangular.js',
     'ng-grid/build/ng-grid.debug.js',
     'moment/moment.js',

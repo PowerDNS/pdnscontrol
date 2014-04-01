@@ -2,8 +2,10 @@
   "name": "pdnscontrol",
   "dependencies": {
     "foundation": "zurb/bower-foundation",
-    "angular": "~1.2.14",
-    "angular-route": "~1.2.14",
+    "angular": "~1.2.15",
+    "angular-route": "~1.2.15",
+    "angular-mocks": "~1.2.15",
+    "angular-xeditable": "~0.1.8",
     "restangular": "1.0.3",
     "blob": "4d085bb2e5be6ac6f2ddfad187fc0a53d89aca56",
     "FileSaver": "da0d8ffa6aa182df99d8ab3b2fa10e421398dc22",

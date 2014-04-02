@@ -241,15 +241,6 @@ ControlApp.directive('searchlog', function() {
         showPopup($scope, $compile, 'server/search_log', function(popupScope) {
           popupScope.logData = [];
           popupScope.errors = [];
-          popupScope.logSearchGrid = {
-            data: 'logData',
-            enableRowSelection: false,
-            columnDefs: [
-              {field: 'date', displayName: 'Date', width: 200, cellFilter: 'short_timestamp'},
-              {field: 'hostname', displayName: 'Hostname', width: '80'},
-              {field: 'message', displayName: 'Message'}
-            ]
-          };
 
           _.each(servers, function(server) {
             server.search_log({q: $scope.query}).then(function(response) {

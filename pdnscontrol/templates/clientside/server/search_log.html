@@ -5,7 +5,23 @@
   </ul>
 </div>
 <div class="row output" ng-show="errors.length != servers.length">
-  <div class="gridStyle" ng-grid="logSearchGrid">
+  <div class="small-12 columns">
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Server</th>
+          <th>Message</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="entry in logData">
+        <td>{{ entry.date|short_timestamp }}</td>
+        <td>{{ entry.hostname }}</td>
+        <td>{{ entry.message }}</td>
+      </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 <div class="row">

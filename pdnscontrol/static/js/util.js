@@ -22,22 +22,26 @@ function dnsNameSort(a,b) {
   return 0;
 }
 
-function toRRsetList(input) {
+function zoneSort(input) {
   "use strict";
-  var output = [];
-  var sorted = input.sort(function (left, right) {
-    var a = left.name;
-    var b = right.name;
-    if (a !== b) {
-      if (a > b) return 1;
-      if (a < b) return -1;
+  return input.sort(function(left, right) {
+    var res;
+    res = dnsNameSort(left.name, right.name);
+    if (res !== 0) {
+      return res;
     }
-    var types = rrTypesSort(left.type, right.type);
-    if (types !== 0) {
-      return types;
+    res = rrTypesSort(left.type, right.type);
+    if (res !== 0) {
+      return res;
     }
     return input.indexOf(left) < input.indexOf(right) ? -1 : 1;
   });
+}
+
+function toRRsetList(input) {
+  "use strict";
+  var output = [];
+  var sorted = zoneSort(input);
   sorted.push({name: undefined, type: undefined});
   var i, last_name = null, last_type = null;
   var memo = [];

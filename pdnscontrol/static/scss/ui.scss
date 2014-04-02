@@ -193,43 +193,6 @@ footer {
   font-style: italic;
 }
 
-/* override ngGrid CSS */
-.ngHeaderButton {
-  background: inherit;
-  right: 6px;
-}
-.ngColMenu {
-  background: white;
-  border: 1px solid #666;
-  padding: 0;
-  border-radius: 0;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
-  input {
-    margin: 0; /* override foundation */
-  }
-}
-/* match up ngGrid CSS with Foundation colors */
-.ngGrid, .ngRow.odd {
-  background-color: $table-bg;
-}
-.ngRow.even {
-  background-color: $table-even-row-bg;
-}
-.ngRow.selected {
-  background-color: $secondary-color;
-}
-.ngTopPanel, .ngGroupPanel {
-  background-color: $table-head-bg;
-}
-.ngVerticalBarVisible {
-  width: $table-border-size;
-  background-color: $table-border-color;
-}
-.ngRow select {
-  /* override Foundation so select fits into the cell */
-  height: 1.5rem;
-  padding: 0;
-}
 
 /* our own tooltips, which don't need JS */
 /* Note: can't attach to table-cell, block or similar. */

@@ -6,7 +6,6 @@ var ControlApp = angular.module('control', [
   'models',
   'components',
   'graphite',
-  'ngGrid',
   'services.breadcrumbs',
   'services.httpRequestTracker',
   'xeditable'

@@ -57,7 +57,6 @@ js_libs = [
     'angular-route/angular-route.js',
     'angular-xeditable/dist/js/xeditable.js',
     'restangular/dist/restangular.js',
-    'ng-grid/build/ng-grid.debug.js',
     'moment/moment.js',
     'jstz-detect/jstz.js',
     'jquery.sparkline/dist/jquery.sparkline.js'

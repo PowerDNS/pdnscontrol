@@ -694,6 +694,12 @@ ControlApp.controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'R
   }
   loadServerData();
 
+  $scope.refreshStatistics = function() {
+    server.get().then(function(s) {
+      $scope.server = s;
+    });
+  };
+
   $scope.canEditConfig = function(varname) {
     return varname === 'allow-from';
   };

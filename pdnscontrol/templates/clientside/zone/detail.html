@@ -66,8 +66,11 @@
 
       <tbody ng-repeat="rrset in zone.rrsets | limitTo:rowLimit | filter:filterValue">
         <tr ng-repeat="record in rrset.records" ng-class="{recordIsNew: record._new}">
-          <td ng-if="$first">
-            <span editable-text="rrset.name" buttons="no" onbeforesave="validateNameType(rrset, 'name', $data)" style="white-space: nowrap" e-form="{{ ifRRsetIsNew(rrset, 'rrsetform') }}">
+          <td ng-if="$first" style="white-space: nowrap">
+            <span ng-if="canEdit(rrset)" editable-text="rrset.name" buttons="no" onbeforesave="validateNameType(rrset, 'name', $data)" e-form="{{ ifRRsetIsNew(rrset, 'rrsetform') }}">
+              {{ stripZone(rrset.name) }}<span class="zoneName">{{ zoneDisplayName(rrset.name) }}</span>
+            </span>
+            <span ng-if="!canEdit(rrset)">
               {{ stripZone(rrset.name) }}<span class="zoneName">{{ zoneDisplayName(rrset.name) }}</span>
             </span>
             <span class="right">

@@ -1249,8 +1249,7 @@ ControlApp.controller('ZoneDetailCtrl', ['$scope', '$compile', '$timeout', 'Rest
     function sendNextChange(changes) {
       var change = changes.pop();
       if (change === undefined) {
-        // done.
-        // sort master and current so equals will return true.
+        // done. reset master so angular.equals will return true.
         $scope.master.rrsets = angular.copy($scope.zone.rrsets);
         $scope.zone = angular.copy($scope.master);
         doAutoPtr(changesCopiedForAutoPtr);

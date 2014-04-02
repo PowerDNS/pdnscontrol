@@ -72,6 +72,11 @@ js_app = [
     "models.js",
     "breadcrumbs.js",
     "httpRequestTracker.js",
+    "controllers.me.js",
+    "controllers.server.js",
+    "controllers.ui.js",
+    "controllers.user.js",
+    "controllers.zone.js",
     "control.js"
 ]
 js_app_files = ['js/'+x for x in js_app]

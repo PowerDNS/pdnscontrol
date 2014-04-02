@@ -1,7 +1,7 @@
 "use strict";
 
-var GraphiteModule = angular.module('graphite', []);
-GraphiteModule.directive('graphite', function($interval) {
+var GraphiteModule = angular.module('graphite', ['services.pageVisibility']);
+GraphiteModule.directive('graphite', function($interval, pageVisibility) {
   return {
     restrict: 'E',
     template: '<div class="graphite-graph"><div class="right graphite-times">' +
@@ -113,31 +113,30 @@ GraphiteModule.directive('graphite', function($interval) {
       attrs.$observe('gFrom', updateUrl);
       scope.$on('graph_target_changed', updateUrl);
 
-      function beginRefresh() {
+      function doRefresh() {
         attrs.$set('gSalt', Math.random()*10000000);
-        // if page visibility API is present, don't poll if page is in background
-        if (typeof document.hidden !== "undefined" && document.hidden) {
-          // register handler so we resume updating when we're becoming visible again.
-          $(document).one('visibilitychange', function() {
-              updateUrl();
-              beginRefresh();
-          });
-          return;
-        }
-        // release when the element is no longer attached to the current DOM
-        if (!jQuery.contains(document, elm[0])) {
-          return;
-        }
-        $interval(function() {
-          // refresh graphs
-          beginRefresh();
-          updateUrl();
-        }, attrs.gRefresh*1000, 1);
+        updateUrl();
       }
 
+      var intervalHandle;
       if (attrs.gRefresh && attrs.gRefresh > 0) {
-        beginRefresh();
+        intervalHandle = $interval(doRefresh, attrs.gRefresh*1000);
+
+        pageVisibility.register();
+        scope.$on('pageVisibilityChanged', function(event, hidden) {
+          if (!hidden) {
+            doRefresh();
+          }
+        });
       }
+
+      elm.bind('$destroy', function() {
+        // Make sure that the interval is destroyed too
+        if (intervalHandle) {
+          $interval.cancel(intervalHandle);
+          intervalHandle = undefined;
+        }
+      });
     }
   };
 });

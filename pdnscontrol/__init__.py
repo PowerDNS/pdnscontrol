@@ -68,6 +68,7 @@ js_app = [
     "util.js",
     "components.js",
     "popup.js",
+    "pageVisibility.js",
     "graphite.js",
     "models.js",
     "breadcrumbs.js",

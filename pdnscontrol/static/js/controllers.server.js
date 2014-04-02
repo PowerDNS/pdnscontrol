@@ -1,6 +1,6 @@
 "use strict";
 
-angular.module('ControlApp.controllers.server', ['models']);
+angular.module('ControlApp.controllers.server', []);
 
 angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$scope', '$compile', '$filter', 'Restangular', function($scope, $compile, $filter, Restangular) {
   // init server-list filter

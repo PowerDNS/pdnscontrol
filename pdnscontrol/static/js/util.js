@@ -58,7 +58,7 @@ function toRRsetList(input) {
 function convertZoneToRRsetList(zone) {
   "use strict";
   var records = toRRsetList(zone.records);
-  var comments = toRRsetList(zone.comments);
+  var comments = (zone.comments && toRRsetList(zone.comments)) || [];
   var comments_dict = {};
   var i, el;
   for (i = 0; i < comments.length; i++) {

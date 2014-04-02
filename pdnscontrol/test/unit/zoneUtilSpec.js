@@ -1,6 +1,6 @@
 'use strict';
 
-describe('zone diffing tools', function() {
+describe('zone utilities', function() {
 
   beforeEach(function(){
     this.addMatchers({
@@ -182,4 +182,14 @@ describe('zone diffing tools', function() {
     });
 
   });
+
+  describe('convertZoneToRRsetList', function() {
+    beforeEach(module('control'));
+
+    it('it should not crash when comments are not supported', function() {
+      var zone = {records: []};
+      convertZoneToRRsetList(zone);
+    });
+  });
+
 });

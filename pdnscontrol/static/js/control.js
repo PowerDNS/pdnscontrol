@@ -691,7 +691,7 @@ ControlApp.controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'R
   };
 
   $scope.canEditConfig = function(varname) {
-    return varname === 'allow-from';
+    return varname === 'allow-from' && !$scope.server.mustDo("experimental-api-readonly", "no");
   };
 
   $scope.$watch('server.config', function() {

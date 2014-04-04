@@ -115,6 +115,13 @@
   </div>
 </div>
 
+<div class="row" ng-show="showSingleIpTarget()">
+  <div class="small-12 columns">
+    <label ng-class="{error: zoneForm.single_target_ip.$invalid && !zoneForm.$pristine}" for="single_target_ip">Single Target IP</label>
+    <input type="text" ng-model="zone.single_target_ip" id="single_target_ip" placeholder="192.0.2.1" required>
+  </div>
+</div>
+
 <br>
 
 <div class="row">

@@ -457,6 +457,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneEditCtrl',
     if (!$scope.master._url) {
       $scope.master.kind = 'Native';
       $scope.master.recursion_desired = false;
+      $scope.master.single_target_ip = '';
       // suggest filling out forward-to servers
       $scope.master.servers_o = $scope.master.servers_o || [{'server': ''}, {'server': ''}];
     } else {
@@ -534,6 +535,10 @@ angular.module('ControlApp.controllers.zone').controller('ZoneEditCtrl',
 
   $scope.showForwarders = function() {
     return $scope.zone.kind === 'Forwarded';
+  };
+
+  $scope.showSingleIpTarget = function() {
+    return $scope.zone.kind === 'Native' && server.daemon_type === 'Recursor';
   };
 
   $scope.cancel = function() {

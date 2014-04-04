@@ -48,6 +48,12 @@ Flask-based web app.
 
 #### Installing the frontend
 
+Make sure you have MySQL and PostgreSQL development libraries available, possibly like this:
+
+    sudo apt-get install libpq-dev libmysqlclient-dev
+
+Then:
+
     virtualenv venv-pdnscontrol
     . ./venv-pdnscontrol/bin/activate
     pip install -r requirements.txt

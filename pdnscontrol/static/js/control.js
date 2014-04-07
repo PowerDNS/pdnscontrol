@@ -180,7 +180,7 @@ ControlApp.
       if (!value) {
         return 'unknown';
       }
-      return moment(value).fromNow();
+      return moment(value).fromNow().replace(' ago', '');
     };
   }).
   filter('full_and_rel_timestamp', function() {
@@ -189,7 +189,7 @@ ControlApp.
         return '';
       }
       var m = moment(value);
-      return m.format('LLLL') + " (" + m.fromNow() + ")";
+      return m.format('LLLL') + " (" + m.fromNow().replace(' ago', '') + ")";
     };
   }).
   filter('full_timestamp', function() {

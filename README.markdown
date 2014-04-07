@@ -52,7 +52,7 @@ Make sure you have MySQL and PostgreSQL development libraries available, possibl
 
     sudo apt-get install libpq-dev libmysqlclient-dev
 
-Then:
+If you want sqlite support, add pysqlite to requirements.txt and then:
 
     virtualenv venv-pdnscontrol
     . ./venv-pdnscontrol/bin/activate

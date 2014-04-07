@@ -394,6 +394,8 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
   };
   $scope.validateNameType = function(rrset, fieldname, data) {
     // check if name/type combination hasn't been used yet
+    // Note: in the error case we show a message and return a string - the string indicator failure to xeditable,
+    // and it's supposed to show that string, but it doesn't.
     var finder = {name: rrset.name, type: rrset.type};
     if (!rrset.type) {
       alert('Type can not be blank.');
@@ -403,6 +405,11 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
     if (rrsets.length > 1) {
       alert('An RRset ' + finder.name + '/' + finder.type + ' already exists in this zone. Please choose another ' + fieldname + '.');
       return '.';
+    }
+    var contents = _.map(rrset.records, function(o) { return '' + o.priority + ' ' + o.content; });
+    if (contents.length != _.uniq(contents).length) {
+      alert('Duplicate records (same content/priority) are not allowed.');
+      // not aborting, as this is not totally fatal and can cause problems when editing legacy zones.
     }
     return true;
   };

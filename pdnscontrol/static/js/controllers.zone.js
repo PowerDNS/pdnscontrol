@@ -395,10 +395,14 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
   $scope.validateNameType = function(rrset, fieldname, data) {
     // check if name/type combination hasn't been used yet
     var finder = {name: rrset.name, type: rrset.type};
-    finder[fieldname] = data; // overrides name or type from above
-    if (_.findWhere($scope.zone.rrsets, finder) !== undefined) {
+    if (!rrset.type) {
+      alert('Type can not be blank.');
+      return '.';
+    }
+    var rrsets = _.where($scope.zone.rrsets, finder);
+    if (rrsets.length > 1) {
       alert('An RRset ' + finder.name + '/' + finder.type + ' already exists in this zone. Please choose another ' + fieldname + '.');
-      return false;
+      return '.';
     }
     return true;
   };

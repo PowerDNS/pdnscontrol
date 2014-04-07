@@ -67,7 +67,7 @@
       <tbody ng-repeat="rrset in zone.rrsets | limitTo:rowLimit | filter:filterValue">
         <tr ng-repeat="record in rrset.records" ng-class="{recordIsNew: record._new}">
           <td ng-if="$first" style="white-space: nowrap">
-            <span ng-if="canEdit(rrset)" editable-text="rrset.name" buttons="no" onbeforesave="validateNameType(rrset, 'name', $data)" e-form="{{ ifRRsetIsNew(rrset, 'rrsetform') }}">
+            <span ng-if="canEdit(rrset)" editable-text="rrset.name" buttons="no" e-form="{{ ifRRsetIsNew(rrset, 'rrsetform') }}">
               {{ stripZone(rrset.name) }}<span class="zoneName">{{ zoneDisplayName(rrset.name) }}</span>
             </span>
             <span ng-if="!canEdit(rrset)">
@@ -79,7 +79,7 @@
             </span>
           </td>
           <td ng-if="$first" class="recordType">
-            <span ng-if="canModifyType(rrset)" editable-select="rrset.type" buttons="no" onbeforesave="validateNameType(rrset, 'type', $data)" e-ng-options="rrType.name as rrType.name for rrType in creatableRRTypes" e-form="{{ ifRRsetIsNew(rrset, 'rrsetform') }}">
+            <span ng-if="canModifyType(rrset)" editable-select="rrset.type" buttons="no" e-required="true" e-ng-options="rrType.name as rrType.name for rrType in creatableRRTypes" e-form="{{ ifRRsetIsNew(rrset, 'rrsetform') }}">
               {{ rrset.type }}
             </span>
             <span ng-if="!canModifyType(rrset)">
@@ -99,7 +99,7 @@
               {{ record.content }}
             </span>
             <span class="right" style="white-space: nowrap; display: inline-block; width: 50px;">
-              <form editable-form name="rrsetform" ng-show="rrsetform.$visible" class="form-buttons form-inline" shown="record._new">
+              <form editable-form name="rrsetform" ng-show="rrsetform.$visible" class="form-buttons form-inline" shown="record._new" onaftersave="validateNameType(rrset, 'hi', $data)">
                 <button type="submit" title="OK"><i class="foundicon-checkmark"></i></button>
                 <button type="cancel" title="Cancel"><i class="foundicon-refresh"></i></button>
               </form>

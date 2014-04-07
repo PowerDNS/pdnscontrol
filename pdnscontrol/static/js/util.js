@@ -87,6 +87,7 @@ var rrTypes = [
   {name: 'AAAA'},
   {name: 'NS', sortWeight: -50},
   {name: 'CNAME'},
+  {name: 'DNAME'},
   {name: 'MR'},
   {name: 'PTR'},
   {name: 'HINFO'},

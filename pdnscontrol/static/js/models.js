@@ -60,9 +60,7 @@ angular.module('models', ['restangular']).
         }
         return name;
       })();
-      if (server.daemon_type === 'Authoritative') {
-        server.addRestangularMethod('search_data', 'get', 'search-data', null, {q: true});
-      }
+      server.addRestangularMethod('search_data', 'get', 'search-data', null, {q: true});
 
       server.stats = {};
       server.config = {};

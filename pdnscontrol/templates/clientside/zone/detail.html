@@ -93,7 +93,7 @@
             </span>
           </td>
           <td class="recordTtl"><span editable-text="record.ttl" e-form="rrsetform">{{ record.ttl }}</span></td>
-          <td class="recordPrio"><span editable-text="record.prio" e-form="rrsetform"><span ng-show="prioVisible(rrset, record)">{{ record.priority }}</span></span></td>
+          <td class="recordPrio"><span editable-text="record.priority" e-form="rrsetform"><span ng-show="prioVisible(rrset, record)">{{ record.priority }}</span></span></td>
           <td class="recordContent">
             <span editable-text="record.content" class="{recordIsDisabled: record.disabled}" e-form="rrsetform">
               {{ record.content }}

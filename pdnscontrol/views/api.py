@@ -112,13 +112,6 @@ def server_edit(server):
     return jsonify(**obj.to_dict())
 
 
-@mod.route('/servers/<server>/zones/<path:zone>/rrset', methods=['PATCH'])
-@api_auth_required
-@roles_required('edit')
-def server_zone_rrset(server, zone):
-    return forward_request(server, '/servers/localhost/zones/' + zone + '/rrset')
-
-
 @mod.route('/servers/<server>/zones')
 @api_auth_required
 @roles_required('view')
@@ -140,7 +133,7 @@ def zone_get(server, zone):
     return forward_request(server, '/servers/localhost/zones/' + zone)
 
 
-@mod.route('/servers/<server>/zones/<zone>', methods=['PUT', 'DELETE'])
+@mod.route('/servers/<server>/zones/<zone>', methods=['PUT', 'DELETE', 'PATCH'])
 @api_auth_required
 @roles_required('edit')
 def zone_update(server, zone):

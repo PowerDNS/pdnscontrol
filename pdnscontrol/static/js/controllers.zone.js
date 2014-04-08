@@ -210,7 +210,6 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
 
     // now diff
     var changes = diffRRsets($scope.master.rrsets, $scope.zone.rrsets);
-    var changesCopiedForAutoPtr = [].concat(changes);
 
     // remove _new from all records
     forAllRRsetRecords($scope.zone.rrsets, function(record) {
@@ -218,35 +217,25 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
       return record;
     });
 
-    function sendNextChange(changes) {
-      var change = changes.pop();
-      if (change === undefined) {
-        // done. reset master so angular.equals will return true.
-        $scope.master.rrsets = angular.copy($scope.zone.rrsets);
-        $scope.zone = angular.copy($scope.master);
-        doAutoPtr(changesCopiedForAutoPtr);
+    $scope.errors = [];
+    $scope.zone.customOperation(
+      'patch',
+      '',
+      {},
+      {'Content-Type': 'application/json'},
+      {'rrsets': changes}
+    ).then(function(response) {
+      if (response.error) {
+        $scope.errors.push(response.error);
         return;
       }
-
-      $scope.zone.customOperation(
-        'patch',
-        'rrset',
-        {},
-        {'Content-Type': 'application/json'},
-        change
-      ).then(function(response) {
-        if (response.error) {
-          $scope.errors.push(response.error);
-          return;
-        }
-        sendNextChange(changes);
-      }, function(errorResponse) {
-        $scope.errors.push(errorResponse.data.error || 'Unknown server error');
-      });
-    }
-
-    $scope.errors = [];
-    sendNextChange(changes);
+      // success. reset master so angular.equals will return true.
+      $scope.master.rrsets = angular.copy($scope.zone.rrsets);
+      $scope.zone = angular.copy($scope.master);
+      doAutoPtr(changes);
+    }, function(errorResponse) {
+      $scope.errors.push(errorResponse.data.error || 'Unknown server error');
+    });
   };
 
   $scope.export = function() {

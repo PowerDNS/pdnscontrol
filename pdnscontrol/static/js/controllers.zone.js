@@ -229,9 +229,11 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
         $scope.errors.push(response.error);
         return;
       }
-      // success. reset master so angular.equals will return true.
-      $scope.master.rrsets = angular.copy($scope.zone.rrsets);
-      $scope.zone = angular.copy($scope.master);
+      // success. update local data from server
+      $scope.master.records = response.records;
+      $scope.master.rrsets = convertZoneToRRsetList(zone);
+      $scope.zone = Restangular.copy($scope.master);
+      // send auto ptr changes to server
       doAutoPtr(changes);
     }, function(errorResponse) {
       $scope.errors.push(errorResponse.data.error || 'Unknown server error');
@@ -539,6 +541,10 @@ angular.module('ControlApp.controllers.zone').controller('ZoneEditCtrl',
 
   $scope.showSingleIpTarget = function() {
     return $scope.zone.kind === 'Native' && server.daemon_type === 'Recursor';
+  };
+
+  $scope.showMetadataOptions = function() {
+    return server.daemon_type === 'Authoritative';
   };
 
   $scope.cancel = function() {

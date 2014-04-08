@@ -127,14 +127,17 @@
 <div class="row">
   <div class="small-12 columns">
     <button type="submit" ng-click="save()" ng-disabled="isClean() || zoneForm.$invalid" class="button success">Save</button>
-    <button type="button" ng-click="cancel()" class="button">Cancel</a>
+    <button type="button" ng-click="cancel()" class="button">Cancel</button>
     <button type="button" ng-click="destroy()" ng-show="zone._url" class="button alert right">Delete</button>
   </div>
 </div>
 </form>
 
 <script>
-if ($('#zonename').prop('readonly') != true) {
-  $('#zonename').focus();
-}
+  (function() {
+    var o = $('#zonename');
+    if (o.prop('readonly') != true) {
+      o.focus();
+    }
+  })();
 </script>

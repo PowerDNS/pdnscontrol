@@ -8,7 +8,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
   $scope.loading = false;
 
   $scope.master = zone;
-  $scope.master.rrsets = convertZoneToRRsetList(zone);
+  $scope.master.rrsets = convertZoneToRRsetList($scope.master);
   $scope.zone = Restangular.copy($scope.master);
 
   $scope.isClean = function() {
@@ -142,10 +142,10 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
 
           ptr.zone.customOperation(
             'patch',
-            'rrset',
+            '',
             {},
             {'Content-Type': 'application/json'},
-            change
+            {'rrsets':[change]}
           ).then(function(response) {
             ptr.done = true;
             if (response.error) {
@@ -231,7 +231,8 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
       }
       // success. update local data from server
       $scope.master.records = response.records;
-      $scope.master.rrsets = convertZoneToRRsetList(zone);
+      $scope.master.comments = response.comments;
+      $scope.master.rrsets = convertZoneToRRsetList($scope.master);
       $scope.zone = Restangular.copy($scope.master);
       // send auto ptr changes to server
       doAutoPtr(changes);

@@ -46,8 +46,8 @@
   </div>
   <div class="small-5 columns right">
     <span class="right" ng-if="rowLimit < zone.rrsets.length">
-      Showing <input type="text" class="inline" ng-model="rowLimit" size="5"> records.
-      <a ng-click="showMore()">show more</a>
+      <span editable-text="rowLimit" buttons="no">Showing {{ rowLimit }}/{{ zone.rrsets.length }}.</span>
+      <a ng-click="showMore()">More...</a>
     </span>
   </div>
 </div>
@@ -116,5 +116,14 @@
         </tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-5 columns small-centered">
+    <span class="right" ng-if="rowLimit < zone.rrsets.length">
+      <span editable-text="rowLimit" buttons="no">Showing the first {{ rowLimit }} of {{ zone.rrsets.length }} entries.</span>
+      <a ng-click="showMore()">Show more...</a>
+    </span>
   </div>
 </div>

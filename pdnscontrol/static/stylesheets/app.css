@@ -6012,6 +6012,9 @@ h2.server-name {
   margin-right: 1em;
   width: 80px; }
 
+.inline {
+  display: inline; }
+
 .inline-block {
   display: inline-block; }
 

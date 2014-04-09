@@ -43,6 +43,11 @@ h2.server-name {
     display: inline-block;
 }
 
+.visibility-hidden {
+    /* sometimes display: none causes bad effects like jumping content. then it's better to use visiblity: hidden. */
+    visibility: hidden;
+}
+
 a.alert {
     color: $alert-color;
     &:hover,

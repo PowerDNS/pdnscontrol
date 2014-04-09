@@ -6018,6 +6018,10 @@ h2.server-name {
 .inline-block {
   display: inline-block; }
 
+.visibility-hidden {
+  /* sometimes display: none causes bad effects like jumping content. then it's better to use visiblity: hidden. */
+  visibility: hidden; }
+
 a.alert {
   color: #f04124; }
   a.alert:hover, a.alert:focus {

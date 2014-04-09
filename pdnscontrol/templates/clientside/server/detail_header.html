@@ -18,7 +18,7 @@
 </div>
 <div class="row">
   <div class="small-12 columns">
-    <p ng-show="server.version && server.stats.uptime">Running version <strong>{{server.version}}</strong>, up since {{server.stats.uptime | absolutize_time | full_and_rel_timestamp}}.</p>
+    <p ng-class="{'visibility-hidden': !server.version || !server.stats.uptime}">Running version <strong>{{server.version}}</strong>, up since {{server.stats.uptime | absolutize_time | full_and_rel_timestamp}}.</p>
     <div ng-show="load_error" class="load_error alert-box alert">{{load_error}}</div>
   </div>
   <div class="small-12 columns">

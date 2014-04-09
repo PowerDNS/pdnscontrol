@@ -1,0 +1,23 @@
+<ng-include src="'/tpl/server/detail_header.html'"></ng-include>
+<div class="row">
+  <div class="small-12 columns">
+    <table width="100%">
+      <thead>
+        <tr>
+          <th width="40%">Setting</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr ng-repeat="config in configuration">
+          <td>
+            {{config.k}}
+            <a href="/server/{{server._id}}/config/{{config.k}}/edit" ng-show="canEditConfig(config.k)"><span class="foundicon-edit"/></a>
+            <span class="right"><a href="https://google.com/search?q=site:doc.powerdns.com+{{ config.k }}"><i class="foundicon-idea"/></a></span>
+          </td>
+          <td>{{config.v}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

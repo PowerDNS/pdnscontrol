@@ -81,13 +81,22 @@ ControlApp.
     $routeProvider.
       when('/', {controller: 'ServerListCtrl', templateUrl: templateUrl('server/list')}).
       when('/server/:serverName', {
-        controller: 'ServerDetailCtrl', templateUrl: templateUrl('server/detail'),
+        controller: 'ServerDetailCtrl',
+        templateUrl: templateUrl('server/detail'),
         resolve: {
           server: ServerResolver
         }
       }).
       when('/server/:serverName/edit', {
-        controller: 'ServerEditCtrl', templateUrl: templateUrl('server/edit'),
+        controller: 'ServerEditCtrl',
+        templateUrl: templateUrl('server/edit'),
+        resolve: {
+          server: ServerResolver
+        }
+      }).
+      when('/server/:serverName/config', {
+        controller: 'ServerDetailCtrl',
+        templateUrl: templateUrl('server/config'),
         resolve: {
           server: ServerResolver
         }
@@ -101,6 +110,20 @@ ControlApp.
       }).
       when('/server/:serverName/search-data', {
         controller: 'ServerSearchDataCtrl', templateUrl: templateUrl('server/search_data'),
+        resolve: {
+          server: ServerResolver
+        }
+      }).
+      when('/server/:serverName/statistics', {
+        controller: 'ServerDetailCtrl',
+        templateUrl: templateUrl('server/statistics'),
+        resolve: {
+          server: ServerResolver
+        }
+      }).
+      when('/server/:serverName/zones', {
+        controller: 'ServerDetailCtrl',
+        templateUrl: templateUrl('server/zones'),
         resolve: {
           server: ServerResolver
         }

@@ -5,4 +5,6 @@ instance/pdnscontrol.fcgi
 instance/pdnscontrol.conf
 instance/test.db
 Cheesefile*
-venv-pdnscontrol
+/venv
+/pdnscontrol.iml
+/.idea

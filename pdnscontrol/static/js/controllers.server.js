@@ -242,10 +242,14 @@ angular.module('ControlApp.controllers.server').controller('ServerCreateCtrl', [
 
 angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'Restangular', 'server', function($scope, $compile, $location, Restangular, server) {
   $scope.server = server;
-  $scope.current_tab = $location.path().split('/').reverse()[0];
-  if ($location.path().slice(-1) != '/') {
-    $scope.current_tab = ''; // overview tab
-  }
+  (function() {
+    var fragments = $location.path().split('/').reverse();
+    if (fragments.length == 4) {
+      $scope.current_tab = fragments[0];
+    } else {
+      $scope.current_tab = ''; // overview tab
+    }
+  })();
 
   $scope.isAddZoneAllowed = true;
   $scope.isSearchAllowed = (!!server.search_data);

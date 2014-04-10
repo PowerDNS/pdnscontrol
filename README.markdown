@@ -73,6 +73,7 @@ the 'pip install' and the 'python install.py' below!
     . ./venv-pdnscontrol/bin/activate
     python debug.py
 
+Don't forget to enable the webserver and API features on your PowerDNS installations (experimental-webserver, experimental-webserver-address, experimental-webserver-password, experimental-json-interface for Recursor, experimental-json-interface and webserver-address for Authoritative). The 'experimental-' prefix denotes that the API might still change, but if it does, pdnscontrol will change with it.
 
 #### Developing
 

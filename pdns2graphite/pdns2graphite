@@ -52,6 +52,7 @@ recursor = [    # http://doc.powerdns.com/recursor-stats.html - except the slow 
 		"negcache-entries",
 		"noerror-answers",
 		"nsspeeds-entries",
+		"failed-host-entries",
 		"nsset-invalidations",
 		"nxdomain-answers",
 		"outgoing-timeouts",

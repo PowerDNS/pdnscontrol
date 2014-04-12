@@ -46,3 +46,19 @@
 # Authentication: user & password (no defaults)
 # pdnscontrol_user = 'graphite@example.org'
 # pdnscontrol_pass = 'notsecure'
+
+# List of servers to query. If not defined, then list is obtained
+# from serverlist_url
+
+# serverlist = [
+#     {
+#       "url": "https://ns.example.com/control/api/server/ns.example.com/",
+#       "type": "Authoritative",
+#       "name": "ns.example.com"
+#     },
+#     {
+#       "url": "https://server1/control/api/server/server1.com/",
+#       "type": "Recursor",
+#       "name": "server1.com"
+#     }
+#   ]

@@ -186,10 +186,14 @@ def main():
     while True:
         lastpoll = time.time()
         logger.debug('polling')
-        for server in getserverlist(config['serverlist_url']):
+        if 'serverlist' in config:
+            serverlist = config['serverlist']
+        else:
+            serverlist = getserverlist(config['serverlist_url'])
+        for server in serverlist:
             url = server['url']
             url = urlparse.urljoin(url, 'statistics')
-            if server['daemon_type'] == 'Authoritative':
+            if 'daemon_type' in server and server['daemon_type'] == 'Authoritative':
                 statlist = auth
                 daemon_type = 'auth'
             else:

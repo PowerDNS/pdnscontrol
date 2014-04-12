@@ -52,12 +52,12 @@
 
 # serverlist = [
 #     {
-#       "url": "https://ns.example.com/control/api/server/ns.example.com/",
+#       "url": "https://pdnscontrol:password@ns.example.com/servers/localhost/statistics",
 #       "type": "Authoritative",
 #       "name": "ns.example.com"
 #     },
 #     {
-#       "url": "https://server1/control/api/server/server1.com/",
+#       "url": "https://pdnscontrol:password@server1/servers/localhost/statistics",
 #       "type": "Recursor",
 #       "name": "server1.com"
 #     }

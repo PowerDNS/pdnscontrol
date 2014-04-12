@@ -132,7 +132,7 @@ def graph_server(url, daemon_type, keys, node):
     node = node.replace('.', '-')
 
     try:
-        r = requests.get(url, auth=(config['pdnscontrol_user'],config['pdnscontrol_pass']))
+        r = requests.get(url, auth=(config['pdnscontrol_user'],config['pdnscontrol_pass']), verify=False) # remove if you have a CA ;-)
     except:
         logger.exception('error fetching stats from %s', url)
         return
@@ -182,13 +182,14 @@ def main():
         if config[k] is None:
             sys.exit("%s: configuration value for `%s' is required" % (sys.argv[0], k))
 
-    logger.warning('starting up with serverlist %s', config['serverlist_url'])
+
     while True:
         lastpoll = time.time()
         logger.debug('polling')
         if 'serverlist' in config:
             serverlist = config['serverlist']
         else:
+            logger.warning('starting up with serverlist %s', config['serverlist_url'])
             serverlist = getserverlist(config['serverlist_url'])
         for server in serverlist:
             url = server['url']

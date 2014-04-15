@@ -1,4 +1,25 @@
 <ng-include src="'/tpl/server/detail_header.html'"></ng-include>
+
+<div class="row table-buttons">
+  <div class="small-2 columns">
+    <a ng-show="isAddZoneAllowed" href="/server/{{ server.name }}/zones/new" class="button small zone-new"><span
+        class="foundicon-plus"></span> Add Zone</a>
+  </div>
+  <div class="small-8 columns right" ng-show="isSearchAllowed">
+    <form class="inline-form" ng-submit="search_data(data_query)">
+      <div class="row collapse">
+        <div class="small-11 columns">
+          <input type="text" ng-model="data_query" class="search-query" placeholder="Record or Comment">
+        </div>
+        <div class="small-1 columns">
+          <button type="submit" class="button expand postfix" ng-class="{disabled:data_query.length==0}"><span
+              class="foundicon-search"></span></button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="row">
   <div class="small-12 columns">
     <table width="100%">

@@ -489,7 +489,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneEditCtrl',
   $scope.destroy = function() {
     if (confirm('Do you really want to delete the entire zone named "' + $scope.master.name + '"?')) {
       $scope.master.remove().then(function() {
-        $location.path('/server/' + $scope.server.name);
+        $location.path('/server/' + $scope.server.name + '/zones');
       });
     }
   };

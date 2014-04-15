@@ -383,6 +383,42 @@ angular.module('ControlApp.controllers.server').controller('ServerEditCtrl', ['$
   };
 }]);
 
+angular.module('ControlApp.controllers.server').controller('ConfigEditCtrl',
+  ['$scope', '$location', 'Restangular', 'server', 'config',
+    function($scope, $location, Restangular, server, config) {
+      $scope.server = server;
+      $scope.master = config;
+      $scope.master.value_o = _.map($scope.master.value, function(o) { return {'value': o}; });
+      $scope.config = Restangular.copy($scope.master);
+      $scope.placeholder = "192.0.2.1/24";
+
+      $scope.addOne = function() {
+        $scope.config.value_o.push({'value': ''});
+      };
+
+      $scope.removeOne = function(index) {
+        $scope.config.value_o.splice(index, 1);
+      };
+
+      $scope.save = function() {
+        $scope.config.value = _.compact(_.pluck($scope.config.value_o, 'value'));
+        $scope.config.put().then(function() {
+          $location.path('/server/' + $scope.server.name);
+        }, function(errorResponse) {
+          var msg = errorResponse.data.error || 'Save failed.';
+          alert(msg);
+        });
+      };
+
+      $scope.cancel = function() {
+        $location.path('/server/' + $scope.server.name + '/config');
+      };
+
+      $scope.addOne();
+    }
+  ]
+);
+
 angular.module('ControlApp.controllers.server').controller('ServerSearchDataCtrl', ['$scope', '$location', 'Restangular', 'server', function($scope, $location, Restangular, server) {
   $scope.server = server;
   $scope.search = $location.search().q;

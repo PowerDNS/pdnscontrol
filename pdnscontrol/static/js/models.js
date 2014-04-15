@@ -78,7 +78,9 @@ angular.module('models', ['restangular']).
       }
 
       server.mustDo = function(key, dflt) {
-        var val = server.config[key] || dflt;
+        var val = server.config[key];
+        if (val === undefined)
+          val = dflt;
         return (val!=="no") && (val!=="off");
       };
 

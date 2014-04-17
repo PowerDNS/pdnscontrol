@@ -6,7 +6,7 @@
 
 # Your database.
 # Example: DATABASE_URI = 'postgresql://user:password@localhost:5432/pdnscontrol'
-#
+#                          'sqlite:////var/db/pdnscontrol.sqlite' (note four /)
 # DATABASE_URI = ''
 
 # SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'

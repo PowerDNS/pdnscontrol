@@ -80,6 +80,10 @@ Don't forget to enable the webserver and API features on your PowerDNS installat
 To update built templates, you also need to have other software installed.
 See pdnscontrol/README.md for details.
 
+If you update your checkout you might, but should not, have to run:
+
+    ./manage.py assets build
+
 ### Graphite data feeder
 
 Feeds PowerDNS stats into your Graphite installation.

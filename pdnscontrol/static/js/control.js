@@ -7,6 +7,7 @@ var ControlApp = angular.module('control', [
   'components',
   'graphite',
   'xeditable',
+  'infinite-scroll',
   'ControlApp.controllers.me',
   'ControlApp.controllers.server',
   'ControlApp.controllers.ui',

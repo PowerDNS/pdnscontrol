@@ -354,6 +354,12 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
   $scope.search_data = function(q) {
     gotoServerSearchData($location, server, q);
   };
+
+  // for zone list
+  $scope.showMore = function() {
+    $scope.rowLimit += 100;
+    $scope.$digest(); // trigger DOM update
+  };
 }]);
 
 angular.module('ControlApp.controllers.server').controller('ServerEditCtrl', ['$scope', '$location', 'Restangular', 'server', function($scope, $location, Restangular, server) {

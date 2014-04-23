@@ -21,7 +21,7 @@
 </div>
 
 <div class="row">
-  <div class="small-12 columns">
+  <div class="small-12 columns" ng-init="rowLimit = 150" infinite-scroll='showMore()' infinite-scroll-distance='2'>
     <table width="100%">
       <thead>
       <tr>
@@ -33,7 +33,7 @@
       </tr>
       </thead>
       <tbody>
-      <tr ng-repeat="zone in zones">
+      <tr ng-repeat="zone in zones | orderBy:'name' | limitTo:rowLimit">
         <td>
           <a href="/server/{{ server._id }}/zone/{{ zone._id }}">{{ zone.name }}</a>
           <a href="/server/{{ server._id }}/zone/{{ zone._id }}"><i class="foundicon-edit"/></a>
@@ -49,5 +49,8 @@
       </tr>
       </tbody>
     </table>
+    <span ng-if="rowLimit < zones.length">
+      Showing {{ rowLimit }}/{{ zones.length }} zones. <a href="#" ng-click="showMore()">Show more...</a>
+    </span>
   </div>
 </div>

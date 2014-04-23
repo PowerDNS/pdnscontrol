@@ -389,7 +389,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
     newRecord._new = true;
     rrset.records.splice(rrset.records.indexOf(current_record), 0, newRecord);
   };
-  $scope.validateNameType = function(rrset, fieldname, data) {
+  $scope.saveInlineEdit = function(rrset) {
     // check if name/type combination hasn't been used yet
     // Note: in the error case we show a message and return a string - the string indicator failure to xeditable,
     // and it's supposed to show that string, but it doesn't.
@@ -400,11 +400,11 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
     }
     var rrsets = _.where($scope.zone.rrsets, finder);
     if (rrsets.length > 1) {
-      alert('An RRset ' + finder.name + '/' + finder.type + ' already exists in this zone. Please choose another ' + fieldname + '.');
+      alert('An RRset ' + finder.name + '/' + finder.type + ' already exists in this zone. Please choose another name or type.');
       return '.';
     }
     var contents = _.map(rrset.records, function(o) { return '' + o.priority + ' ' + o.content; });
-    if (contents.length != _.uniq(contents).length) {
+    if (contents.length !== _.uniq(contents).length) {
       alert('Duplicate records (same content/priority) are not allowed.');
       // not aborting, as this is not totally fatal and can cause problems when editing legacy zones.
     }

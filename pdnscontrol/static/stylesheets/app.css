@@ -6307,7 +6307,7 @@ footer {
   padding: 0;
   color: #0959c2;
   background: none; }
-.recordEdit button[type=cancel] {
+.recordEdit button.cancel {
   color: #f04124; }
 
 table.recordEdit tr th, table.recordEdit tr td {

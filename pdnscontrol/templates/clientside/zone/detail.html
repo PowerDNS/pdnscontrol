@@ -99,8 +99,8 @@
             </span>
             <span class="right" style="white-space: nowrap; display: inline-block; width: 50px;">
               <form editable-form name="rrsetform" ng-show="rrsetform.$visible" class="form-buttons form-inline" shown="record._new" onaftersave="saveInlineEdit(rrset)">
-                <button type="submit" title="OK"><i class="foundicon-checkmark"></i></button>
-                <button type="cancel" title="Cancel"><i class="foundicon-refresh"></i></button>
+                <button type="submit" title="OK" ng-disabled="rrsetform.$waiting"><i class="foundicon-checkmark"></i></button>
+                <button type="button" class="cancel" title="Cancel" ng-disabled="rrsetform.$waiting" ng-click="rrsetform.$cancel()"><i class="foundicon-refresh"></i></button>
               </form>
               <span ng-show="!rrsetform.$visible">
                 <!-- edit -->

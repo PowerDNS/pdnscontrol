@@ -314,7 +314,7 @@ footer {
     color: $primary-color;
     background: none;
   }
-  button[type=cancel] {
+  button.cancel {
     color: $alert-color;
   }
 }

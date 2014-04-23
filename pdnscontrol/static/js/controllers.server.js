@@ -358,7 +358,7 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
   // for zone list
   $scope.showMore = function() {
     $scope.rowLimit += 100;
-    $scope.$digest(); // trigger DOM update
+    $scope.$digest(); // force update of DOM (for nginfinitescroll)
   };
 }]);
 

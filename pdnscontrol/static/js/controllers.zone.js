@@ -27,6 +27,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
 
   $scope.showMore = function() {
     $scope.rowLimit += 100;
+    $scope.$digest(); // force update of DOM (for nginfinitescroll)
   };
 
   function matchAutoPtrsToZones(possiblePtrs) {

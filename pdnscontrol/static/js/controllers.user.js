@@ -15,10 +15,6 @@ angular.module('ControlApp.controllers.user').controller('UserListCtrl', ['$scop
   $scope.canEditUsers = (ServerData.User.roles.indexOf('edit-users') != -1);
 }]);
 
-angular.module('ControlApp.controllers.user').controller('UserCreateCtrl', ['$scope', '$location', 'Restangular', function($scope, $location, Restangular) {
-  return UserEditCtrl($scope, $location, Restangular, Restangular.one('users'));
-}]);
-
 angular.module('ControlApp.controllers.user').controller('UserEditCtrl', ['$scope', '$location', 'Restangular', 'user', function($scope, $location, Restangular, user) {
   $scope.master = user;
   if (!$scope.master._url) {

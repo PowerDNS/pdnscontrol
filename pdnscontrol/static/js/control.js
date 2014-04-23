@@ -71,6 +71,10 @@ function UserResolver(Restangular, $route) {
   return Restangular.one('users', $route.current.params.userId).get();
 }
 
+function NewUserResolver(Restangular) {
+  return Restangular.one('users');
+}
+
 ////////////////////////////////////////////////////////////////////////
 // Routing
 ////////////////////////////////////////////////////////////////////////
@@ -178,7 +182,10 @@ ControlApp.
           }
         }).
         when('/users/new', {
-          controller: 'UserCreateCtrl', templateUrl: templateUrl('user/edit')
+          controller: 'UserEditCtrl', templateUrl: templateUrl('user/edit'),
+          resolve: {
+            user: NewUserResolver
+          }
         });
     }
 

@@ -358,6 +358,10 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
   // for zone list
   $scope.showMore = function() {
     $scope.rowLimit += 100;
+  };
+
+  $scope.showMoreInfiniteScroll = function() {
+    $scope.showMore();
     $scope.$digest(); // force update of DOM (for nginfinitescroll)
   };
 }]);

@@ -20,15 +20,16 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row recordEditControls">
   <div class="small-6 columns" style="min-height: 30px;">
     <span ng-show="isChangeAllowed">
       <button class="button tiny" ng-click="addRRSet()"><span class="foundicon-plus"></span></button>
       &nbsp;
-      <button class="button tiny" ng-click="save()" ng-class="{disabled: isClean()}"><span class="foundicon-inbox"></span> Save</button>
+      <button class="button tiny" ng-click="save()" ng-disabled="isClean() || hasErrors()" ng-class="{hasErrors: hasErrors()}"><span class="foundicon-inbox"></span> Save</button>
       &nbsp;
       <span ng-show="!isClean()">
-        Unsaved changes. <a href="#" ng-click="revert()">Revert all.</a>
+        Unsaved changes<span ng-show="hasErrors()" class="hasErrors"> (with errors)</span>.
+        <a href="#" ng-click="revert()">Revert all.</a>
       </span>
     </span>
   </div>

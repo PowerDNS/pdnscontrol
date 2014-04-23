@@ -324,6 +324,15 @@ table.recordEdit {
   }
 }
 
+.recordEditControls {
+  span.hasErrors {
+    color: $alert-color;
+  }
+  button.hasErrors {
+    background-color: $alert-color;
+  }
+}
+
 /* fixed widths for columns and xeditable fields */
 .recordPrio {
   width: 40px;

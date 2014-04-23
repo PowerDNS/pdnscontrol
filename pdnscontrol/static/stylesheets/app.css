@@ -6313,6 +6313,11 @@ footer {
 table.recordEdit tr th, table.recordEdit tr td {
   padding: 0.3rem 0.3rem; }
 
+.recordEditControls span.hasErrors {
+  color: #f04124; }
+.recordEditControls button.hasErrors {
+  background-color: #f04124; }
+
 /* fixed widths for columns and xeditable fields */
 .recordPrio {
   width: 40px; }

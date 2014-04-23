@@ -14,6 +14,15 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
   $scope.isClean = function() {
     return angular.equals($scope.master, $scope.zone);
   };
+  $scope.hasErrors = function() {
+    var l = $scope.zone.rrsets.length;
+    while (l-- > 0) {
+      if ($scope.zone.rrsets[l].type === undefined || $scope.zone.rrsets[l].type === '') {
+        return true;
+      }
+    }
+    return false;
+  };
 
   $scope.rrTypes = rrTypes;
   $scope.creatableRRTypes = _.filter(rrTypes, function(t) {

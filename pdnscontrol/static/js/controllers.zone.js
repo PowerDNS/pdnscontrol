@@ -275,7 +275,13 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
   $scope.addRRSet = function() {
     // TODO: get default ttl from somewhere
     var rrset = {name: $scope.zone.name, type: '', records: [{priority: 0, ttl: 3600, content: '', disabled: false, _new: true}], comments: [], _new: true};
-    $scope.zone.rrsets.push(rrset);
+    var idx;
+    for (idx = 0; idx < $scope.zone.rrsets.length; ++idx) {
+      if ($scope.zone.rrsets[idx].name != $scope.zone.name) {
+        break;
+      }
+    }
+    $scope.zone.rrsets.splice(idx, 0, rrset);
   };
 
   function setFlags() {

@@ -87,9 +87,8 @@
             </span>
           </td>
           <td ng-if="!$first" colspan="2"></td>
-          <td class="recordDisabled"><span editable-checkbox="record.disabled" e-title="Disabled" e-form="rrsetform">
-            {{ record.disabled && "Dis." || "Active" }}
-            <!-- <input type=checkbox required ng-input="record.disabled" ng-model="record.disabled" ng-disabled="!isChangeAllowed"> -->
+          <td class="recordDisabled"><span editable-checkbox="record.disabled" e-title="Inactive" e-form="rrsetform">
+            {{ record.disabled && "Inactive" || "Active" }}
             </span>
           </td>
           <td class="recordTtl"><span editable-text="record.ttl" e-form="rrsetform">{{ record.ttl }}</span></td>

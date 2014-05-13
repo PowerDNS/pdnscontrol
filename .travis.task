@@ -30,7 +30,7 @@ def before_script():
     npm(['run', 'update-webdriver'])
     Popen(['Xvfb', os.environ.get('DISPLAY')], close_fds=True)
     time.sleep(2)  # give server time to start
-    check_call(['./install.py'], cwd='instance', close_fds=True)
+    check_call(['./install.py'], close_fds=True)
 
 
 def run_with_server():

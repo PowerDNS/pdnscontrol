@@ -65,7 +65,7 @@ the 'pip install' and the 'python install.py' below!
 
     cp instance/pdnscontrol.conf.example instance/pdnscontrol.conf
     editor instance/pdnscontrol.conf
-    cd instance && python install.py
+    python install.py
 
 
 #### Running (Debug mode)

@@ -1,7 +1,4 @@
 #!/usr/bin/env python
-import sys
-sys.path.insert(0, '..')
-
 from flask.ext.security.utils import encrypt_password
 
 from pdnscontrol import app

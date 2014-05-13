@@ -29,36 +29,3 @@
 
 # DEBUG = False
 
-# For pdns2graphite:
-
-# URL of serverlist (on pdnscontrol port)
-# serverlist_url = 'http://127.0.0.1:5000/servers.json'
-
-# Name or address of Carbon server (default: 127.0.0.1)
-# carbon_server = '10.0.12.1'
-
-# Port on which Carbon server listens (default: 2003)
-# carbon_port = 2003
-
-# Sleep between checks in seconds (default: 5)
-# carbon_delay = 5
-
-# Authentication: user & password (no defaults)
-# pdnscontrol_user = 'graphite@example.org'
-# pdnscontrol_pass = 'notsecure'
-
-# List of servers to query. If not defined, then list is obtained
-# from serverlist_url
-
-# serverlist = [
-#     {
-#       "url": "https://pdnscontrol:password@ns.example.com/servers/localhost/statistics",
-#       "type": "Authoritative",
-#       "name": "ns.example.com"
-#     },
-#     {
-#       "url": "https://pdnscontrol:password@server1/servers/localhost/statistics",
-#       "type": "Recursor",
-#       "name": "server1.com"
-#     }
-#   ]

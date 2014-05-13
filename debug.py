@@ -1,3 +1,5 @@
+import logging
+logging.basicConfig()
 
 import pdnscontrol
 pdnscontrol.app.debug = True

@@ -112,17 +112,3 @@ def inject_auth_data():
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
-
-log_file = app.config['LOG_FILE']
-if log_file:
-    log_file = os.path.join(app.instance_path, log_file)
-    import logging
-    import logging.handlers
-    file_handler = logging.handlers.RotatingFileHandler(log_file, maxBytes=(100*1024*1024), delay=False)
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s [in %(pathname)s:%(lineno)d]: %(message)s'))
-    app.logger.addHandler(file_handler)
-    app.logger.warn("Starting up")
-
-del log_file

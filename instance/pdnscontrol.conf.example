@@ -1,4 +1,3 @@
-
 # Encryption key for client-side sessions.
 # Please generate a new one, f.e. using this:
 #   python -c 'print repr(open("/dev/urandom","rb").read(42))'
@@ -17,7 +16,6 @@
 # SECURITY_PASSWORD_SALT = ''
 
 # PREFERRED_URL_SCHEME = 'http'
-# LOG_FILE = 'app.log'
 
 # Make sure this URL returns a PNG saying "No Data" and not a web GUI.
 # GRAPHITE_SERVER = 'http://127.0.0.1:8085/render/'
@@ -28,4 +26,3 @@
 # SESSION_COOKIE_NAME = 'ControlSess'
 
 # DEBUG = False
-

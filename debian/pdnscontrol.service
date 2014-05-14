@@ -1,0 +1,12 @@
+[Unit]
+Description=pdnscontrol
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/pdnscontrold
+Restart=always
+User=pdnscontrol
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,34 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+DESTDIR=./debian/tmp
+PRODUCT_ROOT=/opt/pdnscontrol
+TMP_VENV=$(DESTDIR)$(PRODUCT_ROOT)
+PIP=$(TMP_VENV)/bin/pip
+
+%:
+	dh $@
+
+override_dh_auto_install:
+	dh_auto_install
+	virtualenv $(TMP_VENV)
+	$(PIP) install -r requirements.txt
+	rm -r $(TMP_VENV)/local
+	# fix paths
+	sed -e 's|^#!.*|#!$(PRODUCT_ROOT)/bin/python|' -i'' $(TMP_VENV)/bin/*
+	sed -e 's|^VIRTUAL_ENV=.*|VIRTUAL_ENV="$(PRODUCT_ROOT)"|' -i'' $(TMP_VENV)/bin/*
+	# remove unfixable files
+	rm -f $(TMP_VENV)/bin/activate.*
+	find $(TMP_VENV) -type f -iname '*.pyc' -delete
+	# create wrapper scripts
+	install -d $(DESTDIR)/usr/sbin
+	echo '#!/bin/sh\n. /opt/pdnscontrol/bin/activate; exec /opt/pdnscontrol/manage.py "$$@"' > $(DESTDIR)/usr/sbin/pdnscontrol-manage
+	echo '#!/bin/sh\n. /opt/pdnscontrol/bin/activate; exec /opt/pdnscontrol/install.py "$$@"' > $(DESTDIR)/usr/sbin/pdnscontrol-install
+	echo '#!/bin/sh\n. /opt/pdnscontrol/bin/activate; exec /opt/pdnscontrol/pdnscontrold "$$@"' > $(DESTDIR)/usr/sbin/pdnscontrold
+	chmod 0755 $(DESTDIR)/usr/sbin/pdnscontrol*
+
+override_dh_install:
+	dh_install --fail-missing

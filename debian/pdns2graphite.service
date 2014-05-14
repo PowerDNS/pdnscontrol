@@ -1,0 +1,12 @@
+[Unit]
+Description=pdns2graphite
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/sbin/pdns2graphite /etc/powerdns/pdns2graphite.conf
+Restart=always
+User=pdns2graphite
+
+[Install]
+WantedBy=multi-user.target

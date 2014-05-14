@@ -1,0 +1,9 @@
+opt
+pdnscontrol opt/pdnscontrol/lib/python2.7/site-packages
+pdnscontrold opt/pdnscontrol
+manage.py opt/pdnscontrol
+install.py opt/pdnscontrol
+etc/powerdns/pdnscontrol.conf
+usr/sbin/pdnscontrol-manage
+usr/sbin/pdnscontrol-install
+usr/sbin/pdnscontrold

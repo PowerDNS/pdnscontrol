@@ -1,0 +1,3 @@
+pdnsmgrd/pdnsmgrd /usr/share/pdnsmgrd
+pdnsmgrd/*.py /usr/share/pdnsmgrd
+etc/powerdns/pdnsmgrd.conf

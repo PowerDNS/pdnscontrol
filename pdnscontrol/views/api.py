@@ -20,13 +20,15 @@ def forward_remote_response(response):
     )
 
 
-def forward_request(server, remote_url, params=None):
+def forward_request(server, remote_url, params=None, to_manager=False):
     server = db.session.query(Server).filter_by(name=server).first()
     if server is None:
         return jsonify(errors={'name': "Not found"}), 404
 
+    url = server.manager_url if to_manager else server.pdns_url
+
     response = fetch_remote(
-        server.pdns_url + remote_url,
+        url + remote_url,
         method=request.method,
         data=request.data,
         accept=request.headers.get('Accept'),
@@ -231,35 +233,35 @@ def server_config_edit(server, config):
 @api_auth_required
 @roles_required('edit')
 def server_start(server):
-    return forward_request(server, '/manage/start', params=request.values)
+    return forward_request(server, '/manage/start', params=request.values, to_manager=True)
 
 
 @mod.route('/servers/<server>/stop', methods=['POST'])
 @api_auth_required
 @roles_required('edit')
 def server_stop(server):
-    return forward_request(server, '/manage/stop', params=request.values)
+    return forward_request(server, '/manage/stop', params=request.values, to_manager=True)
 
 
 @mod.route('/servers/<server>/restart', methods=['POST'])
 @api_auth_required
 @roles_required('edit')
 def server_restart(server):
-    return forward_request(server, '/manage/restart', params=request.values)
+    return forward_request(server, '/manage/restart', params=request.values, to_manager=True)
 
 
 @mod.route('/servers/<server>/update', methods=['POST'])
 @api_auth_required
 @roles_required('edit')
 def server_update(server):
-    return forward_request(server, '/manage/update', params=request.values)
+    return forward_request(server, '/manage/update', params=request.values, to_manager=True)
 
 
 @mod.route('/servers/<server>/install', methods=['POST'])
 @api_auth_required
 @roles_required('edit')
 def server_install(server):
-    return forward_request(server, '/manage/install', params=request.values)
+    return forward_request(server, '/manage/install', params=request.values, to_manager=True)
 
 
 @mod.route('/me', methods=['GET'])

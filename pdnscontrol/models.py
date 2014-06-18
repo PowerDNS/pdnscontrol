@@ -35,6 +35,8 @@ class RestModel(object):
 
     def mass_assign(self, data):
         for fn in self.__public_fields__:
+            if fn in self.__readonly_fields__:
+                continue
             if data.has_key(fn):
                 setattr(self, fn, data[fn])
         self._id = getattr(self, getattr(self, '__id_mapped_to__', 'id'))
@@ -68,7 +70,7 @@ class User(db.Model, UserMixin, RestModel):
     last_login_ip = db.Column(db.Unicode(64))
     current_login_ip = db.Column(db.Unicode(64))
     login_count = db.Column(db.Integer)
-    __public_fields__ = ['name', 'email', 'active', 'confirmed_at', 'last_login_at', 'current_login_at', 'last_login_ip', 'current_login_ip']
+    __public_fields__ = ['name', 'email', 'active']
     __readonly_fields__ = ['confirmed_at', 'last_login_at', 'current_login_at', 'last_login_ip', 'current_login_ip']
 
     def __repr__(self):

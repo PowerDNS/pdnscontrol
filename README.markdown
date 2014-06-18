@@ -52,7 +52,7 @@ Make sure you have MySQL and PostgreSQL development libraries available, possibl
 
     sudo apt-get install libpq-dev libmysqlclient-dev
 
-If you want sqlite support, add pysqlite to requirements.txt and then:
+Then:
 
     virtualenv venv-pdnscontrol
     . ./venv-pdnscontrol/bin/activate
@@ -63,6 +63,8 @@ the 'pip install' and the 'python install.py' below!
 
 #### Configuration
 
+    # reenter virtualenv if needed:
+    . ./venv-pdnscontrol/bin/activate
     cp instance/pdnscontrol.conf.example instance/pdnscontrol.conf
     editor instance/pdnscontrol.conf
     python install.py

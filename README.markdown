@@ -10,7 +10,7 @@ Features:
 * Centrally & individually deploy versions of the software
 * Centrally & individually start, restart and stop instances
 * View configuration details
-* View zone contents
+* View and edit zone contents
 
 ## Requirements
 

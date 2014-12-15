@@ -48,9 +48,9 @@ Flask-based web app.
 
 #### Installing the frontend
 
-Make sure you have MySQL and PostgreSQL development libraries available, possibly like this:
+Make sure you have MySQL, PostgreSQL and Python development libraries available, possibly like this:
 
-    sudo apt-get install libpq-dev libmysqlclient-dev
+    sudo apt-get install libpq-dev libmysqlclient-dev python-dev
 
 Then:
 

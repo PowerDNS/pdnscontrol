@@ -214,6 +214,11 @@ def handle_route_servers(request):
         client_auth = request.environ.get('HTTP_AUTHORIZATION', '')
         if client_auth:
             headers['Authorization'] = client_auth
+            # Take client-supplied password and use it as X-API-Key. An upgrade hack.
+            try:
+                headers['X-API-Key'] = base64.b64decode(client_auth.split(' ', 1)[1]).split(':', 1)[1]
+            except:
+                logger.exception('Failed decoding client-supplied auth data when trying to forward them')
 
     try:
         forwarded_req = urllib2.Request(url, data=data, headers=headers)

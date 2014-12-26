@@ -1,0 +1,8 @@
+.git
+.idea
+.travis*
+debian
+instance
+venv
+*.pyc
+pdnscontrol/node_modules

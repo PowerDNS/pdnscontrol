@@ -77,6 +77,10 @@ the 'pip install' and the 'python install.py' below!
 
 Don't forget to enable the webserver and API features on your PowerDNS installations (experimental-webserver, experimental-webserver-address, experimental-webserver-password, experimental-json-interface for Recursor, experimental-json-interface and webserver-address for Authoritative). The 'experimental-' prefix denotes that the API might still change, but if it does, pdnscontrol will change with it.
 
+#### Docker for evaluation purposes
+
+See the instructions in `Dockerfile` on how to get a minimal Docker container with PowerDNS Authoritative Server and pdnscontrol.
+
 #### Developing
 
 To update built templates, you also need to have other software installed.

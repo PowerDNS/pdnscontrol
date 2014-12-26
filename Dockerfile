@@ -2,7 +2,7 @@
 # Example usage:
 #     docker build -t pdnscontrol . && docker run -p 5301:5301 -p 8081:8081 -p 5000:5000 --name pdnscontrol pdnscontrol
 #
-# Default username/password for pdnscontrol: admin/changeme
+# Default email/password for pdnscontrol: admin@example.org/changeme
 #
 # Ports:
 # 5000: pdnscontrol web

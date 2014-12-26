@@ -14,7 +14,6 @@
     "shelljs": "^0.2.6"
   },
   "scripts": {
-    "postinstall": "bower install -f",
     "test": "karma start test/karma.conf.js",
     "update-webdriver": "webdriver-manager update",
     "protractor": "protractor test/protractor-conf.js",

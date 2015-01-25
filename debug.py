@@ -1,5 +1,6 @@
 import logging
-logging.basicConfig()
+import sys
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 import pdnscontrol
 pdnscontrol.app.debug = True

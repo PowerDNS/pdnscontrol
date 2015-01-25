@@ -1,0 +1,5 @@
+%syntax-version=1.0.0
+%project=pdnscontrol
+
+users 2015-01-25T16:26:20Z Christian Hofstaedtler <christian@hofstaedtler.name># Add users table
+servers 2015-01-25T16:26:32Z Christian Hofstaedtler <christian@hofstaedtler.name># Add servers

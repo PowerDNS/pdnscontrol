@@ -216,6 +216,13 @@ angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$
 angular.module('ControlApp.controllers.server').controller('ServerCreateCtrl', ['$scope', '$location', 'Restangular', function($scope, $location, Restangular) {
   // set defaults
   $scope.server = {'daemon_type': 'Authoritative'};
+  $scope.$watch('server.daemon_type', function(newValue) {
+    if (newValue === 'Authoritative') {
+      $scope.default_api_port = 8081;
+    } else {
+      $scope.default_api_port = 8082;
+    }
+  });
 
   $scope.save = function() {
     Restangular.all("servers").post($scope.server).then(function(response) {
@@ -369,6 +376,13 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
 angular.module('ControlApp.controllers.server').controller('ServerEditCtrl', ['$scope', '$location', 'Restangular', 'server', function($scope, $location, Restangular, server) {
   $scope.master = server;
   $scope.server = Restangular.copy($scope.master);
+  $scope.$watch('server.daemon_type', function(newValue) {
+    if (newValue === 'Authoritative') {
+      $scope.default_api_port = 8081;
+    } else {
+      $scope.default_api_port = 8082;
+    }
+  });
 
   $scope.isClean = function() {
     return angular.equals($scope.master, $scope.server);

@@ -1,60 +1,55 @@
 <form name="serverForm">
-<div class="row">
-<div class="small-12 columns">
-  <h1 class="server-name" ng-show="server._url">{{master.name}}</h1>
-  <h1 class="server-name" ng-show="!server._url">Add Server</h1>
-</div>
-</div>
-<div class="row">
-  <div class="small-12 columns">
-    <label ng-class="{error: serverForm.name.$invalid && !serverForm.$pristine}" for="name">Server Name</label>
-    <input type="text" name="name" ng-model="server.name" id="name" required>
+  <div class="row">
+    <div class="small-12 columns">
+      <h1 class="server-name" ng-show="server._url">{{master.name}}</h1>
+      <h1 class="server-name" ng-show="!server._url">Add Server</h1>
+    </div>
   </div>
-</div>
-
-<div class="row">
-  <div class="small-12 columns">
-    <label ng-class="{error: serverForm.daemon_type.$invalid && !serverForm.$pristine}">Server Type</label>
-    <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Authoritative" id="daemon_typeAuth" required>
-    <label for="daemon_typeAuth">Authoritative</label>
-    <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Recursor" id="daemon_typeRecursor">
-    <label for="daemon_typeRecursor">Recursor</label>
+  <div class="row">
+    <div class="small-12 columns">
+      <label ng-class="{error: serverForm.name.$invalid && !serverForm.$pristine}" for="name">Server Name</label>
+      <input type="text" name="name" ng-model="server.name" id="name" required="required" autofocus="autofocus">
+    </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="small-12 columns">
-  <label ng-class="{error: serverForm.stats_url.$invalid && !serverForm.$pristine}" for="api_url">PowerDNS API URL</label>
-  <input type="url" name="stats_url" ng-model="server.stats_url" placeholder="http://127.0.0.1:8081/" required id="api_url">
+  <div class="row">
+    <div class="small-12 columns">
+      <label ng-class="{error: serverForm.daemon_type.$invalid && !serverForm.$pristine}">Server Type</label>
+      <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Authoritative" id="daemon_typeAuth" required="required">
+      <label for="daemon_typeAuth">Authoritative</label>
+      <input ng-model="server.daemon_type" name="daemon_type" type="radio" value="Recursor" id="daemon_typeRecursor">
+      <label for="daemon_typeRecursor">Recursor</label>
+    </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="small-12 columns">
-    <label ng-class="{error: serverForm.api_key.$invalid && !serverForm.$pristine}" for="api_key">PowerDNS API Key</label>
-    <input type="text" name="api_key" ng-model="server.api_key" placeholder="" id="api_key">
+  <div class="row">
+    <div class="small-12 columns">
+    <label ng-class="{error: serverForm.stats_url.$invalid && !serverForm.$pristine}" for="api_url">PowerDNS API URL</label>
+    <input type="url" name="stats_url" ng-model="server.stats_url" placeholder="http://127.0.0.1:{{default_api_port}}/" required="required" id="api_url">
+    </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="small-12 columns">
-  <label ng-class="{error: serverForm.manager_url.$invalid && !serverForm.$pristine}" for="manager_url">pdnsmgrd URL</label>
-  <input type="url" name="manager_url" ng-model="server.manager_url" placeholder="http://admin:password@127.0.0.1:8181/" required id="manager_url">
+  <div class="row">
+    <div class="small-12 columns">
+      <label ng-class="{error: serverForm.api_key.$invalid && !serverForm.$pristine}" for="api_key">PowerDNS API Key</label>
+      <input type="text" name="api_key" ng-model="server.api_key" placeholder="" id="api_key">
+    </div>
   </div>
-</div>
 
-<br>
+  <div class="row">
+    <div class="small-12 columns">
+    <label ng-class="{error: serverForm.manager_url.$invalid && !serverForm.$pristine}" for="manager_url">pdnsmgrd URL</label>
+    <input type="url" name="manager_url" ng-model="server.manager_url" placeholder="http://admin:password@127.0.0.1:8181/" required="required" id="manager_url">
+    </div>
+  </div>
 
-<div class="row">
-  <div class="small-12 columns">
-  <button type="submit" ng-click="save()" ng-disabled="isClean() || serverForm.$invalid" class="button success">Save</button>
-  <button type="button" ng-click="cancel()" class="button">Cancel</button>
-  <button type="button" ng-click="destroy()" ng-show="server._url" class="button alert right">Delete</button>
+  <br>
 
-</div>
-</div>
+  <div class="row">
+    <div class="small-12 columns">
+      <button type="submit" ng-click="save()" ng-disabled="isClean() || serverForm.$invalid" class="button success">Save</button>
+      <button type="button" ng-click="cancel()" class="button">Cancel</button>
+      <button type="button" ng-click="destroy()" ng-show="server._url" class="button alert right">Delete</button>
+    </div>
+  </div>
 </form>
-
-<script>
-$('#name').focus();
-</script>

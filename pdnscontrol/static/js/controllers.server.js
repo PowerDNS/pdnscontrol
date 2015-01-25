@@ -124,7 +124,7 @@ angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$
         scope.loading = true;
         _.each(scope.affected_servers, function(server) {
           server.flush_cache({'domain': scope.flush_domain}).then(function(response) {
-            scope.results.push({server: server, output: '' + response.content.number + ' domains flushed.'});
+            scope.results.push({server: server, output: '' + response.count + ' domains flushed.'});
             requestCount -= 1;
             if (requestCount === 0) {
               scope.loading = false;
@@ -299,7 +299,8 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
       scope.doIt = function() {
         scope.loading = true;
         $scope.server.flush_cache({domain: scope.flush_domain}).then(function(response) {
-          scope.output = '' + response.content.number + ' domains flushed.';
+          console.log(response);
+          scope.output = '' + response.count + ' domains flushed.';
           scope.loading = false;
         }, function(response) {
           scope.output = 'Flushing failed.';

@@ -146,11 +146,25 @@ def zone_update(server, zone):
     return forward_request(server, '/servers/localhost/zones/' + zone)
 
 
+@mod.route('/servers/<server>/zones/<zone>/axfr-retrieve', methods=['PUT'])
+@api_auth_required
+@roles_required('edit')
+def zone_axfr_retrieve(server, zone):
+    return forward_request(server, '/servers/localhost/zones/' + zone + '/axfr-retrieve')
+
+
 @mod.route('/servers/<server>/zones/<zone>/export')
 @api_auth_required
 @roles_required('view')
 def zone_export(server, zone):
     return forward_request(server, '/servers/localhost/zones/' + zone + '/export')
+
+
+@mod.route('/servers/<server>/zones/<zone>/notify', methods=['PUT'])
+@api_auth_required
+@roles_required('edit')
+def zone_notify(server, zone):
+    return forward_request(server, '/servers/localhost/zones/' + zone + '/notify')
 
 
 @mod.route('/servers/<server>/search-data')
@@ -169,40 +183,12 @@ def server_loggrep(server):
     return forward_request(server, '/servers/localhost/search-log', {'q': q})
 
 
-@mod.route('/servers/<server>/flush-cache', methods=['POST'])
+@mod.route('/servers/<server>/flush-cache', methods=['PUT'])
 @api_auth_required
 @roles_required('edit')
 def server_flushcache(server):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name': "Not found"}), 404
-
-    domain = request.values.get('domain', '')
-
-    remote_url = server.pdns_url
-    remote_url += '/jsonstat?command=flush-cache&domain=' + domain
-
-    data = fetch_json(remote_url)
-
-    return jsonify({'domain': domain, 'content': data})
-
-
-# pdns_control protocol tunnel
-@mod.route('/servers/<server>/control', methods=['POST'])
-@api_auth_required
-@roles_required('edit')
-def server_control(server):
-    server = db.session.query(Server).filter_by(name=server).first()
-    if server is None:
-        return jsonify(errors={'name': "Not found"}), 404
-
-    data = {'parameters': request.values.get('command', '')}
-
-    remote_url = server.pdns_url
-    remote_url += '/jsonstat?command=pdns-control'
-
-    r = fetch_remote(remote_url, method=request.method, data=data)
-    return forward_remote_response(r)
+    domain = request.values.get('domain')
+    return forward_request(server, '/servers/localhost/flush-cache', {'domain': domain})
 
 
 @mod.route('/servers/<server>/statistics', methods=['GET'])

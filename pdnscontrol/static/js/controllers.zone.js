@@ -305,7 +305,8 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
 
   $scope.notify_slaves = function() {
     $scope.loading = true;
-    $scope.server.control({command: 'NOTIFY '+$scope.zone.name}).then(function(response) {
+
+    $scope.zone.customOperation('put', 'notify', {}).then(function(response) {
       $scope.loading = false;
       alert(response.result);
     }, function() {
@@ -316,7 +317,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
 
   $scope.update_from_master = function() {
     $scope.loading = true;
-    $scope.server.control({command: 'RETRIEVE '+$scope.zone.name}).then(function(response) {
+    $scope.zone.customOperation('put', 'axfr-retrieve', {}).then(function(response) {
       $scope.loading = false;
       alert(response.result);
     }, function() {

@@ -48,7 +48,7 @@ angular.module('models', ['restangular']).
       server.addRestangularMethod('stop', 'post', 'stop', null, {});
       server.addRestangularMethod('restart', 'post', 'restart', null, {});
       server.addRestangularMethod('update', 'post', 'update', null, {});
-      server.addRestangularMethod('flush_cache', 'post', 'flush-cache', null, {});
+      server.addRestangularMethod('flush_cache', 'put', 'flush-cache', null, {});
       server.addRestangularMethod('search_log', 'get', 'search-log', null, {needle: true});
       server.addRestangularMethod('control', 'post', 'control', null, {parameters: true});
       server.graphite_name = (function() {

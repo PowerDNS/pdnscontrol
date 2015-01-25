@@ -26,13 +26,17 @@ def forward_request(server, remote_url, params=None, to_manager=False):
         return jsonify(errors={'name': "Not found"}), 404
 
     url = server.manager_url if to_manager else server.pdns_url
+    headers = {}
+    if not to_manager and server.api_key:
+        headers['X-API-Key'] = server.api_key
 
     response = fetch_remote(
         url + remote_url,
         method=request.method,
         data=request.data,
         accept=request.headers.get('Accept'),
-        params=params
+        params=params,
+        headers=headers
     )
     return forward_remote_response(response)
 

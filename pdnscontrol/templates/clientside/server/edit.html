@@ -24,14 +24,21 @@
 
 <div class="row">
   <div class="small-12 columns">
-  <label ng-class="{error: serverForm.stats_url.$invalid && !serverForm.$pristine}" for="api_url">API URL</label>
-  <input type="url" name="stats_url" ng-model="server.stats_url" placeholder="http://admin:password@127.0.0.1:8081/" required id="api_url">
+  <label ng-class="{error: serverForm.stats_url.$invalid && !serverForm.$pristine}" for="api_url">PowerDNS API URL</label>
+  <input type="url" name="stats_url" ng-model="server.stats_url" placeholder="http://127.0.0.1:8081/" required id="api_url">
   </div>
 </div>
 
 <div class="row">
   <div class="small-12 columns">
-  <label ng-class="{error: serverForm.manager_url.$invalid && !serverForm.$pristine}" for="manager_url">Manager URL</label>
+    <label ng-class="{error: serverForm.api_key.$invalid && !serverForm.$pristine}" for="api_key">PowerDNS API Key</label>
+    <input type="text" name="api_key" ng-model="server.api_key" placeholder="" id="api_key">
+  </div>
+</div>
+
+<div class="row">
+  <div class="small-12 columns">
+  <label ng-class="{error: serverForm.manager_url.$invalid && !serverForm.$pristine}" for="manager_url">pdnsmgrd URL</label>
   <input type="url" name="manager_url" ng-model="server.manager_url" placeholder="http://admin:password@127.0.0.1:8181/" required id="manager_url">
   </div>
 </div>

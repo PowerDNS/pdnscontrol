@@ -132,12 +132,14 @@ class Server(db.Model, IterableModel, RestModel):
     daemon_type = db.Column(db.Unicode(255))
     stats_url = db.Column(db.Unicode(255))
     manager_url = db.Column(db.Unicode(255))
-    __public_fields__ = ['name', 'daemon_type', 'stats_url', 'manager_url']
+    api_key = db.Column(db.Unicode(255))
+    __public_fields__ = ['name', 'daemon_type', 'stats_url', 'manager_url', 'api_key']
     __readonly_fields__ = []
     __id_mapped_to__ = 'name'
 
     def validate(self):
         errors = {}
+        # api_key is optional
         for fn in ['name', 'daemon_type', 'stats_url', 'manager_url']:
             if getattr(self, fn) in ['', None]:
                 errors[fn] = '%s must be set'

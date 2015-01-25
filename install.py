@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from flask.ext.security.utils import encrypt_password
+import sys
 
 from pdnscontrol import app
 from pdnscontrol.models import *

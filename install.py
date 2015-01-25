@@ -4,10 +4,21 @@ import sys
 
 from pdnscontrol import app
 from pdnscontrol.models import *
+
+if sys.argv[-1] == '--help':
+    print "install.py sets up an initial database for pdnscontrol."
+    print ""
+    print "Parameters:"
+    print "   --existing-ok: exit with 0 if DB already exists"
+    print "   --force: continue creating users even if DB already exists"
+    print ""
+    print "The DB that will be populated is taken from pdnscontrol.conf."
+    sys.exit(0)
+
 db.create_all()
 print "The database has been created."
 
-if user_datastore.find_role(u'admin') is not None:
+if user_datastore.find_role(u'admin') is not None and sys.argv[-1] != '--force':
     print "The database has been set up already."
     if sys.argv[-1] == '--existing-ok':
         sys.exit(0)

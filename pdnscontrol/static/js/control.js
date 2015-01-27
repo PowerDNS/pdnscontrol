@@ -440,7 +440,6 @@ function diffAB(a, b, select_cb) {
      {
        "content": <string>,
        "name": <string>,
-       "priority": <int>,
        "ttl": <int>,
        "type": <string>,
        "disabled": <bool>

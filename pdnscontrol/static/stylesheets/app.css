@@ -6319,11 +6319,6 @@ table.recordEdit tr th, table.recordEdit tr td {
   background-color: #f04124; }
 
 /* fixed widths for columns and xeditable fields */
-.recordPrio {
-  width: 40px; }
-  .recordPrio input[type=text] {
-    width: 30px; }
-
 .recordTtl {
   width: 60px; }
   .recordTtl input[type=text] {

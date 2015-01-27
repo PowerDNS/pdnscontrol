@@ -149,7 +149,6 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
               content: ptr.record.name,
               type: 'PTR',
               ttl: ptr.record.ttl,
-              priority: 0,
               disabled: false
             }]
           };
@@ -283,7 +282,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
 
   $scope.addRRSet = function() {
     // TODO: get default ttl from somewhere
-    var rrset = {name: $scope.zone.name, type: '', records: [{priority: 0, ttl: 3600, content: '', disabled: false, _new: true}], comments: [], _new: true};
+    var rrset = {name: $scope.zone.name, type: '', records: [{ttl: 3600, content: '', disabled: false, _new: true}], comments: [], _new: true};
     var idx;
     for (idx = 0; idx < $scope.zone.rrsets.length; ++idx) {
       if ($scope.zone.rrsets[idx].name != $scope.zone.name) {
@@ -361,11 +360,6 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
     return ret;
   };
 
-  var typesWithPriority = ['MX', 'SRV'];
-  $scope.prioVisible = function(rrset, record) {
-    return (typesWithPriority.indexOf(rrset.type) !== -1) || (record.priority > 0);
-  };
-
   $scope.editComments = function(rrset) {
     showPopup($scope, $compile, 'zone/edit_comment', function(scope) {
       $scope.rrset = rrset;
@@ -418,9 +412,9 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
       alert('An RRset ' + finder.name + '/' + finder.type + ' already exists in this zone. Please choose another name or type.');
       return '.';
     }
-    var contents = _.map(rrset.records, function(o) { return '' + o.priority + ' ' + o.content; });
+    var contents = _.map(rrset.records, function(o) { return '' + o.content; });
     if (contents.length !== _.uniq(contents).length) {
-      alert('Duplicate records (same content/priority) are not allowed.');
+      alert('Duplicate records (same content) are not allowed.');
       // not aborting, as this is not totally fatal and can cause problems when editing legacy zones.
     }
     return true;

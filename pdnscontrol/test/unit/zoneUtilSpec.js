@@ -22,7 +22,6 @@ describe('zone utilities', function() {
               "name": "example.net",
               "type": "SOA",
               "ttl": 3600,
-              "priority": 0,
               "disabled": false,
               "content": "ns1.example.org"
             }
@@ -37,7 +36,6 @@ describe('zone utilities', function() {
               "name": "example.net",
               "type": "NS",
               "ttl": 3600,
-              "priority": 0,
               "disabled": false,
               "content": "ns1.example.org"
             },
@@ -45,7 +43,6 @@ describe('zone utilities', function() {
               "name": "example.net",
               "type": "NS",
               "ttl": 3600,
-              "priority": 0,
               "disabled": false,
               "content": "ns2.example.org"
             }

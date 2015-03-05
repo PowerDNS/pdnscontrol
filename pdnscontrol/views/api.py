@@ -27,7 +27,7 @@ def forward_request(server, remote_url, params=None, to_manager=False):
 
     url = server.manager_url if to_manager else server.pdns_url
     headers = {}
-    if not to_manager and server.api_key:
+    if server.api_key:
         headers['X-API-Key'] = server.api_key
 
     response = fetch_remote(
@@ -70,13 +70,18 @@ def server_get(server):
     if not obj:
         return jsonify(errors={'name': "Not found"}), 404
 
+    headers = {}
+    if obj.api_key:
+        headers['X-API-Key'] = obj.api_key
+
     server = obj.to_dict()
 
     try:
         response = fetch_remote(
             obj.pdns_url + '/servers/localhost',
             method='GET',
-            accept=request.headers.get('Accept')
+            accept=request.headers.get('Accept'),
+            headers=headers,
         )
         s = response.json()
         s.update(server)

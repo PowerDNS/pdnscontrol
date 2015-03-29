@@ -7,6 +7,7 @@ from pdnscontrol.models import *
 
 mod = Blueprint('pages', __name__)
 
+
 @mod.route('/servers.json')
 @http_auth_required
 @roles_required('stats')

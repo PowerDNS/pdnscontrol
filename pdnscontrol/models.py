@@ -18,7 +18,7 @@ db = SQLAlchemy(app)
 
 class IterableModel(object):
     def __iter__(self):
-        for k,v in self.__dict__.iteritems():
+        for k, v in self.__dict__.iteritems():
             if k.startswith('_'):
                 continue
             yield (k, v)
@@ -37,7 +37,7 @@ class RestModel(object):
         for fn in self.__public_fields__:
             if fn in self.__readonly_fields__:
                 continue
-            if data.has_key(fn):
+            if fn in data:
                 setattr(self, fn, data[fn])
         self._id = getattr(self, getattr(self, '__id_mapped_to__', 'id'))
         self.mark_validation_dirty()
@@ -127,7 +127,7 @@ user_datastore = SQLAlchemyUserDatastore(db, User, UserRole)
 
 class Server(db.Model, IterableModel, RestModel):
     __tablename__ = 'servers'
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(255), nullable=False, unique=True)
     daemon_type = db.Column(db.Unicode(255))
     stats_url = db.Column(db.Unicode(255))

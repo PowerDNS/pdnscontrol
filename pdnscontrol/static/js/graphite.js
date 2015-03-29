@@ -1,7 +1,16 @@
 "use strict";
 
 var GraphiteModule = angular.module('graphite', ['services.pageVisibility']);
-GraphiteModule.directive('graphite', function($interval, pageVisibility) {
+
+GraphiteModule.factory('GraphiteManager', [function() {
+  return {
+	enabled: (ServerData.Config.graphite_server != null),
+	url: ServerData.Config.graphite_server,
+	default_opts: ServerData.Config.graphite_default_opts,
+  };
+}]);
+
+GraphiteModule.directive('graphite', function($interval, pageVisibility, GraphiteManager) {
   return {
     restrict: 'E',
     template: '<div class="graphite-graph"><div class="right graphite-times">' +
@@ -20,7 +29,7 @@ GraphiteModule.directive('graphite', function($interval, pageVisibility) {
       attrs.$set('gSalt', Math.random()*10000000);
 
       function updateUrl() {
-        var url = ServerData.Config.graphite_server + '?_cache=180&_salt=' + attrs.gSalt;
+        var url = GraphiteManager.url + '?_cache=180&_salt=' + attrs.gSalt;
         if (attrs.gSource === undefined)
           return;
 
@@ -33,7 +42,7 @@ GraphiteModule.directive('graphite', function($interval, pageVisibility) {
           'from': attrs.gFrom,
           'title': attrs.gTitle || '',
           'vtitle': attrs.gVTitle || ''
-        }, ServerData.Config.graphite_default_opts);
+        }, GraphiteManager.default_opts);
 
         // automatically choose width, if possible
         var width = $(elm).width() || $(elm).parent().width();
@@ -152,9 +161,9 @@ GraphiteModule.directive('graph', function() {
   };
 });
 
-GraphiteModule.directive('sparklegraph', function($http, $interval) {
+GraphiteModule.directive('sparklegraph', function($http, $interval, GraphiteManager) {
   function showGraph(server, metric, width, from, elm, doneCallback) {
-    $http.get(ServerData.Config.graphite_server, {
+    $http.get(GraphiteManager.url, {
       params: {
         format: 'json',
         areaMode: 'first',
@@ -180,6 +189,10 @@ GraphiteModule.directive('sparklegraph', function($http, $interval) {
   return {
     restrict: 'E',
     link: function(scope, elm, attrs) {
+	  if (!GraphiteManager.enabled) {
+		return;
+	  }
+
       var server = attrs.server.replace(/\./gm,'-');
       var metric = attrs.metric;
       var width = attrs.width;

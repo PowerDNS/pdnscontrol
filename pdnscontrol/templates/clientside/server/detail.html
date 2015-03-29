@@ -1,5 +1,5 @@
 <ng-include src="'/tpl/server/detail_header.html'"></ng-include>
-<div class="row">
+<div class="row" ng-if="haveGraphite">
   <div class="small-12 columns">
     <div ng-switch on="server.daemon_type">
     <div ng-switch-when="Authoritative">

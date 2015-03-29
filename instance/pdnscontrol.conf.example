@@ -21,6 +21,8 @@
 # GRAPHITE_SERVER = 'http://127.0.0.1:8085/render/'
 # GRAPHITE_TIMEOUT = 30
 # IGNORE_SSL_ERRORS = False
+# If you don't have/want Graphite:
+# GRAPHITE_SERVER = None
 
 # USE_X_SENDFILE = False
 # SESSION_COOKIE_NAME = 'ControlSess'

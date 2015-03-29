@@ -108,6 +108,11 @@ def inject_auth_data():
     return dict(user=user, logged_in=logged_in, user_roles=roles)
 
 
+@app.context_processor
+def inject_config():
+    return {'GRAPHITE_SERVER': app.config['GRAPHITE_SERVER']}
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),

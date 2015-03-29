@@ -1,8 +1,9 @@
 "use strict";
 
-angular.module('ControlApp.controllers.server', []);
+angular.module('ControlApp.controllers.server', ['graphite']);
 
-angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$scope', '$compile', '$filter', 'Restangular', function($scope, $compile, $filter, Restangular) {
+angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$scope', '$compile', '$filter', 'Restangular', 'GraphiteManager', function($scope, $compile, $filter, Restangular, GraphiteManager) {
+  $scope.haveGraphite = GraphiteManager.enabled;
   // init server-list filter
   $scope.filter = "";
 
@@ -247,7 +248,8 @@ angular.module('ControlApp.controllers.server').controller('ServerCreateCtrl', [
   };
 }]);
 
-angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'Restangular', 'server', function($scope, $compile, $location, Restangular, server) {
+angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'Restangular', 'server', 'GraphiteManager', function($scope, $compile, $location, Restangular, server, GraphiteManager) {
+  $scope.haveGraphite = GraphiteManager.enabled;
   $scope.server = server;
   (function() {
     var fragments = $location.path().split('/').reverse();
@@ -255,6 +257,9 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
       $scope.current_tab = fragments[0];
     } else {
       $scope.current_tab = ''; // overview tab
+	  if (!GraphiteManager.enabled) {
+		$scope.current_tab = 'statistics';
+	  }
     }
   })();
 

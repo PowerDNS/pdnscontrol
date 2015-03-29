@@ -27,7 +27,7 @@ ServerData.User = {
 {# FIXME: move this into its own route and make it cacheable #}
 ServerData.Config = {
   url_root: "{[ request.url_root ]}",
-  graphite_server: "/graphite/render/",
+  graphite_server: {[ ("/graphite/render" if GRAPHITE_SERVER else None)|tojson|safe ]},
   graphite_default_opts: {
     bgcolor: "FFFFFF",
     majorGridLineColor: "darkgray",

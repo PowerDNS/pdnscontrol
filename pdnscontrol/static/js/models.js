@@ -14,6 +14,10 @@ angular.module('models', ['restangular']).
       return elem;
     });
     RestangularProvider.setResponseExtractor(function(response, operation, what, url) {
+      if (operation === 'export') {
+        // doesn't return JSON, but a string instead.
+        return response;
+      }
       if (operation === 'getList') {
         var i;
         for (i = 0; i < response.length; i++) {

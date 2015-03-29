@@ -77,6 +77,44 @@ the 'pip install' and the 'python install.py' below!
 
 Don't forget to enable the webserver and API features on your PowerDNS installations (experimental-webserver, experimental-webserver-address, experimental-webserver-password, experimental-json-interface for Recursor, experimental-json-interface and webserver-address for Authoritative). The 'experimental-' prefix denotes that the API might still change, but if it does, pdnscontrol will change with it.
 
+#### Running under uWSGI + nginx
+
+uWSGI Sample configuration:
+
+```ini
+[uwsgi]
+plugins = python27
+virtualenv = /opt/pdnscontrol/venv-pdnscontrol
+chdir = /opt/pdnscontrol
+master = true
+harakiri = 30
+sharedarea = 4
+processes = 1
+socket = /run/%n.socket
+uid=uwsgi
+gid=uwsgi
+chown-socket = nginx
+#location of log files
+logto = /var/log/uwsgi/%n.log
+wsgi-file = /opt/pdnscontrol/instance/pdnscontrol.wsgi
+```
+
+nginx Sample configuration:
+
+```
+server {
+...
+   location /pdnscontrol/ {
+       include uwsgi_params;
+       uwsgi_pass unix:/run/pdnscontrol.socket;
+       uwsgi_param UWSGI_SCHEME https;
+       uwsgi_param SCRIPT_NAME /pdnscontrol;
+       uwsgi_modifier1 30;
+   }
+}
+```
+
+
 #### Docker for evaluation purposes
 
 See the instructions in `Dockerfile` on how to get a minimal Docker container with PowerDNS Authoritative Server and pdnscontrol.

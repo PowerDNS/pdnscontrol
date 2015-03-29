@@ -89,8 +89,9 @@ def fetch_remote(remote_url, method='GET', data=None, accept=None, params=None, 
     return r
 
 
-def fetch_json(remote_url, method='GET', data=None):
-    r = fetch_remote(remote_url, method=method, data=data)
+def fetch_json(remote_url, method='GET', data=None, params=None, headers=None):
+    r = fetch_remote(remote_url, method=method, data=data, params=params, headers=headers,
+                     accept='application/json; q=1')
     try:
         assert('json' in r.headers['content-type'])
     except Exception as e:

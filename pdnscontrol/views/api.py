@@ -20,7 +20,36 @@ def forward_remote_response(response):
     )
 
 
-def forward_request(server, remote_url, params=None, to_manager=False):
+def call_server(server, path, method, data=None, params=None, to_manager=False):
+    """
+    Execute an HTTP Request to the server identified by it's name.
+
+    :param str|unicode server: server name
+    :param str|unicode path: remote path
+    :param dict|None params: query string parameters
+    :param bool to_manager: send request to manager instead of daemon
+    :return: Returns decoded Server response data
+    :rtype: (dict|list)
+    """
+    server = db.session.query(Server).filter_by(name=server).first()
+    if server is None:
+        return jsonify(errors={'name': "Not found"}), 404
+
+    url = server.manager_url if to_manager else server.pdns_url
+    headers = {}
+    if server.api_key:
+        headers['X-API-Key'] = server.api_key
+
+    return fetch_json(
+        url + path,
+        method=method,
+        data=data,
+        params=params,
+        headers=headers
+    )
+
+
+def forward_request(server, path, params=None, to_manager=False):
     server = db.session.query(Server).filter_by(name=server).first()
     if server is None:
         return jsonify(errors={'name': "Not found"}), 404
@@ -31,7 +60,7 @@ def forward_request(server, remote_url, params=None, to_manager=False):
         headers['X-API-Key'] = server.api_key
 
     response = fetch_remote(
-        url + remote_url,
+        url + path,
         method=request.method,
         data=request.data,
         accept=request.headers.get('Accept'),
@@ -41,11 +70,36 @@ def forward_request(server, remote_url, params=None, to_manager=False):
     return forward_remote_response(response)
 
 
+def eligible_for_passwords():
+    return current_user.has_role('admin') or current_user.has_role('edit')
+
+
+def is_config_password(key):
+    """
+    Returns true if the config setting identified by key is a password of sorts.
+
+    >>> is_config_password('api-key')
+    True
+    >>> is_config_password('gmysql-password')
+    True
+    >>> is_config_password('version-string')
+    False
+    """
+    return key in ('experimental-api-key', 'api-key') or '-password' in key
+
+
+def remove_passwords_if_ineligible(server):
+    obj = dict(server)
+    if not eligible_for_passwords():
+        del obj['api_key']
+    return obj
+
+
 @mod.route('/servers', methods=['GET'])
 @api_auth_required
 @roles_required('view')
 def server_index():
-    ary = Server.all()
+    ary = [remove_passwords_if_ineligible(obj) for obj in Server.all()]
     return jsonarify(ary)
 
 
@@ -77,13 +131,7 @@ def server_get(server):
     server = obj.to_dict()
 
     try:
-        response = fetch_remote(
-            obj.pdns_url + '/servers/localhost',
-            method='GET',
-            accept=request.headers.get('Accept'),
-            headers=headers,
-        )
-        s = response.json()
+        s = call_server(obj.name, '/servers/localhost', method='GET')
         s.update(server)
         s['id'] = s['_id']
         server = s
@@ -93,6 +141,7 @@ def server_get(server):
     # make sure JS doesn't loop endlessy
     server['version'] = server.get('version', '')
 
+    server = remove_passwords_if_ineligible(server)
     return jsonify(**server)
 
 
@@ -207,13 +256,18 @@ def server_stats(server):
 @api_auth_required
 @roles_required('stats')
 def server_config(server):
-    return forward_request(server, '/servers/localhost/config')
+    ary = call_server(server, '/servers/localhost/config', method='GET')
+    if not eligible_for_passwords():
+        ary = [obj for obj in ary if not is_config_password(obj['name'])]
+    return jsonarify(ary)
 
 
 @mod.route('/servers/<server>/config/<config>', methods=['GET'])
 @api_auth_required
 @roles_required('stats')
 def server_config_detail(server, config):
+    if is_config_password(config) and not eligible_for_passwords():
+        return jsonify(errors={'config': "Forbidden"}), 403
     return forward_request(server, '/servers/localhost/config/' + config)
 
 

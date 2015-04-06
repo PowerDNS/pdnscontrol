@@ -77,6 +77,16 @@ the 'pip install' and the 'python install.py' below!
 
 Don't forget to enable the webserver and API features on your PowerDNS installations (experimental-webserver, experimental-webserver-address, experimental-webserver-password, experimental-json-interface for Recursor, experimental-json-interface and webserver-address for Authoritative). The 'experimental-' prefix denotes that the API might still change, but if it does, pdnscontrol will change with it.
 
+#### Running (Production mode)
+
+We recommend using gunicorn and nginx or Apache as a reverse proxy.
+
+Example gunicorn command line (assuming you've installed pdnscontrol into `/opt/pdnscontrol` and a dedicated system user named `pdnscontrol` has been created):
+
+```
+/opt/pdnscontrol/pdnscontrol/venv-pdnscontrol/bin/gunicorn --chdir /opt/pdnscontrol/pdnscontrol/ -u pdnscontrol -w 5 -b :8000 --log-level debug  --error-logfile /dev/stderr pdnscontrol:app
+```
+
 #### Running under uWSGI + nginx
 
 User-contributed documentation about running pdnscontrol under uWSGI + nginx. (We recommend using gunicorn + nginx or Apache for production deployments.)

@@ -79,6 +79,8 @@ Don't forget to enable the webserver and API features on your PowerDNS installat
 
 #### Running under uWSGI + nginx
 
+User-contributed documentation about running pdnscontrol under uWSGI + nginx. (We recommend using gunicorn + nginx or Apache for production deployments.)
+
 uWSGI Sample configuration:
 
 ```ini

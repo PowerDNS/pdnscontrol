@@ -18,7 +18,7 @@ Features:
 * PowerDNS Authoritative 3.4-pre
 * PowerDNS Recursor 3.6-pre
 * Graphite
-* PostgreSQL 8.3 or newer, or MySQL 5.5 or newer
+* PostgreSQL 8.3 or newer, or MySQL 5.5 or newer, or SQLite 3
 * Cron
 
 ### Browser requirements
@@ -51,6 +51,8 @@ Flask-based web app.
 Make sure you have MySQL, PostgreSQL and Python development libraries available, possibly like this:
 
     sudo apt-get install libpq-dev libmysqlclient-dev python-dev
+
+(SQLite drivers come with Python, so there's no extra library to install.)
 
 Then:
 

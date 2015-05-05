@@ -15,8 +15,8 @@ Features:
 ## Requirements
 
 * Python 2.6 or Python 2.7
-* PowerDNS Authoritative 3.4-pre
-* PowerDNS Recursor 3.6-pre
+* PowerDNS Authoritative 3.4.2 or newer
+* PowerDNS Recursor 3.7.1 or newer
 * Graphite
 * PostgreSQL 8.3 or newer, or MySQL 5.5 or newer, or SQLite 3
 * Cron

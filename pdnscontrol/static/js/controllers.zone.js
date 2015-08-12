@@ -72,7 +72,10 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
     // If not, we discard it.
     // Also start fetching the reverse zones already.
     _.each(possiblePtrs, function(ptr) {
-      var matchingZones = _.sortBy(_.filter($scope.zones, function(z) { return ptr.revName.indexOf(z.name) != -1; }), function(z) { return z.name }).reverse();
+      var matchingZones = _.filter($scope.zones, function(z) {
+        return ptr.revName.endsWith('.' + z.name);
+      });
+      matchingZones = _.sortBy(matchingZones, function(z) { return z.name });
       if (matchingZones.length === 0) {
         return;
       }

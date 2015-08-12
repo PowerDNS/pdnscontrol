@@ -65,6 +65,7 @@ js_libs = [
 js_libs_files = ['bower_components/'+x for x in js_libs]
 asset_env.register('js_libs', *js_libs_files, output='gen/js-libs-%(version)s.js')
 js_app = [
+    "polyfill.js",
     "util.js",
     "components.js",
     "popup.js",

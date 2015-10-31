@@ -46,7 +46,7 @@ POST with `application/x-www-form-urlencoded`. Result will be JSON or JSONP (see
 
 #### Example
 
-    curl -k -u 'secret:sikrit' 'https://localhost:8084/manage/restart'
+    curl -d '' -k -u 'secret:sikrit' 'https://localhost:8084/manage/restart'
     {"cmdline": ["sudo", "service", "pdns", "restart"], "success": true, "output": "Restarting pdns (via systemctl): pdns.service.\n"}
 
 

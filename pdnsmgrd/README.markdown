@@ -67,9 +67,9 @@ Any method supported by the upstream server. Result format will be determined by
 
 ## sudo configuration Example
 
-    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns restart
-    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns-recursor restart
-    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns stop
-    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns-recursor stop
-    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns start
-    pdnsmgr ALL = NOPASSWD: /usr/sbin/service pdns-recursor start
+    pdnsmgrd ALL = NOPASSWD: /usr/sbin/service pdns restart
+    pdnsmgrd ALL = NOPASSWD: /usr/sbin/service pdns-recursor restart
+    pdnsmgrd ALL = NOPASSWD: /usr/sbin/service pdns stop
+    pdnsmgrd ALL = NOPASSWD: /usr/sbin/service pdns-recursor stop
+    pdnsmgrd ALL = NOPASSWD: /usr/sbin/service pdns start
+    pdnsmgrd ALL = NOPASSWD: /usr/sbin/service pdns-recursor start

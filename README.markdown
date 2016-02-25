@@ -50,7 +50,7 @@ Flask-based web app.
 
 Make sure you have MySQL, PostgreSQL and Python development libraries available, possibly like this:
 
-    sudo apt-get install libpq-dev libmysqlclient-dev python-dev
+    sudo apt-get install libpq-dev libmysqlclient-dev python-dev build-essential virtualenv
 
 (SQLite drivers come with Python, so there's no extra library to install.)
 

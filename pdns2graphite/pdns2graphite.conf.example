@@ -19,12 +19,12 @@
 
 # serverlist = [
 #     {
-#       "url": "https://pdnscontrol:password@ns.example.com/servers/localhost/statistics",
+#       "url": "https://pdnscontrol:password@ns.example.com/api/v1/servers/localhost/statistics",
 #       "type": "Authoritative",
 #       "name": "ns.example.com"
 #     },
 #     {
-#       "url": "https://pdnscontrol:password@server1/servers/localhost/statistics",
+#       "url": "https://pdnscontrol:password@server1/api/v1/servers/localhost/statistics",
 #       "type": "Recursor",
 #       "name": "server1.com"
 #     }

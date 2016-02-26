@@ -163,13 +163,6 @@ class Server(db.Model, IterableModel, RestModel):
         d['url'] = request.url_root + 'api/servers/' + self.name + '/'
         return d
 
-    def sideload(self, what):
-        remote_url = urlparse.urljoin(self.pdns_url, '/servers/localhost/' + what)
-        try:
-            return fetch_json(remote_url)
-        except:
-            return {}
-
     @property
     def pdns_url(self):
         remote_url = self.stats_url

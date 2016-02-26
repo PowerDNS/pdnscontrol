@@ -131,7 +131,7 @@ def server_get(server):
     server = obj.to_dict()
 
     try:
-        s = call_server(obj.name, '/servers/localhost', method='GET')
+        s = call_server(obj.name, '/api/v1/servers/localhost', method='GET')
         s.update(server)
         s['id'] = s['_id']
         server = s
@@ -176,49 +176,49 @@ def server_edit(server):
 @api_auth_required
 @roles_required('view')
 def zone_index(server):
-    return forward_request(server, '/servers/localhost/zones')
+    return forward_request(server, '/api/v1/servers/localhost/zones')
 
 
 @mod.route('/servers/<server>/zones', methods=['POST'])
 @api_auth_required
 @roles_required('edit')
 def zone_create(server):
-    return forward_request(server, '/servers/localhost/zones')
+    return forward_request(server, '/api/v1/servers/localhost/zones')
 
 
 @mod.route('/servers/<server>/zones/<zone>')
 @api_auth_required
 @roles_required('view')
 def zone_get(server, zone):
-    return forward_request(server, '/servers/localhost/zones/' + zone)
+    return forward_request(server, '/api/v1/servers/localhost/zones/' + zone)
 
 
 @mod.route('/servers/<server>/zones/<zone>', methods=['PUT', 'DELETE', 'PATCH'])
 @api_auth_required
 @roles_required('edit')
 def zone_update(server, zone):
-    return forward_request(server, '/servers/localhost/zones/' + zone)
+    return forward_request(server, '/api/v1/servers/localhost/zones/' + zone)
 
 
 @mod.route('/servers/<server>/zones/<zone>/axfr-retrieve', methods=['PUT'])
 @api_auth_required
 @roles_required('edit')
 def zone_axfr_retrieve(server, zone):
-    return forward_request(server, '/servers/localhost/zones/' + zone + '/axfr-retrieve')
+    return forward_request(server, '/api/v1/servers/localhost/zones/' + zone + '/axfr-retrieve')
 
 
 @mod.route('/servers/<server>/zones/<zone>/export')
 @api_auth_required
 @roles_required('view')
 def zone_export(server, zone):
-    return forward_request(server, '/servers/localhost/zones/' + zone + '/export')
+    return forward_request(server, '/api/v1/servers/localhost/zones/' + zone + '/export')
 
 
 @mod.route('/servers/<server>/zones/<zone>/notify', methods=['PUT'])
 @api_auth_required
 @roles_required('edit')
 def zone_notify(server, zone):
-    return forward_request(server, '/servers/localhost/zones/' + zone + '/notify')
+    return forward_request(server, '/api/v1/servers/localhost/zones/' + zone + '/notify')
 
 
 @mod.route('/servers/<server>/search-data')
@@ -226,7 +226,7 @@ def zone_notify(server, zone):
 @roles_required('edit')
 def server_searchdata(server):
     q = request.values.get('q')
-    return forward_request(server, '/servers/localhost/search-data', {'q': q})
+    return forward_request(server, '/api/v1/servers/localhost/search-data', {'q': q})
 
 
 @mod.route('/servers/<server>/search-log')
@@ -234,7 +234,7 @@ def server_searchdata(server):
 @roles_required('edit')
 def server_loggrep(server):
     q = request.values.get('q')
-    return forward_request(server, '/servers/localhost/search-log', {'q': q})
+    return forward_request(server, '/api/v1/servers/localhost/search-log', {'q': q})
 
 
 @mod.route('/servers/<server>/flush-cache', methods=['PUT'])
@@ -242,21 +242,21 @@ def server_loggrep(server):
 @roles_required('edit')
 def server_flushcache(server):
     domain = request.values.get('domain')
-    return forward_request(server, '/servers/localhost/flush-cache', {'domain': domain})
+    return forward_request(server, '/api/v1/servers/localhost/flush-cache', {'domain': domain})
 
 
 @mod.route('/servers/<server>/statistics', methods=['GET'])
 @api_auth_required
 @roles_required('stats')
 def server_stats(server):
-    return forward_request(server, '/servers/localhost/statistics')
+    return forward_request(server, '/api/v1/servers/localhost/statistics')
 
 
 @mod.route('/servers/<server>/config', methods=['GET'])
 @api_auth_required
 @roles_required('stats')
 def server_config(server):
-    ary = call_server(server, '/servers/localhost/config', method='GET')
+    ary = call_server(server, '/api/v1/servers/localhost/config', method='GET')
     if not eligible_for_passwords():
         ary = [obj for obj in ary if not is_config_password(obj['name'])]
     return jsonarify(ary)
@@ -268,14 +268,14 @@ def server_config(server):
 def server_config_detail(server, config):
     if is_config_password(config) and not eligible_for_passwords():
         return jsonify(errors={'config': "Forbidden"}), 403
-    return forward_request(server, '/servers/localhost/config/' + config)
+    return forward_request(server, '/api/v1/servers/localhost/config/' + config)
 
 
 @mod.route('/servers/<server>/config/<config>', methods=['PUT'])
 @api_auth_required
 @roles_required('edit')
 def server_config_edit(server, config):
-    return forward_request(server, '/servers/localhost/config/' + config)
+    return forward_request(server, '/api/v1/servers/localhost/config/' + config)
 
 
 @mod.route('/servers/<server>/start', methods=['POST'])

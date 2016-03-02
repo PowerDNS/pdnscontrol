@@ -9,5 +9,4 @@ install:
 	# install example config files
 	install -d $(CONFDIR)
 	install -m640 pdnsmgrd/pdnsmgrd.conf.example $(CONFDIR)/pdnsmgrd.conf
-	install -m640 pdns2graphite/pdns2graphite.conf.example $(CONFDIR)/pdns2graphite.conf
 	install -m640 instance/pdnscontrol.conf.example $(CONFDIR)/pdnscontrol.conf

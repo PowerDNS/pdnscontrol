@@ -31,7 +31,7 @@
     <dl class="tabs">
       <dd ng-class="{active: current_tab==''}" ng-show="haveGraphite"><a href="/server/{{ server._id }}">Graphs</a></dd>
       <dd ng-class="{active: current_tab=='statistics'}"><a href="/server/{{ server._id }}/statistics">Statistics</a></dd>
-      <dd ng-class="{active: current_tab=='zones'}"><a href="/server/{{ server._id }}/zones">Zones</a></dd>
+      <dd ng-if="server.daemon_type === 'Authoritative' || server.daemon_type === 'Recursor'" ng-class="{active: current_tab=='zones'}"><a href="/server/{{ server._id }}/zones">Zones</a></dd>
       <dd ng-class="{active: current_tab=='config'}"><a href="/server/{{ server._id }}/config">Configuration</a></dd>
     </dl>
   </div>

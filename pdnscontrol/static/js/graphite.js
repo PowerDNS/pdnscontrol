@@ -168,7 +168,7 @@ GraphiteModule.directive('sparklegraph', function($http, $interval, GraphiteMana
         format: 'json',
         areaMode: 'first',
         from: from,
-        target: 'nonNegativeDerivative(pdns.' + server + '.' + metric + ')'
+        target: 'nonNegativeDerivative(' + server + '.' + metric + ')'
       }
     }).success(function(data) {
       if (data.length > 0) {
@@ -193,7 +193,7 @@ GraphiteModule.directive('sparklegraph', function($http, $interval, GraphiteMana
 		return;
 	  }
 
-      var server = attrs.server.replace(/\./gm,'-');
+      var server = attrs.server;
       var metric = attrs.metric;
       var width = attrs.width;
       var from = attrs.from || '-300s';

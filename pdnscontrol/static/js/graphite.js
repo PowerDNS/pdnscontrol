@@ -168,6 +168,7 @@ GraphiteModule.directive('sparklegraph', function($http, $interval, GraphiteMana
         format: 'json',
         areaMode: 'first',
         from: from,
+        # FIXME - Need to rewrite key for dnsdist
         target: 'nonNegativeDerivative(pdns.' + server + '.' + metric + ')'
       }
     }).success(function(data) {

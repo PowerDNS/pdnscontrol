@@ -40,6 +40,7 @@
             <td width="60" ng-switch on="server.daemon_type" ng-if="haveGraphite">
               <sparklegraph ng-switch-when="Authoritative" width="60px" from="-600s" server="{{server.name}}" metric="auth.udp-queries"></sparklegraph>
               <sparklegraph ng-switch-when="Recursor" width="60px" from="-600s" server="{{server.name}}" metric="recursor.questions"></sparklegraph>
+              <sparklegraph ng-switch-when="Distributor" width="60px" from="-600s" server="{{server.name}}" metric="dist.questions"></sparklegraph>
             </td>
           </tr>
           <tr ng-show="!servers.length">
@@ -84,6 +85,14 @@
     <graphite g-source="" g-area-mode="first" g-refresh="30" g-base="time" g-v-title="Queries per second">
       <graph target="{{recursor_queries()}}" title="Queries" />
       <graph target="{{recursor_answers()}}" title="Answers" />
+    </graphite>
+    </span>
+
+    <span ng-show="distributors().length>0">
+    <h4>Distributor Servers</h4>
+    <graphite g-source="" g-area-mode="first" g-refresh="30" g-base="time" g-v-title="Queries per second">
+      <graph target="{{dnsdist_queries()}}" title="Queries" />
+      <graph target="{{dnsdist_answers()}}" title="Answers" />
     </graphite>
     </span>
 

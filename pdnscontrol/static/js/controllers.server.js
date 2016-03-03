@@ -33,6 +33,13 @@ angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$
       return server.daemon_type === 'Authoritative';
     });
   };
+  $scope.dnsdists = function() {
+    return _.filter($scope.selected_servers(), function(server) {
+      return server.daemon_type === 'Distributor';
+    });
+  };
+
+
 
   $scope.auth_answers = function() {
     var sources, servers;
@@ -88,9 +95,42 @@ angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$
     var sources, servers;
 
     servers = $scope.recursors();
-    sources = _.map(['answers0-1', 'answers1-10', 'answers10-100', 'answers100-1000', 'answers-slow', 'packetcache-hits'], function(val) {
+    sources = 'nonNegativeDerivative(%SOURCE%.questions)';
+
+    servers = _.map(servers, function(server) {
+      var source = server.graphite_name;
+      return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
+    });
+    if (servers.length === 0) {
+      return '';
+    }
+
+    return "sumSeries(" + servers.join(',') + ")";
+  };
+
+  $scope.distributor_answers = function() {
+    var sources, servers;
+    sources = _.map(['latency0-1', 'latency1-10', 'latency10-50', 'latency50-100', 'latency100-1000', 'latency-slow'], function(val) {
       return 'nonNegativeDerivative(%SOURCE%.' + val + ')';
     }).join(',');
+
+    servers = $scope.recursors();
+    servers = _.map(servers, function(server) {
+      var source = server.graphite_name;
+      return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
+    });
+    if (servers.length === 0) {
+      return '';
+    }
+
+    return "sumSeries(" + servers.join(',') + ")";
+  };
+
+  $scope.distributor_queries = function() {
+    var sources, servers;
+
+    servers = $scope.recursors();
+    sources = 'nonNegativeDerivative(%SOURCE%.queries)';
 
     servers = _.map(servers, function(server) {
       var source = server.graphite_name;
@@ -220,8 +260,10 @@ angular.module('ControlApp.controllers.server').controller('ServerCreateCtrl', [
   $scope.$watch('server.daemon_type', function(newValue) {
     if (newValue === 'Authoritative') {
       $scope.default_api_port = 8081;
-    } else {
+    } else if (newValue === 'Recursor') {
       $scope.default_api_port = 8082;
+    } else if (newValue === 'Distributor') {
+      $scope.default_api_port = 8083;
     }
   });
 

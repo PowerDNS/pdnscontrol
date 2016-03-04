@@ -193,6 +193,7 @@ GraphiteModule.directive('sparklegraph', function($http, $interval, GraphiteMana
 		return;
 	  }
 
+      var server = attrs.server;
       var metric = attrs.metric;
       var width = attrs.width;
       var from = attrs.from || '-300s';

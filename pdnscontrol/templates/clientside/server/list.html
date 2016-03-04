@@ -40,7 +40,7 @@
             <td width="60" ng-switch on="server.daemon_type" ng-if="haveGraphite">
               <sparklegraph ng-switch-when="Authoritative" width="60px" from="-600s" server="{{server.graphite_name}}" metric="udp-queries"></sparklegraph>
               <sparklegraph ng-switch-when="Recursor" width="60px" from="-600s" server="{{server.graphite_name}}" metric="questions"></sparklegraph>
-              <sparklegraph ng-switch-when="Distributor" width="60px" from="-600s" server="{{server.graphite_name}}" metric="questions"></sparklegraph>
+              <sparklegraph ng-switch-when="Distributor" width="60px" from="-600s" server="{{server.graphite_name}}" metric="queries"></sparklegraph>
             </td>
           </tr>
           <tr ng-show="!servers.length">

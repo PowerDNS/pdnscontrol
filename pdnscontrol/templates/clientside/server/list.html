@@ -91,8 +91,8 @@
     <span ng-show="distributors().length>0">
     <h4>Distributor Servers</h4>
     <graphite g-source="" g-area-mode="first" g-refresh="30" g-base="time" g-v-title="Queries per second">
-      <graph target="{{dnsdist_queries()}}" title="Queries" />
-      <graph target="{{dnsdist_answers()}}" title="Answers" />
+      <graph target="{{distributor_queries()}}" title="Queries" />
+      <graph target="{{distributor_answers()}}" title="Answers" />
     </graphite>
     </span>
 

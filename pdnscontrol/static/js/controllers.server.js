@@ -33,7 +33,7 @@ angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$
       return server.daemon_type === 'Authoritative';
     });
   };
-  $scope.dnsdists = function() {
+  $scope.distributors = function() {
     return _.filter($scope.selected_servers(), function(server) {
       return server.daemon_type === 'Distributor';
     });
@@ -114,7 +114,7 @@ angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$
       return 'nonNegativeDerivative(%SOURCE%.' + val + ')';
     }).join(',');
 
-    servers = $scope.recursors();
+    servers = $scope.distributors();
     servers = _.map(servers, function(server) {
       var source = server.graphite_name;
       return 'sumSeries(' + sources.replace(/%SOURCE%/g, source) + ')';
@@ -129,7 +129,7 @@ angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$
   $scope.distributor_queries = function() {
     var sources, servers;
 
-    servers = $scope.recursors();
+    servers = $scope.distributors();
     sources = 'nonNegativeDerivative(%SOURCE%.queries)';
 
     servers = _.map(servers, function(server) {

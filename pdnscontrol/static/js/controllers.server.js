@@ -427,8 +427,10 @@ angular.module('ControlApp.controllers.server').controller('ServerEditCtrl', ['$
   $scope.$watch('server.daemon_type', function(newValue) {
     if (newValue === 'Authoritative') {
       $scope.default_api_port = 8081;
-    } else {
+    } else if (newValue === 'Recursor') {
       $scope.default_api_port = 8082;
+    } else if (newValue === 'Distributor') {
+      $scope.default_api_port = 8083;
     }
   });
 

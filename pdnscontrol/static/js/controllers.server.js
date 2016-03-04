@@ -318,7 +318,9 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
       $scope.load_error = 'Loading server information failed. The server may be down.';
     });
   }
-  loadServerData();
+  if ( server.daemon_type === "Recursor" || server.daemon_type === "Authoritative" ) {
+    loadServerData();
+  }
 
   $scope.refreshStatistics = function() {
     server.get().then(function(s) {

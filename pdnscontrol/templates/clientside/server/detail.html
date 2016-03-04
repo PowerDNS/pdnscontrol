@@ -58,6 +58,21 @@
         <graph target="nonNegativeDerivative(%SOURCE%.tcp-client-overflow)" title="tcp concurrency" style="cacti" />
       </graphite>
     </div>
+
+    <div ng-switch-when="Distributor">
+      <graphite g-source="{{server.graphite_name}}" g-title="Queries" g-area-mode="first" g-refresh="30" g-base="time" g-v-title="Queries per second">
+        <graph target="nonNegativeDerivative(%SOURCE%.queries)" title="Queries" />
+      </graphite>
+      <graphite g-source="{{server.graphite_name}}" g-title="Latency distribution" g-area-mode="stacked" g-refresh="30" g-base="time" g-v-title="Queries per second">
+        <graph target="nonNegativeDerivative(%SOURCE%.latency0-1)" title="in 1ms" style="cacti" />
+        <graph target="nonNegativeDerivative(%SOURCE%.latency1-10)" title="in 10ms" style="cacti" />
+        <graph target="nonNegativeDerivative(%SOURCE%.latency10-50)" title="in 50ms" style="cacti" />
+        <graph target="nonNegativeDerivative(%SOURCE%.latency50-100)" title="in 100ms" style="cacti" />
+        <graph target="nonNegativeDerivative(%SOURCE%.latency100-1000)" title="in 1s" style="cacti" />
+        <graph target="nonNegativeDerivative(%SOURCE%.latency-slow)" title="over 1s" style="cacti" />
+      </graphite>
+    </div>
+
   </div>
   </div>
 </div>

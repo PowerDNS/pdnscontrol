@@ -35,12 +35,11 @@ How it all hangs together:
 * PowerDNS Authoritative Server and PowerDNS Recursor both publish data, and accept commands, via a
   JSON-powered, RESTful interface. This interface is not specific to 'pdnscontrol', and can be used
   by everyone. Commands allow for full zone editing, removal etc.
+* The PowerDNS Authoritative Server and PowerDNS Recursor feed data to graphite using the carbon protocol.
+  The webapp meanwhile refers to graphite graphs in its user interface
 * We provide a Flask-based webapp through which you can query, manipulate and configure your PowerDNS instances 
   through the JSON interface
 * A separate program, pdnsmgrd, can stop, start and restart your PowerDNS instances remotely. It can also proxy API requests to multiple servers, and provides SSL encryption
-* A separate program, pdns2graphite, stores all metrics in graphite. The webapp meanwhile refers to graphite graphs
-  in its user interface
-* pdns2graphite can query the webapp for configuration details
 
 ### PowerDNS Web Frontend
 
@@ -141,13 +140,6 @@ See pdnscontrol/README.md for details.
 If you update your checkout you might, but should not, have to run:
 
     ./manage.py assets build
-
-### Graphite data feeder
-
-Feeds PowerDNS stats into your Graphite installation.
-
-Lives in `pdns2graphite`. Look at pdns2graphite/README.markdown for documentation.
-
 
 ### Daemon manager
 

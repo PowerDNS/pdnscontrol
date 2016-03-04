@@ -17,9 +17,3 @@ Depends: ${python:Depends}, ${misc:Depends}, python2.7, lsb-base (>= 3.2-14), ss
 Description: PowerDNS daemon manager daemon
  .
 
-Package: pdns2graphite
-Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python2.7, lsb-base (>= 3.2-14)
-Description: PowerDNS graphite stats feeder
- .
-

@@ -56,11 +56,13 @@ angular.module('models', ['restangular']).
       server.addRestangularMethod('search_log', 'get', 'search-log', null, {needle: true});
       server.addRestangularMethod('control', 'post', 'control', null, {parameters: true});
       server.graphite_name = (function() {
-        var name = 'pdns.' + server.name.replace(/\./gm,'-');
+        var name = server.name.replace(/\./gm,'-');
         if (server.daemon_type === 'Authoritative') {
-          name = name + '.auth';
-        } else {
-          name = name + '.recursor';
+          name = 'pdns.' + name + '.auth';
+        } else if (server.daemon_type === 'Recursor') {
+          name = 'pdns.' + name + '.recursor';
+        } else if (server.daemon_type === 'Distributor') {
+          name = 'dnsdist.' + name + '.main';
         }
         return name;
       })();

@@ -139,7 +139,8 @@ def server_get(server):
         pass
 
     # make sure JS doesn't loop endlessy
-    server['version'] = server.get('version', '')
+    server['version'] = server.get('version', '')  # for recursor
+    server['local'] = server.get('local', '')  # for dnsdist
 
     server = remove_passwords_if_ineligible(server)
     return jsonify(**server)

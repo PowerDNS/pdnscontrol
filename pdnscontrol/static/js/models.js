@@ -87,6 +87,10 @@ angular.module('models', ['restangular']).
         // do an initial set of local-* so listen_address() works, until this info
         // is part of the config API.
         server.get().then(function(data) {
+          if (!data.local) {
+            // Might be an error message or a newer dnsdist?
+            return;
+          }
           server.config['local-ipv6'] = '';
           // Also strip :53 to mimic other products better.
           server.config['local-address'] = data.local.replace(',', ' ').replace(/:53($| )/g, ' ').replace(/ +/g, ' ');

@@ -240,11 +240,18 @@ def handle_route_servers(request):
     return response
 
 
-def authenticate(auth_data):
+def authenticate(reqenv):
+    expected_apikey = CONFIG.get('auth', 'apikey', '')
+    if expected_apikey:
+        received_apikey = reqenv.get('HTTP_X_API_KEY', '')
+        return received_apikey == expected_apikey
+
+    # username/password auth configured
+    auth_data = reqenv.get('HTTP_AUTHORIZATION', '')
     expected_username = CONFIG.get('auth', 'username', None)
     expected_password = CONFIG.get('auth', 'password', None)
     if not expected_username or not expected_password:
-        raise Exception('no username or password configured')
+        raise Exception('apikey missing or no username or password configured')
 
     if auth_data is None or ' ' not in auth_data:
         # no auth data supplied by client
@@ -264,7 +271,7 @@ def authenticate(auth_data):
 
 
 def route(request):
-    if not authenticate(request.environ.get('HTTP_AUTHORIZATION', '')):
+    if not authenticate(request.environ):
         raise AuthenticationRequiredException('Basic realm="manager"')
 
     callback = request.args.get('_callback', [None])[0]

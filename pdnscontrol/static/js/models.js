@@ -83,7 +83,7 @@ angular.module('models', ['restangular']).
         });
       }
 
-      if (server.daemon_type === 'Distributor') {
+      if (server.daemon_type === 'Distributor' && !('local' in server)) {
         // do an initial set of local-* so listen_address() works, until this info
         // is part of the config API.
         server.get().then(function(data) {

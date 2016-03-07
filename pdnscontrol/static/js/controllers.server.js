@@ -158,7 +158,9 @@ angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$
   $scope.popup_flush_cache = function() {
     showPopup($scope, $compile, 'server/flush_cache_multi', function(scope) {
       scope.loading = false;
-      scope.affected_servers = $scope.selected_servers();
+      scope.affected_servers = _.filter($scope.selected_servers(), function(server) {
+        return server.daemon_type != 'Distributor'; // unsupported for now
+      });
       scope.doIt = function() {
         var requestCount = scope.affected_servers.length;
         scope.results = [];

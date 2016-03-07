@@ -7,7 +7,7 @@
   <div class="small-6 columns">
     <div class="button-bar right header-actions">
     <ul class="button-group">
-      <li><button class="button" ng-click="popup_flush_cache()">Flush cache</button></li>
+      <li><button class="button" ng-hide="server.daemon_type=='Distributor'" ng-click="popup_flush_cache()">Flush cache</button></li>
     </ul>
     <ul class="button-group">
       <li><button class="button" ng-click="popup_restart()">Restart</button></li>

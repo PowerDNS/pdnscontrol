@@ -1,3 +1,9 @@
+pdnscontrol (0.0.2) unstable; urgency=low
+
+  * dnsdist support
+
+ -- Pieter Lexis <pieter.lexis@powerdns.com>  Mon, 07 Mar 2016 17:37:42 +0100
+
 pdnscontrol (0.0.1) unstable; urgency=low
 
   * Initial release

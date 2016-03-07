@@ -88,7 +88,8 @@ angular.module('models', ['restangular']).
         // is part of the config API.
         server.get().then(function(data) {
           server.config['local-ipv6'] = '';
-          server.config['local-address'] = data.local.replace(',', ' ');
+          // Also strip :53 to mimic other products better.
+          server.config['local-address'] = data.local.replace(',', ' ').replace(/:53($| )/g, ' ').replace(/ +/g, ' ');
         });
       }
 

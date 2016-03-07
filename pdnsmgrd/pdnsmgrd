@@ -53,6 +53,10 @@ class UpstreamServer(object):
             self.package = 'pdns-server'
             self.service = 'pdns'
             self.url = 'http://localhost:8081'
+        elif self.daemon_type == 'distributor':
+            self.package = 'dnsdist'
+            self.service = 'dnsdist'
+            self.url = 'http://localhost:8083'
         else:
             raise 'Unknown daemon_type %r' % self.daemon_type
 

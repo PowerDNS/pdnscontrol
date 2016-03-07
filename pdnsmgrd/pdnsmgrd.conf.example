@@ -1,6 +1,5 @@
 [auth]
-username = secret
-password = sikrit
+apikey = changeme
 
 [proxy]
 # 8085 is suggested for a second pdnsmgrd

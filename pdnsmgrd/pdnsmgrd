@@ -111,7 +111,7 @@ class NotFoundException(ExposedException):
 class AuthenticationRequiredException(ExposedException):
 
     def __init__(self, www_auth):
-        ExposedException.__init__(self, None, status=401, headers=[('WWW-Authenticate', www_auth)])
+        ExposedException.__init__(self, None, status=401)
 
 
 class Response(object):
@@ -236,33 +236,9 @@ def handle_route_servers(request):
 
 
 def authenticate(reqenv):
-    expected_apikey = CONFIG.get('auth', 'apikey', '')
-    if expected_apikey:
-        received_apikey = reqenv.get('HTTP_X_API_KEY', '')
-        return received_apikey == expected_apikey
-
-    # username/password auth configured
-    auth_data = reqenv.get('HTTP_AUTHORIZATION', '')
-    expected_username = CONFIG.get('auth', 'username', None)
-    expected_password = CONFIG.get('auth', 'password', None)
-    if not expected_username or not expected_password:
-        raise Exception('apikey missing or no username or password configured')
-
-    if auth_data is None or ' ' not in auth_data:
-        # no auth data supplied by client
-        return False
-
-    (client_method, client_credentials_encoded) = auth_data.split(' ', 2)
-    if client_method != 'Basic':
-        # unsupported auth method
-        return False
-
-    client_credentials = base64.b64decode(client_credentials_encoded)
-    (client_username, client_password) = client_credentials.split(':', 2)
-    if client_username == expected_username and client_password == expected_password:
-        return True
-    else:
-        return False
+    expected_apikey = CONFIG.get('auth', 'apikey')
+    received_apikey = reqenv.get('HTTP_X_API_KEY', None)
+    return received_apikey == expected_apikey
 
 
 def route(request):

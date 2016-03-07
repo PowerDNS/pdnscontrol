@@ -485,7 +485,7 @@ def main():
     CONFIG.set('logging', 'target', 'syslog')
     CONFIG.set('logging', 'syslog', '/var/run/syslog' if platform.system() == 'Darwin' else '/dev/log')
     CONFIG.set('logging', 'log_requests', 'false')
-    config_filename = 'pdnsmgrd' + (('-' + args.config_name) if args.config_name else '')
+    config_filename = args.config_name if args.config_name else 'pdnsmgrd'
     config_filename = os.path.join(args.config_dir, config_filename + '.conf')
     if not os.path.exists(config_filename):
         print("E: Configuration file \"%s\" not found, aborting." % config_filename)

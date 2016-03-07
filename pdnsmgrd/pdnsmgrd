@@ -58,7 +58,7 @@ class UpstreamServer(object):
             self.service = 'dnsdist'
             self.url = 'http://localhost:8083'
         else:
-            raise 'Unknown daemon_type %r' % self.daemon_type
+            raise ValueError('Unknown daemon_type %r' % self.daemon_type)
 
         self.authentication = config.get('authentication')
         self.package = config.get('package', self.package)

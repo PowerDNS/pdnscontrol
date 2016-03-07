@@ -213,16 +213,7 @@ def handle_route_servers(request):
     for handler in [urllib2.UnknownHandler, urllib2.HTTPHandler]:
         opener.add_handler(handler())
 
-    # We skip the urllib2 Auth handler, as we unconditionally want to supply the password (if configured).
-    if UPSTREAM.authentication == 'forward':
-        client_auth = request.environ.get('HTTP_AUTHORIZATION', '')
-        if client_auth:
-            headers['Authorization'] = client_auth
-            # Take client-supplied password and use it as X-API-Key. An upgrade hack.
-            try:
-                headers['X-API-Key'] = base64.b64decode(client_auth.split(' ', 1)[1]).split(':', 1)[1]
-            except:
-                logger.exception('Failed decoding client-supplied auth data when trying to forward them')
+    headers['X-API-Key'] = request.environ.get('HTTP_X_API_KEY', '')
 
     try:
         forwarded_req = urllib2.Request(url, data=data, headers=headers)
@@ -288,7 +279,7 @@ def route(request):
         action = path[2]
         return JSONResponse(handle_route_manage(action, request.args), callback=callback)
 
-    elif request.path.startswith('/servers'):
+    elif request.path.startswith('/servers') or request.path.startswith('/api') or request.path.startswith('/jsonstat'):
         return handle_route_servers(request)
 
     else:
@@ -316,9 +307,11 @@ def manager_app(environ, start_response):
         request = Request(environ=environ, path=path, args=args, method=method, body=request_body)
 
         response = route(request)
+        print("OK", request.path, response.status)
 
     except ExposedException as ex:
         response = ExceptionResponse(ex)
+        print("EX", request.path, response.status)
 
     return response.start(start_response)
 

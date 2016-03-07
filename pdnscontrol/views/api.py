@@ -238,12 +238,12 @@ def server_loggrep(server):
     return forward_request(server, '/api/v1/servers/localhost/search-log', {'q': q})
 
 
-@mod.route('/servers/<server>/flush-cache', methods=['PUT'])
+@mod.route('/servers/<server>/cache/flush', methods=['PUT'])
 @api_auth_required
 @roles_required('edit')
 def server_flushcache(server):
     domain = request.values.get('domain')
-    return forward_request(server, '/api/v1/servers/localhost/flush-cache', {'domain': domain})
+    return forward_request(server, '/api/v1/servers/localhost/cache/flush?domain=' + domain)
 
 
 @mod.route('/servers/<server>/statistics', methods=['GET'])

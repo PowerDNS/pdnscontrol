@@ -283,11 +283,9 @@ def manager_app(environ, start_response):
         request = Request(environ=environ, path=path, args=args, method=method, body=request_body)
 
         response = route(request)
-        print("OK", request.path, response.status)
 
     except ExposedException as ex:
         response = ExceptionResponse(ex)
-        print("EX", request.path, response.status)
 
     return response.start(start_response)
 

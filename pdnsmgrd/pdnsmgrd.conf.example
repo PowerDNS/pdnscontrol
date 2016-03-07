@@ -10,7 +10,7 @@ keyfile = pdnsmgrd-ssl.key
 allow_origin = *
 
 [upstream]
-# "authoritative" or "recursor"
+# "authoritative" or "recursor" or "distributor"
 daemon_type = authoritative
 # the following settings are set to defaults based on daemon_type.
 # package = pdns-recursor

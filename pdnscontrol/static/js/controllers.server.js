@@ -352,7 +352,6 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
       scope.doIt = function() {
         scope.loading = true;
         $scope.server.flush_cache(scope.data).then(function(response) {
-          console.log(response);
           scope.output = '' + response.count + ' domains flushed.';
           scope.loading = false;
         }, function(response) {

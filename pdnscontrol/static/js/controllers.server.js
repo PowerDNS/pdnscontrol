@@ -161,12 +161,13 @@ angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$
       scope.affected_servers = _.filter($scope.selected_servers(), function(server) {
         return server.daemon_type != 'Distributor'; // unsupported for now
       });
+      scope.data = {'domain': ''};
       scope.doIt = function() {
         var requestCount = scope.affected_servers.length;
         scope.results = [];
         scope.loading = true;
         _.each(scope.affected_servers, function(server) {
-          server.flush_cache({'domain': scope.flush_domain}).then(function(response) {
+          server.flush_cache(scope.data).then(function(response) {
             scope.results.push({server: server, output: '' + response.count + ' domains flushed.'});
             requestCount -= 1;
             if (requestCount === 0) {
@@ -346,10 +347,11 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
   $scope.popup_flush_cache = function() {
     showPopup($scope, $compile, 'server/flush_cache', function(scope) {
       scope.loading = false;
+      scope.data = {'domain': ''};
       scope.output = '';
       scope.doIt = function() {
         scope.loading = true;
-        $scope.server.flush_cache({domain: scope.flush_domain}).then(function(response) {
+        $scope.server.flush_cache(data).then(function(response) {
           console.log(response);
           scope.output = '' + response.count + ' domains flushed.';
           scope.loading = false;

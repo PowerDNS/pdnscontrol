@@ -22,7 +22,7 @@
     <div ng-show="load_error" class="load_error alert-box alert">{{load_error}}</div>
   </div>
   <div class="small-12 columns">
-    <searchlog servers="[server]"></searchlog>
+    <searchlog ng-show="haveSearchLog" servers="[server]"></searchlog>
   </div>
 </div>
 

@@ -4,6 +4,7 @@ angular.module('ControlApp.controllers.server', ['graphite']);
 
 angular.module('ControlApp.controllers.server').controller('ServerListCtrl', ['$scope', '$compile', '$filter', 'Restangular', 'GraphiteManager', function($scope, $compile, $filter, Restangular, GraphiteManager) {
   $scope.haveGraphite = GraphiteManager.enabled;
+  $scope.haveSearchLog = ServerData.Config.search_log;
   // init server-list filter
   $scope.filter = "";
 
@@ -295,6 +296,7 @@ angular.module('ControlApp.controllers.server').controller('ServerCreateCtrl', [
 
 angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', ['$scope', '$compile', '$location', 'Restangular', 'server', 'GraphiteManager', function($scope, $compile, $location, Restangular, server, GraphiteManager) {
   $scope.haveGraphite = GraphiteManager.enabled;
+  $scope.haveSearchLog = ServerData.Config.search_log;
   $scope.server = server;
   (function() {
     var fragments = $location.path().split('/').reverse();

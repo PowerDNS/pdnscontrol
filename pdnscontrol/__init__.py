@@ -111,7 +111,10 @@ def inject_auth_data():
 
 @app.context_processor
 def inject_config():
-    return {'GRAPHITE_SERVER': app.config['GRAPHITE_SERVER']}
+    return {
+        'GRAPHITE_SERVER': app.config['GRAPHITE_SERVER'],
+        'SEARCH_LOG': app.config['SEARCH_LOG'],
+    }
 
 
 @app.route('/favicon.ico')

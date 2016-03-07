@@ -83,6 +83,15 @@ angular.module('models', ['restangular']).
         });
       }
 
+      if (server.daemon_type === 'Distributor') {
+        // do an initial set of local-* so listen_address() works, until this info
+        // is part of the config API.
+        server.get().then(function(data) {
+          server.config['local-ipv6'] = '';
+          server.config['local-address'] = data.local.replace(',', ' ');
+        });
+      }
+
       server.mustDo = function(key, dflt) {
         var val = server.config[key];
         if (val === undefined)

@@ -1,3 +1,5 @@
+This project currently receives very little active development and the master version is not in sync with the API changes in PowerDNS 4.0.0. If you're running PowerDNS 3.4.x with the experimental-api, you could possibly use the tag "last-3x-compat" for the time being.
+
 # PowerDNS Web Control Panel
 
 PowerDNS Web Control Panel
@@ -14,11 +16,11 @@ Features:
 
 ## Requirements
 
-* Python 2.6 or Python 2.7
-* PowerDNS Authoritative 3.4.2 or newer
-* PowerDNS Recursor 3.7.1 or newer
+* Python 2.7
+* PowerDNS Authoritative 4.0.0-alpha2
+* PowerDNS Recursor 4.0.0-alpha2
 * Graphite
-* PostgreSQL 8.3 or newer, or MySQL 5.5 or newer, or SQLite 3
+* PostgreSQL 9.2 or newer, or MySQL 5.5 or newer, or SQLite 3
 * Cron
 
 ### Browser requirements
@@ -154,5 +156,5 @@ Lives in `pdnsmgrd`. Look at pdnsmgrd/README.markdown for documentation.
 The current code is known to run on these platforms:
 
 * CentOS 6 (Python 2.7)
-* Debian wheezy (Python 2.7)
+* Debian jessie (Python 2.7)
 

@@ -1,5 +1,5 @@
 # Angular-xeditable
-Edit in place for AnguarJS
+Edit in place for AngularJS
 
 ## Overview
 **Angular-xeditable** is a bundle of [AngularJS](http://angularjs.org) directives that allows you to create
@@ -18,6 +18,10 @@ bower install angular-xeditable
 ````
 #### Manual
 Download latest version from [project homepage](http://vitalets.github.io/angular-xeditable).
+#### Insert dependency 
+````
+var app = angular.module("app", ["xeditable"]);
+````
 
 ## Dependencies
 Basically it does not depend on any libraries except [AngularJS](http://angularjs.org) itself.    
@@ -39,4 +43,4 @@ http://plnkr.co/edit/BjWwXIlYyyLvRnVwO8m8?p=preview
 * internally move to [lazy-model](https://github.com/vitalets/lazy-model)
 
 ## License
-MIT
+[MIT](LICENSE)

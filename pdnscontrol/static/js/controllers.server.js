@@ -421,11 +421,6 @@ angular.module('ControlApp.controllers.server').controller('ServerDetailCtrl', [
   $scope.showMore = function() {
     $scope.rowLimit += 100;
   };
-
-  $scope.showMoreInfiniteScroll = function() {
-    $scope.showMore();
-    $scope.$digest(); // force update of DOM (for nginfinitescroll)
-  };
 }]);
 
 angular.module('ControlApp.controllers.server').controller('ServerEditCtrl', ['$scope', '$location', 'Restangular', 'server', function($scope, $location, Restangular, server) {

@@ -60,7 +60,7 @@ js_libs = [
     'moment/moment.js',
     'jstz-detect/jstz.js',
     'jquery.sparkline/dist/jquery.sparkline.js',
-    'nginfinitescroll/build/ng-infinite-scroll.js'
+    'ngInfiniteScroll/build/ng-infinite-scroll.js'
 ]
 js_libs_files = ['bower_components/'+x for x in js_libs]
 asset_env.register('js_libs', *js_libs_files, output='gen/js-libs-%(version)s.js')

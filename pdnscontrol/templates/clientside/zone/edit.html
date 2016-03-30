@@ -35,12 +35,11 @@
     <label for="soa_edit_api">SOA-EDIT-API</label>
     <select ng-model="zone.soa_edit_api" id="soa_edit_api">
       <option value="">(off)</option>
-      <option>INCREMENT-WEEKS</option>
-      <option>INCEPTION-EPOCH</option>
-      <option>INCEPTION-INCREMENT</option>
-      <option>INCEPTION</option>
-      <option>INCEPTION-WEEK</option>
-      <option>EPOCH</option>
+      <option>DEFAULT (YYYYMMDDnn format)</option>
+      <option>INCREASE (just increase by one)</option>
+      <option>EPOCH (seconds since epoch)</option>
+      <option>SOA-EDIT</option>
+      <option>SOA-EDIT-INCREASE (SOA-EDIT with fallback to INCREASE)</option>
     </select>
   </div>
 </div>

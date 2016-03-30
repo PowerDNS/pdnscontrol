@@ -27,5 +27,15 @@ And you're set!
 
 ## Directory Strucutre
 
-  * `scss/_settings.scss`: Foundation configuration settings go in here
+  * `scss/\_settings.scss`: Foundation configuration settings go in here
   * `scss/app.scss`: Application styles go here
+
+## Running tests
+
+Run the karma tests:
+
+```
+node_modules/.bin/karma start test/karma.conf.js --no-auto-watch --single-run --reporters=dots --browsers=Firefox
+```
+
+For protractor tests, please look at the protractor user manual.

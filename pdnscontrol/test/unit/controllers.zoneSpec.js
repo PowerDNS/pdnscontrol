@@ -11,7 +11,7 @@ describe('controllers.zone', function() {
       server = {mustDo: function () {
         return true;
       }};
-      zone = {records: [], kind: 'NATIVE', name: 'example.org'};
+      zone = {rrsets: [], kind: 'NATIVE', name: 'example.org'};
       restangular = {copy: angular.copy};
       makeController = function() {
         return $controller('ZoneDetailCtrl', {$scope: scope, Restangular: restangular, server: server, zone: zone});

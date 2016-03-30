@@ -7,7 +7,7 @@ module.exports = function(config){
       'static/bower_components/angular/angular.js',
       'static/bower_components/angular-route/angular-route.js',
       'static/bower_components/angular-mocks/angular-mocks.js',
-      'static/bower_components/underscore/underscore.js',
+      'static/bower_components/lodash/lodash.js',
       'static/js/**/*.js',
       'test/unit/**/*.js'
     ],

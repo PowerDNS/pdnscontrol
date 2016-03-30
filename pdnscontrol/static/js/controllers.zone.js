@@ -220,8 +220,6 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
   }
 
   $scope.save = function() {
-    $scope.zone.rrsets = syncRRsetRecordNameTypes($scope.zone.rrsets);
-
     // now diff
     var changes = diffRRsets($scope.master.rrsets, $scope.zone.rrsets);
 

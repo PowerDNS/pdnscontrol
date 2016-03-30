@@ -500,25 +500,3 @@ function forAllRRsetRecords(rrsets, cb) {
   }
   return rrsets;
 }
-
-/**
- * Sync names and types from rrsets down to records.
- */
-function syncRRsetRecordNameTypes(rrsets) {
-  var i = rrsets.length, j;
-  while (i--) {
-    var rrset = rrsets[i];
-    j = rrset.records.length;
-    while (j--) {
-      rrset.records[j].name = rrset.name;
-      rrset.records[j].type = rrset.type;
-    }
-    j = rrset.comments.length;
-    while (j--) {
-      rrset.comments[j].name = rrset.name;
-      rrset.comments[j].type = rrset.type;
-    }
-  }
-  return rrsets;
-}
-

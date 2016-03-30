@@ -384,7 +384,7 @@ function gotoServerSearchData($location, server, q) {
 ////////////////////////////////////////////////////////////////////////
 
 function revNameIPv4(ip) {
-  return ip.split('.').reverse().join('.') + ".in-addr.arpa";
+  return ip.split('.').reverse().join('.') + ".in-addr.arpa.";
 }
 
 function revNameIPv6(ip) {
@@ -396,7 +396,7 @@ function revNameIPv6(ip) {
     }
     return new Array(5-e.length).join("0") + e;
   })).join('').split('').reverse().join('.');
-  return rev + '.ip6.arpa';
+  return rev + '.ip6.arpa.';
 }
 
 function diffAB(a, b, select_cb) {

@@ -9,7 +9,7 @@ before_install:
  - echo 'deb [arch=amd64] http://repo.powerdns.com/ubuntu trusty-rec-master main' | sudo tee -a /etc/apt/sources.list.d/powerdns.list
  - curl https://repo.powerdns.com/CBC8B383-pub.asc | sudo apt-key add -
  - echo "#!/bin/sh\nexit 101" | sudo tee -a /usr/sbin/policy-rc.d
- - chmod 755 /usr/sbin/policy-rc.d
+ - sudo chmod 755 /usr/sbin/policy-rc.d
  - "sudo apt-get -qq update && sudo apt-get install -y dnsdist pdns-recursor pdns-backend-mysql pdns-server"
 install:
  - "pip install -r requirements.txt"

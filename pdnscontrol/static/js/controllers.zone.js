@@ -7,6 +7,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
   $scope.server = server;
   $scope.loading = false;
 
+  zone.rrsets = zoneSort(zone.rrsets);
   $scope.master = zone;
   $scope.zone = Restangular.copy($scope.master);
 
@@ -243,7 +244,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
         return;
       }
       // success. update local data from server
-      $scope.master.rrsets = response.rrsets;
+      $scope.master.rrsets = zoneSort(response.rrsets);
       $scope.zone = Restangular.copy($scope.master);
       // send auto ptr changes to server
       doAutoPtr(changes);

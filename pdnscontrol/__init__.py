@@ -49,7 +49,7 @@ js_libs = [
     'foundation/js/foundation.js',
     'foundation/js/foundation/foundation.reveal.js',
     'foundation/js/foundation/foundation.topbar.js',
-    'underscore/underscore.js',
+    'lodash/lodash.js',
     'spin.js/spin.js',
     'blob/Blob.js',
     'FileSaver/FileSaver.js',

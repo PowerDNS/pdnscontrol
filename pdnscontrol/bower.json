@@ -9,7 +9,7 @@
     "restangular": "1.0.3",
     "blob": "4d085bb2e5be6ac6f2ddfad187fc0a53d89aca56",
     "FileSaver": "da0d8ffa6aa182df99d8ab3b2fa10e421398dc22",
-    "underscore": "1.4.4",
+    "lodash": "~3.x",
     "spin.js": "1.3",
     "moment": "1.6.2",
     "jstz-detect": "1.0.5",

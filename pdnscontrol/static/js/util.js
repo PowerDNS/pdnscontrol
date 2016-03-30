@@ -38,27 +38,6 @@ function zoneSort(input) {
   });
 }
 
-function toRRsetList(input) {
-  "use strict";
-  var output = [];
-  var sorted = zoneSort(input);
-  sorted.push({name: undefined, type: undefined});
-  var i, last_name = null, last_type = null;
-  var memo = [];
-  for (i = 0; i < input.length; i++) {
-    if (last_name !== sorted[i].name || last_type !== sorted[i].type) {
-      if (memo.length > 0) {
-        output.push({name: last_name, type: last_type, records: memo});
-      }
-      last_name = sorted[i].name;
-      last_type = sorted[i].type;
-      memo = [];
-    }
-    memo.push(sorted[i]);
-  }
-  return output;
-}
-
 var rrTypes = [
   {name: 'SOA', required: true, allowCreate: false, sortWeight: -100},
   {name: 'A'},

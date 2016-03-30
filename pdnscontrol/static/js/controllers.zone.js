@@ -51,10 +51,8 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
         // have all data, see if we actually need to change any records
         var finalPtrSet = [];
         while (ptr = matchedPtrs.pop()) {
-          ptr.replacedRecords = _.filter(zoneCache[ptr.zonename].records, function(rec) {
-            return rec.name === ptr.revName && rec.type === 'PTR';
-          });
-          if (ptr.replacedRecords.length !== 1 || ptr.replacedRecords[0].content !== ptr.record.name) {
+          ptr.changedRRSet = _.find(zoneCache[ptr.zonename].rrsets, {name: ptr.revName, type: 'PTR'});
+          if (!ptr.changedRRSet || _.map(ptr.changedRRSet.records, 'content').indexOf(ptr.record.name) === -1) {
             finalPtrSet.push(ptr);
           }
         }
@@ -141,11 +139,11 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
             changetype: 'replace',
             name: ptr.revName,
             type: 'PTR',
+            ttl: ptr.ttl,
             records: [{
               name: ptr.revName,
-              content: ptr.record.name,
+              content: ptr.forwardName,
               type: 'PTR',
-              ttl: ptr.record.ttl,
               disabled: false
             }]
           };
@@ -194,7 +192,12 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
         } else {
           continue;
         }
-        possiblePtrs.push({record: rec, revName: revName});
+        possiblePtrs.push({
+          record: rec,
+          revName: revName,
+          ttl: change.ttl,
+          forwardName: change.name,
+        });
       }
     }
 

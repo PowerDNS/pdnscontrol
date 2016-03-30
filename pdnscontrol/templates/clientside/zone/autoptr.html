@@ -43,10 +43,10 @@
             <b>{{ptr.record.name}}</b>
           </td>
         </tr>
-        <tr ng-repeat="rr in ptr.replacedRecords">
+        <tr ng-repeat="rec in ptr.changedRRSet.records">
           <td></td><td>Replaces:</td>
           <td>IN PTR</td>
-          <td>{{rr.content}}</td>
+          <td>{{rec.content}}</td>
         </tr>
       </tbody>
     </table>

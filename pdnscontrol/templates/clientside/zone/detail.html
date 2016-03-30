@@ -59,8 +59,8 @@
       <tr>
         <th width="30%">Name</th>
         <th width="60">Type</th>
-        <th width="90" title="Disabled">Dis.</th>
         <th width="60">TTL</th>
+        <th width="90" title="Disabled">Dis.</th>
         <th width="40%">Data</th>
       </tr>
 
@@ -86,12 +86,19 @@
               {{ rrset.type }}
             </span>
           </td>
-          <td ng-if="!$first" colspan="2"></td>
+          <td ng-if="$first" class="recordTtl">
+            <span ng-if="canEdit(rrset)" editable-text="rrset.ttl" e-form="rrsetform">
+              {{ rrset.ttl }}
+            </span>
+            <span ng-if="!canEdit(rrset)">
+              {{ rrset.ttl }}
+            </span>
+          </td>
+          <td ng-if="!$first" colspan="3"></td>
           <td class="recordDisabled"><span editable-checkbox="record.disabled" e-title="Inactive" e-form="rrsetform">
             {{ record.disabled && "Inactive" || "Active" }}
             </span>
           </td>
-          <td class="recordTtl"><span editable-text="record.ttl" e-form="rrsetform">{{ record.ttl }}</span></td>
           <td class="recordContent">
             <span editable-text="record.content" class="{recordIsDisabled: record.disabled}" e-form="rrsetform">
               {{ record.content }}

@@ -8,7 +8,6 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
   $scope.loading = false;
 
   $scope.master = zone;
-  $scope.master.rrsets = convertZoneToRRsetList($scope.master);
   $scope.zone = Restangular.copy($scope.master);
 
   $scope.isClean = function() {
@@ -241,9 +240,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
         return;
       }
       // success. update local data from server
-      $scope.master.records = response.records;
-      $scope.master.comments = response.comments;
-      $scope.master.rrsets = convertZoneToRRsetList($scope.master);
+      $scope.master.rrsets = response.rrsets;
       $scope.zone = Restangular.copy($scope.master);
       // send auto ptr changes to server
       doAutoPtr(changes);
@@ -280,7 +277,7 @@ angular.module('ControlApp.controllers.zone').controller('ZoneDetailCtrl',
 
   $scope.addRRSet = function() {
     // TODO: get default ttl from somewhere
-    var rrset = {name: $scope.zone.name, type: '', records: [{ttl: 3600, content: '', disabled: false, _new: true}], comments: [], _new: true};
+    var rrset = {name: $scope.zone.name, type: '', ttl: 3600, records: [{content: '', disabled: false, _new: true}], comments: [], _new: true};
     var idx;
     for (idx = 0; idx < $scope.zone.rrsets.length; ++idx) {
       if ($scope.zone.rrsets[idx].name != $scope.zone.name) {

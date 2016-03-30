@@ -59,28 +59,6 @@ function toRRsetList(input) {
   return output;
 }
 
-function convertZoneToRRsetList(zone) {
-  "use strict";
-  var records = toRRsetList(zone.records);
-  var comments = (zone.comments && toRRsetList(zone.comments)) || [];
-  var comments_dict = {};
-  var i, el;
-  for (i = 0; i < comments.length; i++) {
-    el = comments[i];
-    comments_dict[el.name] = comments_dict[el.name] || {};
-    comments_dict[el.name][el.type] = el.records;
-  }
-  for (i = 0; i < records.length; i++) {
-    el = records[i];
-    if (comments_dict[el.name] && comments_dict[el.name][el.type]) {
-      el.comments = comments_dict[el.name][el.type];
-    } else {
-      el.comments = [];
-    }
-  }
-  return records;
-}
-
 var rrTypes = [
   {name: 'SOA', required: true, allowCreate: false, sortWeight: -100},
   {name: 'A'},

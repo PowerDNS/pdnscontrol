@@ -1,4 +1,5 @@
 import urlparse
+from datetime import datetime
 from flask import Blueprint, request
 from flask import jsonify, make_response
 from flask.ext.security import roles_required, current_user
@@ -368,6 +369,12 @@ def user_edit(user):
         return jsonify(errors=obj.validation_errors), 422
     if request.json.get('password', '') not in ['', None]:
         obj.password = encrypt_password(request.json['password'])
+    if request.json.get('current_login_at', '') not in ['', None]:	
+        obj.current_login_at = datetime.strptime(request.json['current_login_at'], '%a, %d %b %Y %H:%M:%S %Z')
+    if request.json.get('last_login_at', '') not in ['', None]:	
+        obj.last_login_at = datetime.strptime(request.json['last_login_at'], '%a, %d %b %Y %H:%M:%S %Z')
+    if request.json.get('confirmed_at', '') not in ['', None]:	
+        obj.confirmed_at = datetime.strptime(request.json['confirmed_at'], '%a, %d %b %Y %H:%M:%S %Z')
     db.session.add(obj)
     db.session.commit()
     return jsonify(**obj.to_dict())
